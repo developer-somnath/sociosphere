@@ -1,0 +1,177 @@
+resources/js
+
+├── app.tsx
+├── bootstrap.ts
+
+├── Types
+│   ├── auth.ts
+│   ├── user.ts
+│   ├── resident.ts
+│   ├── complaint.ts
+│   ├── invoice.ts
+│   └── common.ts
+│
+├── Hooks
+│   ├── useAuth.ts
+│   ├── usePermissions.ts
+│   ├── useDebounce.ts
+│   └── usePagination.ts
+│
+├── Services
+│   ├── auth.service.ts
+│   ├── resident.service.ts
+│   ├── complaint.service.ts
+│   ├── invoice.service.ts
+│   └── api.ts
+│
+├── Utils
+│   ├── constants.ts
+│   ├── enums.ts
+│   ├── helpers.ts
+│   ├── permissions.ts
+│   └── date.ts
+│
+├── Layouts
+│   ├── GuestLayout.tsx
+│   ├── DashboardLayout.tsx
+│   └── MinimalLayout.tsx
+│
+├── Components
+│   │
+│   ├── ui
+│   │   ├── Button
+│   │   │   ├── Button.tsx
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── Input
+│   │   │   ├── Input.tsx
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── Checkbox
+│   │   ├── Select
+│   │   ├── Modal
+│   │   ├── Table
+│   │   ├── Badge
+│   │   ├── Card
+│   │   ├── Pagination
+│   │   ├── Loader
+│   │   ├── Alert
+│   │   ├── Tabs
+│   │   ├── Drawer
+│   │   ├── Avatar
+│   │   ├── Tooltip
+│   │   └── EmptyState
+│   │
+│   ├── Shared
+│   │   ├── Logo.tsx
+│   │   ├── PageHeader.tsx
+│   │   ├── SearchBar.tsx
+│   │   ├── Breadcrumb.tsx
+│   │   ├── ConfirmDialog.tsx
+│   │   └── StatCard.tsx
+│   │
+│   └── Charts
+│       ├── RevenueChart.tsx
+│       ├── ComplaintChart.tsx
+│       └── CollectionChart.tsx
+│
+├── Features
+│
+│   ├── Auth
+│   │   ├── Components
+│   │   │   ├── LoginBanner.tsx
+│   │   │   ├── LoginForm.tsx
+│   │   │   ├── ForgotPasswordForm.tsx
+│   │   │   └── OtpLoginForm.tsx
+│   │   │
+│   │   ├── Pages
+│   │   │   ├── Login.tsx
+│   │   │   ├── ForgotPassword.tsx
+│   │   │   └── VerifyOtp.tsx
+│   │   │
+│   │   ├── types.ts
+│   │   └── validation.ts
+│
+│   ├── Dashboard
+│   │   ├── Components
+│   │   │   ├── SummaryCards.tsx
+│   │   │   ├── CollectionWidget.tsx
+│   │   │   ├── ComplaintWidget.tsx
+│   │   │   └── NoticeWidget.tsx
+│   │   │
+│   │   └── Pages
+│   │       └── Dashboard.tsx
+│
+│   ├── Residents
+│   │   ├── Components
+│   │   │   ├── ResidentForm.tsx
+│   │   │   ├── ResidentTable.tsx
+│   │   │   └── ResidentProfile.tsx
+│   │   │
+│   │   └── Pages
+│   │       ├── ResidentList.tsx
+│   │       ├── ResidentCreate.tsx
+│   │       └── ResidentEdit.tsx
+│
+│   ├── Towers
+│   │   ├── Components
+│   │   └── Pages
+│
+│   ├── Flats
+│   │   ├── Components
+│   │   └── Pages
+│
+│   ├── Complaints
+│   │   ├── Components
+│   │   │   ├── ComplaintForm.tsx
+│   │   │   ├── ComplaintTable.tsx
+│   │   │   └── ComplaintTimeline.tsx
+│   │   │
+│   │   └── Pages
+│   │       ├── ComplaintList.tsx
+│   │       └── ComplaintDetails.tsx
+│
+│   ├── Billing
+│   │   ├── Components
+│   │   │   ├── InvoiceTable.tsx
+│   │   │   ├── InvoiceForm.tsx
+│   │   │   ├── PaymentTable.tsx
+│   │   │   └── CollectionSummary.tsx
+│   │   │
+│   │   └── Pages
+│   │       ├── InvoiceList.tsx
+│   │       └── PaymentList.tsx
+│
+│   ├── Notices
+│   │   ├── Components
+│   │   └── Pages
+│
+│   ├── Visitors
+│   │   ├── Components
+│   │   └── Pages
+│
+│   ├── Security
+│   │   ├── Components
+│   │   └── Pages
+│
+│   ├── Users
+│   │   ├── Components
+│   │   └── Pages
+│
+│   └── Settings
+│       ├── Components
+│       └── Pages
+│
+├── Pages
+│   ├── Error
+│   │   ├── 403.tsx
+│   │   ├── 404.tsx
+│   │   └── 500.tsx
+│   │
+│   └── Welcome.tsx
+│
+└── Stores
+    ├── auth.store.ts
+    ├── resident.store.ts
+    ├── complaint.store.ts
+    └── settings.store.ts

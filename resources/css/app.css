@@ -1,3 +1,23 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/geist";
+
+html {
+    font-family: "Geist Variable", sans-serif;
+}
+
+:root {
+    color-scheme: light;
+}
+
+.dark {
+    color-scheme: dark;
+}
+
+body {
+    @apply bg-white text-slate-900;
+}
+
+.dark body {
+    @apply bg-slate-950 text-slate-100;
+}

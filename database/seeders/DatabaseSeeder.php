@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
 
             ComplaintSeeder::class,
             NoticeSeeder::class,
+            VisitorSeeder::class,
         ]);
     }
 }

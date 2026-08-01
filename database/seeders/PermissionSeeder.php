@@ -23,6 +23,12 @@ class PermissionSeeder extends Seeder
             'resident.update',
             'resident.delete',
 
+            // Towers
+            'tower.view',
+            'tower.create',
+            'tower.update',
+            'tower.delete',
+
             // Flats
             'flat.view',
             'flat.create',
@@ -80,6 +86,9 @@ class PermissionSeeder extends Seeder
             'document.create',
             'document.update',
             'document.delete',
+
+            // Activity Logs (audit trail)
+            'activity-log.view',
 
             // Roles & Permissions
             'role.view',

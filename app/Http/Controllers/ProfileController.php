@@ -53,7 +53,9 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        $user->delete();
+        // User-initiated account deletion is a hard delete (GDPR-style);
+        // soft-deletes are only used for admin-managed removals.
+        $user->forceDelete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

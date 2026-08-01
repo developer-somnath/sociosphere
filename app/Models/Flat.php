@@ -4,12 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Traits\HasPublicUuid;
 use App\Models\Traits\BelongsToSociety;
+use App\Models\Traits\LogsActivity;
 
 class Flat extends Model
 {
-    use HasFactory, HasPublicUuid,BelongsToSociety;
+    use HasFactory, HasPublicUuid, BelongsToSociety, SoftDeletes, LogsActivity;
+
     protected $fillable = [
         'society_id',
         'tower_id',
@@ -26,9 +31,17 @@ class Flat extends Model
         return $this->belongsTo(Tower::class);
     }
 
-    public function resident()
+    /**
+     * The primary contact resident (first resident assigned).
+     */
+    public function resident(): HasOne
     {
         return $this->hasOne(Resident::class);
+    }
+
+    public function residents(): HasMany
+    {
+        return $this->hasMany(Resident::class);
     }
 
     public function society()

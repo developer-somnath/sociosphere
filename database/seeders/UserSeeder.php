@@ -17,29 +17,30 @@ class UserSeeder extends Seeder
             return;
         }
 
-        User::factory()
-            ->superAdmin()
-            ->create();
+        $this->firstOrCreate('Super Admin', 'admin@sociosphere.com', fn () => User::factory()->superAdmin());
+        $this->firstOrCreate('Society Admin', 'societyadmin@gvr.com', fn () => User::factory()->societyAdmin($society->id));
+        $this->firstOrCreate('Treasurer', 'treasurer@gvr.com', fn () => User::factory()->treasurer($society->id));
+        $this->firstOrCreate('Security Guard', 'security@gvr.com', fn () => User::factory()->securityGuard($society->id));
+        $this->firstOrCreate('Maintenance Staff', 'maintenance@gvr.com', fn () => User::factory()->maintenanceStaff($society->id));
 
-        User::factory()
-            ->societyAdmin($society->id)
-            ->create();
+        $residentCount = User::whereNotNull('society_id')->count() - 5;
+        if ($residentCount < 20) {
+            User::factory()
+                ->resident($society->id)
+                ->count(20 - $residentCount)
+                ->create();
+        }
+    }
 
-        User::factory()
-            ->treasurer($society->id)
-            ->create();
+    private function firstOrCreate(string $name, string $email, callable $factory): void
+    {
+        if (User::where('email', $email)->exists()) {
+            return;
+        }
 
-        User::factory()
-            ->securityGuard($society->id)
-            ->create();
-
-        User::factory()
-            ->maintenanceStaff($society->id)
-            ->create();
-
-        User::factory()
-            ->resident($society->id)
-            ->count(20)
-            ->create();
+        $factory()->create([
+            'name' => $name,
+            'email' => $email,
+        ]);
     }
 }

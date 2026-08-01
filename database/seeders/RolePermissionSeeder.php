@@ -24,6 +24,11 @@ class RolePermissionSeeder extends Seeder
                 'resident.update',
                 'resident.delete',
 
+                'tower.view',
+                'tower.create',
+                'tower.update',
+                'tower.delete',
+
                 'flat.view',
                 'flat.create',
                 'flat.update',
@@ -51,11 +56,16 @@ class RolePermissionSeeder extends Seeder
                 'visitor.view',
                 'visitor.create',
                 'visitor.update',
+
+                // Audit trail: society admins can browse their own society's logs.
+                'activity-log.view',
             ]);
 
         Role::findByName('Treasurer')
             ->syncPermissions([
                 'dashboard.view',
+
+                'resident.view',
 
                 'invoice.view',
                 'invoice.create',

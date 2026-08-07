@@ -20,13 +20,15 @@ class TowerController extends Controller
         $this->authorize('viewAny', Tower::class);
 
         $search = trim((string) $request->query('search', ''));
+        $sortBy = in_array($request->query('sort_by'), ['name', 'created_at'], true) ? $request->query('sort_by') : 'id';
+        $sortDir = strtolower((string) $request->query('sort_dir')) === 'asc' ? 'asc' : 'desc';
 
         $towers = Tower::query()
             ->withCount('flats')
             ->when($search !== '', function ($query) use ($search) {
                 $query->whereLike('name', $search);
             })
-            ->latest('id')
+            ->orderBy($sortBy, $sortDir)
             ->paginate(10)
             ->withQueryString();
 
@@ -34,6 +36,8 @@ class TowerController extends Controller
             'towers' => $towers,
             'filters' => [
                 'search' => $search,
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
             ],
             'can' => [
                 'create' => $request->user()->hasPermissionTo('tower.create'),
@@ -134,6 +138,21 @@ class TowerController extends Controller
         return redirect()
             ->route('towers.index')
             ->with('success', 'Tower removed successfully.');
+    }
+
+    /**
+     * Restore a soft-deleted tower.
+     */
+    public function restore(Request $request, int $id): RedirectResponse
+    {
+        $tower = Tower::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $tower);
+
+        $tower->restore();
+
+        return redirect()
+            ->route('towers.index')
+            ->with('success', 'Tower restored successfully.');
     }
 }
 

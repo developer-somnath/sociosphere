@@ -17,6 +17,8 @@ class RolePermissionSeeder extends Seeder
 
         Role::findByName('SocietyAdmin')
             ->syncPermissions([
+                'society.view',
+                'society.update',
                 'dashboard.view',
 
                 'resident.view',
@@ -37,6 +39,9 @@ class RolePermissionSeeder extends Seeder
                 'user.view',
                 'user.create',
                 'user.update',
+                'user.invite',
+                'user.restore',
+                'user.toggle-status',
 
                 'invoice.view',
                 'invoice.create',
@@ -56,6 +61,19 @@ class RolePermissionSeeder extends Seeder
                 'visitor.view',
                 'visitor.create',
                 'visitor.update',
+
+                'parking.view',
+                'parking.create',
+                'parking.update',
+                'parking.delete',
+                'parking.allocate',
+
+                'cctv.view',
+                'cctv.create',
+                'cctv.update',
+                'cctv.delete',
+                'security_log.view',
+                'security_log.create',
 
                 // Audit trail: society admins can browse their own society's logs.
                 'activity-log.view',
@@ -82,6 +100,11 @@ class RolePermissionSeeder extends Seeder
                 'visitor.view',
                 'visitor.create',
                 'visitor.update',
+
+                'cctv.view',
+                'security_log.view',
+                'security_log.create',
+                'parking.view',
             ]);
 
         Role::findByName('MaintenanceStaff')

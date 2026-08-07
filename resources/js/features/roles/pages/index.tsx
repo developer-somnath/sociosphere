@@ -3,26 +3,39 @@ import {
     Inbox,
     Pencil,
     Plus,
-    Search,
     ShieldCheck,
     Trash2,
     Users,
-    X,
 } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
+import { PageHeader } from "@/components/app/page-header";
 import { Badge } from "@/components/ui/badge";
+import { BulkActionBar } from "@/components/ui/bulk-action-bar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { DataTableFull, type Selection } from "@/components/ui/data-table";
+import type { ColumnDef } from "@/components/ui/data-table";
+import { EmptyState } from "@/components/ui/empty-state";
+import type { ExportFormat } from "@/components/ui/export-menu";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { Pagination } from "@/components/ui/pagination";
+import { RowActions } from "@/components/ui/row-actions";
+import { exportCsv } from "@/lib/export-csv";
+import { toast } from "@/lib/toast";
 import type { PageProps } from "@/types";
 import type { Paginated, Role } from "@/features/roles/types";
 
 type IndexProps = {
     roles: Paginated<Role>;
-    filters: { search: string };
+    filters: {
+        search: string;
+        sort_by: string | null;
+        sort_dir: "asc" | "desc" | null;
+    };
     can: { create: boolean; update: boolean; delete: boolean };
 };
 
@@ -30,284 +43,333 @@ export default function RolesIndex() {
     const { roles, filters, can } = usePage<PageProps<IndexProps>>().props;
 
     const [search, setSearch] = useState(filters.search);
-    const [confirming, setConfirming] = useState<string | null>(null);
+    const [selectedIds, setSelectedIds] = useState<Selection>([]);
+    const [confirming, setConfirming] = useState<Role | null>(null);
+    const isFirstRender = useRef(true);
 
-    const submitSearch = (e: FormEvent) => {
-        e.preventDefault();
-        const params: Record<string, string> = {};
-        const next = search.trim();
-        if (next !== "") params.search = next;
-        router.get(route("roles.index"), params, {
-            preserveState: true,
-            replace: true,
-        });
-    };
+    const sort = filters.sort_by
+        ? {
+              key: filters.sort_by,
+              direction: (filters.sort_dir === "asc" ? "asc" : "desc") as
+                  | "asc"
+                  | "desc",
+          }
+        : null;
 
-    const clearSearch = () => {
-        setSearch("");
+    const buildParams = () => ({
+        search: search.trim() || undefined,
+        sort_by: filters.sort_by ?? undefined,
+        sort_dir: filters.sort_dir ?? undefined,
+    });
+
+    // Debounced, URL-synced search (blueprint §8)
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timeout = window.setTimeout(() => {
+            const value = search.trim();
+            router.get(
+                route("roles.index"),
+                value ? { search: value, page: 1 } : { page: 1 },
+                { preserveState: true, replace: true },
+            );
+        }, 300);
+
+        return () => window.clearTimeout(timeout);
+    }, [search]);
+
+    const handleSort = (next: { key: string; direction: "asc" | "desc" }) => {
         router.get(
             route("roles.index"),
-            {},
+            { ...buildParams(), sort_by: next.key, sort_dir: next.direction },
             { preserveState: true, replace: true },
         );
     };
 
-    const destroy = (role: Role) => {
-        setConfirming(null);
-        if (
-            window.confirm(
-                `Remove the "${role.name}" role? Users holding it will lose its permissions.`,
-            )
-        ) {
-            router.delete(route("roles.destroy", role.uuid), {
-                preserveScroll: true,
-            });
-        }
+    const bulkDelete = () => {
+        selectedIds.forEach((id, index) => {
+            const role = roles.data.find(
+                (candidate) => candidate.uuid === id,
+            );
+            if (!role || role.is_system) return;
+            setTimeout(
+                () =>
+                    router.delete(route("roles.destroy", role.uuid), {
+                        preserveScroll: true,
+                    }),
+                index * 80,
+            );
+        });
+        setSelectedIds([]);
     };
+
+    const handleDelete = () => {
+        if (!confirming) return;
+        const role = confirming;
+        setConfirming(null);
+        router.delete(route("roles.destroy", role.uuid), {
+            preserveScroll: true,
+        });
+    };
+
+    const handleExport = (format: ExportFormat) => {
+        if (format !== "csv") {
+            toast({
+                title: "Export coming soon",
+                variant: "info",
+                description: `${format.toUpperCase()} export will be available soon.`,
+            });
+            return;
+        }
+        exportCsv<Role>({
+            filename: "roles.csv",
+            columns: [
+                { header: "Role", accessor: (role) => role.name },
+                { header: "Description", accessor: (role) => role.description ?? "" },
+                { header: "Members", accessor: (role) => role.users_count },
+                {
+                    header: "Permissions",
+                    accessor: (role) => role.permissions_count,
+                },
+                {
+                    header: "Type",
+                    accessor: (role) => (role.is_system ? "System" : "Custom"),
+                },
+            ],
+            rows: roles.data,
+        });
+    };
+
+    const columns: ColumnDef<Role>[] = useMemo(
+        () => [
+            {
+                id: "role",
+                header: "Role",
+                sortable: true,
+                sortKey: "name",
+                cell: (role) => (
+                    <div className="flex items-center gap-2">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                            <ShieldCheck className="size-4" />
+                        </div>
+                        <div>
+                            <p className="font-medium text-foreground">
+                                {role.name}
+                            </p>
+                            {role.description && (
+                                <p className="max-w-xs truncate text-xs text-muted-foreground">
+                                    {role.description}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                ),
+            },
+            {
+                id: "members",
+                header: "Members",
+                sortable: true,
+                sortKey: "users_count",
+                cell: (role) => (
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <Users className="size-3.5" />
+                        {role.users_count}
+                    </div>
+                ),
+            },
+            {
+                id: "permissions",
+                header: "Permissions",
+                sortable: true,
+                sortKey: "permissions_count",
+                cell: (role) => (
+                    <span className="text-muted-foreground">
+                        {role.permissions_count}
+                    </span>
+                ),
+            },
+            {
+                id: "type",
+                header: "Type",
+                cell: (role) =>
+                    role.is_system ? (
+                        <Badge variant="secondary">System</Badge>
+                    ) : (
+                        <Badge variant="outline">Custom</Badge>
+                    ),
+            },
+            {
+                id: "actions",
+                header: "Actions",
+                align: "right",
+                cell: (role) => (
+                    <div
+                        className="flex justify-end"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <RowActions
+                            actions={[
+                                {
+                                    label: "Edit",
+                                    icon: Pencil,
+                                    disabled:
+                                        !can.update ||
+                                        (role.is_system &&
+                                            role.name === "SuperAdmin"),
+                                    onClick: () =>
+                                        router.visit(
+                                            route("roles.edit", role.uuid),
+                                        ),
+                                },
+                                {
+                                    label: "Delete",
+                                    icon: Trash2,
+                                    destructive: true,
+                                    separatorBefore: true,
+                                    disabled: !can.delete || role.is_system,
+                                    onClick: () => setConfirming(role),
+                                },
+                            ]}
+                        />
+                    </div>
+                ),
+            },
+        ],
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [can],
+    );
 
     return (
         <AppLayout>
             <Head title="Roles" />
 
-            <div className="rounded-3xl border border-border/70 bg-card/80 p-5 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.4)] backdrop-blur">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">Roles</h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Create custom roles and assign feature-wise permissions.
-                        </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        {can.create && (
-                            <Button asChild>
-                                <Link href={route("roles.create")}>
-                                    <Plus />
-                                    New role
-                                </Link>
-                            </Button>
-                        )}
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                title="Roles"
+                description="Create custom roles and assign feature-wise permissions."
+                icon={<ShieldCheck className="size-5" />}
+                actions={
+                    can.create && (
+                        <Button asChild>
+                            <Link href={route("roles.create")}>
+                                <Plus />
+                                New role
+                            </Link>
+                        </Button>
+                    )
+                }
+            />
 
-            <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)] lg:flex-row lg:items-center lg:justify-between">
-                <form onSubmit={submitSearch} className="relative w-full max-w-sm">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search roles…"
-                        className="pl-9 pr-9"
-                    />
-                    {search !== "" && (
-                        <button
-                            type="button"
-                            onClick={clearSearch}
-                            aria-label="Clear search"
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        >
-                            <X className="size-4" />
-                        </button>
-                    )}
-                </form>
-
+            <FilterBar
+                searchValue={search}
+                onSearchChange={setSearch}
+                searchPlaceholder="Search roles…"
+                searchLabel="Search roles"
+                onReset={() => {
+                    setSearch("");
+                    router.get(
+                        route("roles.index"),
+                        {},
+                        { preserveState: true, replace: true },
+                    );
+                }}
+                className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
+            >
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <ShieldCheck className="size-4" />
                     {roles.total} role{roles.total === 1 ? "" : "s"}
                 </div>
-            </div>
+            </FilterBar>
 
             <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardContent className="p-0">
-                    {roles.data.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-                            <Inbox className="size-8 text-muted-foreground" />
-                            <p className="text-sm font-medium">
-                                No roles found
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                Try a different search term.
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wider text-muted-foreground">
-                                        <th className="px-4 py-3 font-medium">
-                                            Role
-                                        </th>
-                                        <th className="px-4 py-3 font-medium">
-                                            Members
-                                        </th>
-                                        <th className="px-4 py-3 font-medium">
-                                            Permissions
-                                        </th>
-                                        <th className="px-4 py-3 font-medium">
-                                            Type
-                                        </th>
-                                        <th className="px-4 py-3 text-right font-medium">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {roles.data.map((role) => (
-                                        <tr
-                                            key={role.uuid}
-                                            className="border-b border-border/40 last:border-0 hover:bg-muted/30"
-                                        >
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
-                                                        <ShieldCheck className="size-4" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium">
-                                                            {role.name}
-                                                        </p>
-                                                        {role.description && (
-                                                            <p className="max-w-xs truncate text-xs text-muted-foreground">
-                                                                {
-                                                                    role.description
-                                                                }
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-1.5 text-muted-foreground">
-                                                    <Users className="size-3.5" />
-                                                    {role.users_count}
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-3 text-muted-foreground">
-                                                {role.permissions_count}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                {role.is_system ? (
-                                                    <Badge variant="secondary">
-                                                        System
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="outline">
-                                                        Custom
-                                                    </Badge>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex justify-end gap-1">
-                                                    {can.update &&
-                                                        !(
-                                                            role.is_system &&
-                                                            role.name ===
-                                                                "SuperAdmin"
-                                                        ) && (
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                asChild
-                                                            >
-                                                                <Link
-                                                                    href={route(
-                                                                        "roles.edit",
-                                                                        role.uuid,
-                                                                    )}
-                                                                >
-                                                                    <Pencil />
-                                                                    Edit
-                                                                </Link>
-                                                            </Button>
-                                                        )}
-                                                    {can.delete &&
-                                                        !role.is_system && (
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    setConfirming(
-                                                                        role.uuid,
-                                                                    )
-                                                                }
-                                                                className="text-destructive hover:text-destructive"
-                                                            >
-                                                                <Trash2 />
-                                                                Delete
-                                                            </Button>
-                                                        )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                    <DataTableFull<Role>
+                        columns={columns}
+                        data={roles.data}
+                        rowKey={(role) => role.uuid}
+                        sort={sort}
+                        onSort={handleSort}
+                        selectedIds={selectedIds}
+                        onSelectionChange={setSelectedIds}
+                        onExport={handleExport}
+                        emptyState={
+                            <EmptyState
+                                icon={Inbox}
+                                title={
+                                    filters.search
+                                        ? "No roles match your search"
+                                        : "No roles yet"
+                                }
+                                description={
+                                    filters.search
+                                        ? "Try a different search term."
+                                        : can.create
+                                          ? "Create your first role to get started."
+                                          : "Check back later."
+                                }
+                                action={
+                                    can.create && !filters.search ? (
+                                        <Button asChild>
+                                            <Link href={route("roles.create")}>
+                                                <Plus />
+                                                New role
+                                            </Link>
+                                        </Button>
+                                    ) : undefined
+                                }
+                            />
+                        }
+                    />
+                    {roles.last_page > 1 && (
+                        <Pagination
+                            page={roles.current_page}
+                            perPage={roles.per_page}
+                            total={roles.total}
+                            onPageChange={(next) =>
+                                router.get(
+                                    route("roles.index"),
+                                    { ...buildParams(), page: next },
+                                    { preserveState: true, replace: true },
+                                )
+                            }
+                            noun="roles"
+                        />
                     )}
                 </CardContent>
             </Card>
 
-            {roles.links.length > 3 && (
-                <div className="flex items-center justify-center gap-2">
-                    {roles.links.map((link, index) => (
-                        <Button
-                            key={index}
-                            variant={
-                                link.active ? "default" : "outline"
-                            }
-                            size="sm"
-                            disabled={!link.url}
-                            asChild={link.url !== null}
-                        >
-                            {link.url ? (
-                                <Link
-                                    href={link.url}
-                                    preserveScroll
-                                    dangerouslySetInnerHTML={{
-                                        __html: link.label,
-                                    }}
-                                />
-                            ) : (
-                                <span
-                                    dangerouslySetInnerHTML={{
-                                        __html: link.label,
-                                    }}
-                                />
-                            )}
-                        </Button>
-                    ))}
-                </div>
-            )}
+            <BulkActionBar
+                count={selectedIds.length}
+                onClear={() => setSelectedIds([])}
+                noun="roles"
+                actions={[
+                    {
+                        label: "Delete",
+                        icon: <Trash2 />,
+                        destructive: true,
+                        disabled: !can.delete,
+                        onClick: bulkDelete,
+                    },
+                ]}
+            />
 
-            {confirming && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-sm rounded-lg border bg-background p-6 shadow-lg">
-                        <h2 className="text-lg font-semibold">Delete role?</h2>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Users holding this role will lose its permissions.
-                        </p>
-                        <div className="mt-4 flex justify-end gap-2">
-                            <Button
-                                variant="outline"
-                                onClick={() => setConfirming(null)}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="destructive"
-                                onClick={() => {
-                                    const role = roles.data.find(
-                                        (r) => r.uuid === confirming,
-                                    );
-                                    if (role) destroy(role);
-                                }}
-                            >
-                                Delete
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmDialog
+                open={confirming !== null}
+                onOpenChange={(open) => {
+                    if (!open) setConfirming(null);
+                }}
+                title={
+                    confirming
+                        ? `Remove the "${confirming.name}" role?`
+                        : "Remove role?"
+                }
+                description="Users holding this role will lose its permissions."
+                confirmLabel="Remove"
+                destructive
+                onConfirm={handleDelete}
+            />
         </AppLayout>
     );
 }

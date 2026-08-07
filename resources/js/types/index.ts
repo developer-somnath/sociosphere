@@ -6,6 +6,7 @@ export type AuthUser = {
     roles: string[];
     permissions: string[];
     society_id: number | null;
+    is_super_admin?: boolean;
 };
 
 export type AuthSociety = {
@@ -15,15 +16,30 @@ export type AuthSociety = {
     registration_no: string | null;
 };
 
+export type AppNotification = {
+    id: string | number;
+    title: string;
+    description?: string;
+    /** Inertia route to jump to context (e.g. a complaint detail). */
+    href?: string;
+    read: boolean;
+    /** ISO timestamp */
+    created_at: string;
+    type?: "info" | "success" | "warning";
+};
+
 export type SharedProps = {
     auth: {
         user: AuthUser | null;
         society: AuthSociety | null;
+        societies?: AuthSociety[];
     };
     flash: {
         success: string | null;
         error: string | null;
     };
+    /** Shared by the backend via HandleInertiaRequests — optional until wired. */
+    notifications?: AppNotification[];
 };
 
 export type PageProps<T = Record<string, unknown>> = T & SharedProps;

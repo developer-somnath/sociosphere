@@ -1,28 +1,29 @@
 import { Head, Link, router, usePage } from "@inertiajs/react";
-import {
-    Building2,
-    Inbox,
-    Pencil,
-    Plus,
-    Search,
-    Trash2,
-    X,
-} from "lucide-react";
-import { FormEvent, useState } from "react";
+import { Building2, Pencil, Plus, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { BulkActionBar } from "@/components/ui/bulk-action-bar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { DataTable, DataTableHeader } from "@/components/ui/data-table";
-import { Input } from "@/components/ui/input";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { DataTableFull, type Selection } from "@/components/ui/data-table";
+import type { ColumnDef } from "@/components/ui/data-table";
+import { EmptyState } from "@/components/ui/empty-state";
+import type { ExportFormat } from "@/components/ui/export-menu";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { Pagination } from "@/components/ui/pagination";
+import { RowActions } from "@/components/ui/row-actions";
+import { exportCsv } from "@/lib/export-csv";
+import { toast } from "@/lib/toast";
 import type { PageProps } from "@/types";
 import type { Paginated, Tower } from "@/features/towers/types";
 
 type IndexProps = {
     towers: Paginated<Tower>;
-    filters: { search: string };
+    filters: { search: string; sort_by: string | null; sort_dir: "asc" | "desc" | null };
     can: { create: boolean; delete: boolean };
 };
 
@@ -30,33 +31,142 @@ export default function TowersIndex() {
     const { towers, filters, can } = usePage<PageProps<IndexProps>>().props;
 
     const [search, setSearch] = useState(filters.search);
-    const [confirming, setConfirming] = useState<number | null>(null);
+    const [selectedIds, setSelectedIds] = useState<Selection>([]);
+    const [confirming, setConfirming] = useState<Tower | null>(null);
+    const isFirstRender = useRef(true);
 
-    const submitSearch = (e: FormEvent) => {
-        e.preventDefault();
+    const sort = filters.sort_by
+        ? { key: filters.sort_by, direction: (filters.sort_dir === "asc" ? "asc" : "desc") as "asc" | "desc" }
+        : null;
+
+    const buildParams = () => ({
+        search: search.trim() || undefined,
+        sort_by: filters.sort_by ?? undefined,
+        sort_dir: filters.sort_dir ?? undefined,
+    });
+
+    const handleSort = (next: { key: string; direction: "asc" | "desc" }) => {
         router.get(
             route("towers.index"),
-            { search: search.trim() },
+            { ...buildParams(), sort_by: next.key, sort_dir: next.direction },
             { preserveState: true, replace: true },
         );
     };
 
-    const clearSearch = () => {
-        setSearch("");
-        router.get(
-            route("towers.index"),
-            {},
-            { preserveState: true, replace: true },
-        );
+    const bulkDelete = () => {
+        selectedIds.forEach((id, index) => {
+            const tower = towers.data.find((t) => t.uuid === id || t.id === id);
+            if (!tower) return;
+            setTimeout(
+                () => router.delete(route("towers.destroy", tower.uuid), { preserveScroll: true }),
+                index * 80,
+            );
+        });
+        setSelectedIds([]);
     };
 
-    const destroy = (tower: Tower) => {
-        setConfirming(null);
-        if (window.confirm(`Remove tower "${tower.name}"?`)) {
-            router.delete(route("towers.destroy", tower.uuid), {
-                preserveScroll: true,
+    const handleExport = (format: ExportFormat) => {
+        if (format !== "csv") {
+            toast({
+                title: "Export coming soon",
+                variant: "info",
+                description: `${format.toUpperCase()} export will be available soon.`,
             });
+            return;
         }
+        exportCsv<Tower>({
+            filename: "towers.csv",
+            columns: [
+                { header: "Name", accessor: (t) => t.name },
+                { header: "Flats", accessor: (t) => t.flats_count },
+                { header: "Created At", accessor: (t) => t.created_at ?? "" },
+            ],
+            rows: towers.data,
+        });
+    };
+
+    const columns: ColumnDef<Tower>[] = useMemo(
+        () => [
+            {
+                id: "name",
+                header: "Tower",
+                sortable: true,
+                cell: (tower) => (
+                    <div className="flex items-center gap-3">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-emerald-600/10 text-emerald-600">
+                            <Building2 className="size-4" />
+                        </div>
+                        <span className="font-medium text-foreground">{tower.name}</span>
+                    </div>
+                ),
+            },
+            {
+                id: "flats_count",
+                header: "Flats",
+                cell: (tower) => (
+                    <span className="text-muted-foreground">
+                        {tower.flats_count} flat{tower.flats_count === 1 ? "" : "s"}
+                    </span>
+                ),
+            },
+            {
+                id: "actions",
+                header: "Actions",
+                align: "right",
+                cell: (tower) => (
+                    <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+                        <RowActions
+                            actions={[
+                                {
+                                    label: "Edit",
+                                    icon: Pencil,
+                                    onClick: () => router.visit(route("towers.edit", tower.uuid)),
+                                },
+                                {
+                                    label: "Remove",
+                                    icon: Trash2,
+                                    destructive: true,
+                                    separatorBefore: true,
+                                    disabled: !can.delete,
+                                    onClick: () => setConfirming(tower),
+                                },
+                            ]}
+                        />
+                    </div>
+                ),
+            },
+        ],
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [can],
+    );
+
+    // Debounced, URL-synced search (blueprint §8). Always reset to page 1
+    // when the search term changes.
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timeout = window.setTimeout(() => {
+            const value = search.trim();
+            router.get(
+                route("towers.index"),
+                { search: value || undefined, page: 1 },
+                { preserveState: true, replace: true },
+            );
+        }, 300);
+
+        return () => window.clearTimeout(timeout);
+    }, [search]);
+
+    const handleDelete = () => {
+        if (!confirming) return;
+        const tower = confirming;
+        setConfirming(null);
+        router.delete(route("towers.destroy", tower.uuid), {
+            preserveScroll: true,
+        });
     };
 
     return (
@@ -71,221 +181,100 @@ export default function TowersIndex() {
                 actions={can.create && <Button asChild><Link href={route("towers.create")}><Plus />Add tower</Link></Button>}
             />
 
-            <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)] lg:flex-row lg:items-center lg:justify-between">
-                <form onSubmit={submitSearch} className="relative w-full max-w-sm">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search towers…"
-                        className="pl-9 pr-9"
-                    />
-                    {search !== "" && (
-                        <button
-                            type="button"
-                            onClick={clearSearch}
-                            aria-label="Clear search"
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        >
-                            <X className="size-4" />
-                        </button>
-                    )}
-                </form>
-
+            <FilterBar
+                searchValue={search}
+                onSearchChange={setSearch}
+                searchPlaceholder="Search towers…"
+                searchLabel="Search towers"
+                className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
+            >
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Building2 className="size-4" />
                     {towers.total} tower{towers.total === 1 ? "" : "s"} managed
                 </div>
-            </div>
+            </FilterBar>
 
             <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardContent className="p-0">
-                    {towers.data.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-                            <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-                                <Building2 className="size-6 text-muted-foreground" />
-                            </div>
-                            <p className="text-sm font-medium">
-                                {filters.search
-                                    ? "No towers match your search."
-                                    : "No towers yet."}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                {filters.search
-                                    ? "Try a different search term."
-                                    : can.create
-                                      ? "Add your first tower to get started."
-                                      : "Check back later."}
-                            </p>
-                        </div>
-                    ) : (
-                        <DataTable>
-                                <DataTableHeader>
-                                    <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                                        <th className="px-5 py-3 font-medium">
-                                            Tower
-                                        </th>
-                                        <th className="px-5 py-3 font-medium">
-                                            Flats
-                                        </th>
-                                        <th className="px-5 py-3 text-right font-medium">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </DataTableHeader>
-                                <tbody>
-                                    {towers.data.map((tower) => (
-                                        <tr
-                                            key={tower.id}
-                                            className="border-b border-border/40 last:border-b-0 hover:bg-muted/40"
-                                        >
-                                            <td className="px-5 py-3">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex size-9 items-center justify-center rounded-md bg-emerald-600/10 text-emerald-600">
-                                                        <Building2 className="size-4" />
-                                                    </div>
-                                                    <p className="font-medium">
-                                                        {tower.name}
-                                                    </p>
-                                                </div>
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                <span className="text-muted-foreground">
-                                                    {tower.flats_count} flat
-                                                    {tower.flats_count === 1
-                                                        ? ""
-                                                        : "s"}
-                                                </span>
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                <div className="flex items-center justify-end gap-1">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        asChild
-                                                        aria-label={`Edit ${tower.name}`}
-                                                    >
-                                                        <Link
-                                                            href={route(
-                                                                "towers.edit",
-                                                                tower.uuid,
-                                                            )}
-                                                        >
-                                                            <Pencil className="size-4" />
-                                                        </Link>
-                                                    </Button>
-                                                    {can.delete && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            aria-label={`Remove ${tower.name}`}
-                                                            onClick={() =>
-                                                                setConfirming(
-                                                                    tower.id,
-                                                                )
-                                                            }
-                                                        >
-                                                            <Trash2 className="size-4 text-destructive" />
-                                                        </Button>
-                                                    )}
-                                                </div>
-
-                                                {confirming === tower.id && (
-                                                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                                                        <Card className="w-full max-w-sm shadow-lg">
-                                                            <CardContent className="p-6">
-                                                                <h2 className="text-lg font-semibold">
-                                                                    Remove{" "}
-                                                                    {tower.name}
-                                                                    ?
-                                                                </h2>
-                                                                <p className="mt-1 text-sm text-muted-foreground">
-                                                                    This will
-                                                                    remove the
-                                                                    tower from
-                                                                    the society.
-                                                                    Towers with
-                                                                    flats
-                                                                    attached
-                                                                    cannot be
-                                                                    removed.
-                                                                </p>
-                                                                <div className="mt-5 flex justify-end gap-2">
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        onClick={() =>
-                                                                            setConfirming(
-                                                                                null,
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Cancel
-                                                                    </Button>
-                                                                    <Button
-                                                                        variant="destructive"
-                                                                        onClick={() =>
-                                                                            destroy(
-                                                                                tower,
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Remove
-                                                                    </Button>
-                                                                </div>
-                                                            </CardContent>
-                                                        </Card>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                        </DataTable>
+                    <DataTableFull<Tower>
+                        columns={columns}
+                        data={towers.data}
+                        rowKey={(tower) => tower.uuid}
+                        sort={sort}
+                        onSort={handleSort}
+                        selectedIds={selectedIds}
+                        onSelectionChange={setSelectedIds}
+                        onExport={handleExport}
+                        emptyState={
+                            <EmptyState
+                                icon={Building2}
+                                title={filters.search ? "No towers match your search" : "No towers yet"}
+                                description={
+                                    filters.search
+                                        ? "Try a different search term."
+                                        : can.create
+                                          ? "Add your first tower to get started."
+                                          : "Check back later."
+                                }
+                                action={
+                                    can.create && !filters.search ? (
+                                        <Button asChild>
+                                            <Link href={route("towers.create")}>
+                                                <Plus />
+                                                Add tower
+                                            </Link>
+                                        </Button>
+                                    ) : undefined
+                                }
+                            />
+                        }
+                    />
+                    {towers.last_page > 1 && (
+                        <Pagination
+                            page={towers.current_page}
+                            perPage={towers.per_page}
+                            total={towers.total}
+                            onPageChange={(next) =>
+                                router.get(
+                                    route("towers.index"),
+                                    { ...buildParams(), page: next },
+                                    { preserveState: true, replace: true },
+                                )
+                            }
+                            noun="towers"
+                        />
                     )}
                 </CardContent>
             </Card>
 
-            {towers.last_page > 1 && (
-                <div className="flex items-center justify-between text-sm">
-                    <p className="text-muted-foreground">
-                        Showing{" "}
-                        <span className="font-medium text-foreground">
-                            {towers.from ?? 0}–{towers.to ?? 0}
-                        </span>{" "}
-                        of{" "}
-                        <span className="font-medium text-foreground">
-                            {towers.total}
-                        </span>{" "}
-                        towers
-                    </p>
-                    <div className="flex gap-2">
-                        {towers.current_page > 1 && (
-                            <Button variant="outline" size="sm" asChild>
-                                <Link
-                                    href={
-                                        towers.links[0]?.url ??
-                                        route("towers.index")
-                                    }
-                                >
-                                    Previous
-                                </Link>
-                            </Button>
-                        )}
-                        {towers.current_page < towers.last_page && (
-                            <Button variant="outline" size="sm" asChild>
-                                <Link
-                                    href={
-                                        towers.links.at(-1)?.url ??
-                                        route("towers.index")
-                                    }
-                                >
-                                    Next
-                                </Link>
-                            </Button>
-                        )}
-                    </div>
-                </div>
-            )}
+            <BulkActionBar
+                count={selectedIds.length}
+                onClear={() => setSelectedIds([])}
+                noun="towers"
+                actions={[
+                    {
+                        label: "Delete",
+                        icon: <Trash2 />,
+                        destructive: true,
+                        disabled: !can.delete,
+                        onClick: bulkDelete,
+                    },
+                ]}
+            />
+
+            <ConfirmDialog
+                open={confirming !== null}
+                onOpenChange={(open) => {
+                    if (!open) setConfirming(null);
+                }}
+                title={
+                    confirming ? `Remove ${confirming.name}?` : "Remove tower?"
+                }
+                description="This will remove the tower from the society. Towers with flats attached cannot be removed."
+                confirmLabel="Remove"
+                destructive
+                onConfirm={handleDelete}
+            />
         </AppLayout>
     );
 }

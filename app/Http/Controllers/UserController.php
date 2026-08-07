@@ -26,6 +26,10 @@ class UserController extends Controller
         $search = trim((string) $request->query('search', ''));
         $role = $request->query('role');
         $status = $request->query('status');
+        $sortBy = in_array($request->query('sort_by'), ['name', 'email', 'is_active', 'created_at'], true)
+            ? $request->query('sort_by')
+            : 'created_at';
+        $sortDir = strtolower((string) $request->query('sort_dir')) === 'asc' ? 'asc' : 'desc';
 
         $users = User::query()
             ->with(['society', 'roles'])
@@ -47,7 +51,7 @@ class UserController extends Controller
             ->when(in_array($status, ['Active', 'Inactive'], true), function ($query) use ($status) {
                 $query->where('is_active', $status === 'Active');
             })
-            ->latest('id')
+            ->orderBy($sortBy, $sortDir)
             ->paginate(10)
             ->withQueryString();
 
@@ -57,6 +61,8 @@ class UserController extends Controller
                 'search' => $search,
                 'role' => $role !== null && $role !== '' ? $role : null,
                 'status' => in_array($status, ['Active', 'Inactive'], true) ? $status : null,
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
             ],
             'roleOptions' => $this->roleOptions($request->user()),
             'can' => [
@@ -160,6 +166,89 @@ class UserController extends Controller
         return redirect()
             ->route('users.index')
             ->with('success', 'User removed successfully.');
+    }
+
+    /**
+     * Invite a new user by generating an invitation token.
+     */
+    public function invite(Request $request): RedirectResponse
+    {
+        $this->authorize('invite', User::class);
+
+        $request->validate([
+            'email' => ['required', 'email', 'max:255'],
+            'role' => ['required', 'string'],
+        ]);
+
+        $societyId = $request->user()->society_id ?? $request->input('society_id');
+
+        $invitation = \App\Models\UserInvitation::create([
+            'society_id' => $societyId,
+            'email' => $request->input('email'),
+            'role_name' => $request->input('role'),
+            'token' => \Illuminate\Support\Str::random(32),
+            'invited_by' => $request->user()->id,
+            'expires_at' => now()->addDays(7),
+        ]);
+
+        app(\App\Services\ActivityLogger::class)->log(
+            action: 'invite',
+            module: 'User',
+            entityType: \App\Models\UserInvitation::class,
+            entityId: (string) $invitation->id,
+            remarks: "Invited {$invitation->email} with role {$invitation->role_name}"
+        );
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', "Invitation generated for {$invitation->email}. Link token: {$invitation->token}");
+    }
+
+    /**
+     * Toggle a user's active status.
+     */
+    public function toggleStatus(Request $request, User $user): RedirectResponse
+    {
+        $this->authorize('toggleStatus', $user);
+
+        $user->update(['is_active' => ! $user->is_active]);
+
+        $statusLabel = $user->is_active ? 'activated' : 'deactivated';
+
+        app(\App\Services\ActivityLogger::class)->log(
+            action: 'toggle_status',
+            module: 'User',
+            entityType: User::class,
+            entityId: (string) $user->id,
+            remarks: "User account {$user->email} was {$statusLabel}"
+        );
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', "User account {$statusLabel} successfully.");
+    }
+
+    /**
+     * Restore a soft-deleted user.
+     */
+    public function restore(Request $request, int $id): RedirectResponse
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $user);
+
+        $user->restore();
+
+        app(\App\Services\ActivityLogger::class)->log(
+            action: 'restore',
+            module: 'User',
+            entityType: User::class,
+            entityId: (string) $user->id,
+            remarks: "User account {$user->email} restored"
+        );
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'User account restored successfully.');
     }
 
     /**

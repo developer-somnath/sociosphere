@@ -20,10 +20,14 @@ class PermissionCatalog
      * @var array<string, string>
      */
     public const FEATURES = [
+        'society' => 'Societies',
         'dashboard' => 'Dashboard',
         'resident' => 'Residents',
         'tower' => 'Towers',
         'flat' => 'Flats',
+        'parking' => 'Parking Slots',
+        'cctv' => 'CCTV Feeds',
+        'security_log' => 'Security Logbook',
         'user' => 'Users',
         'visitor' => 'Visitors',
         'maintenance' => 'Maintenance',

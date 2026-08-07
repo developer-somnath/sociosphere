@@ -11,6 +11,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import type { PageProps } from "@/types";
 import type { SocietyOption, Tower } from "@/features/towers/types";
 import TowerForm, {
@@ -25,15 +26,32 @@ type EditProps = {
 export default function TowersEdit() {
     const { tower, societies } = usePage<PageProps<EditProps>>().props;
 
-    const { data, setData, put, processing, errors } =
+    const { data, setData: rawSetData, put, processing, errors } =
         useForm<TowerFormValues>({
             name: tower.name,
             society_id: tower.society_id,
         });
 
+    // All TowerFormValues are plain primitives, so narrowing the
+    // Inertia setData signature to (key, value) is safe.
+    const setData = rawSetData as <K extends keyof TowerFormValues>(
+        key: K,
+        value: TowerFormValues[K],
+    ) => void;
+
+    const { markDirty, reset } = useUnsavedChanges();
+
+    // Mark the guard dirty on every field change (blueprint §10)
+    const updateData: typeof setData = (key, value) => {
+        markDirty();
+        setData(key, value);
+    };
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(route("towers.update", tower.uuid));
+        put(route("towers.update", tower.uuid), {
+            onSuccess: () => reset(),
+        });
     };
 
     return (
@@ -65,7 +83,7 @@ export default function TowersEdit() {
                     </div>
                 </div>
 
-                <Card className="max-w-4xl border-border/60 bg-background/70 shadow-sm">
+                <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Pencil className="size-5 text-emerald-600" />
@@ -79,7 +97,7 @@ export default function TowersEdit() {
                         <TowerForm
                             societies={societies}
                             data={data}
-                            setData={setData}
+                            setData={updateData}
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}

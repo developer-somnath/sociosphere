@@ -14,6 +14,12 @@ class PermissionSeeder extends Seeder
 
         $permissions = [
 
+            // Society Management
+            'society.view',
+            'society.create',
+            'society.update',
+            'society.delete',
+
             // Dashboard
             'dashboard.view',
 
@@ -40,6 +46,32 @@ class PermissionSeeder extends Seeder
             'user.create',
             'user.update',
             'user.delete',
+            'user.invite',
+            'user.restore',
+            'user.toggle-status',
+
+            // Security & CCTV
+            'cctv.view',
+            'cctv.create',
+            'cctv.update',
+            'cctv.delete',
+            'security_log.view',
+            'security_log.create',
+
+            // Invoices & Billing
+            'invoice.view',
+            'invoice.create',
+            'invoice.update',
+            'invoice.delete',
+            'collection.view',
+            'collection.create',
+
+            // Parking Management
+            'parking.view',
+            'parking.create',
+            'parking.update',
+            'parking.delete',
+            'parking.allocate',
 
             // Visitors
             'visitor.view',

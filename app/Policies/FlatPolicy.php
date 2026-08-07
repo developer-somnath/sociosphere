@@ -53,4 +53,12 @@ class FlatPolicy
 
         return $this->update($user, $flat);
     }
+
+    /**
+     * Determine whether the user can restore a soft-deleted flat.
+     */
+    public function restore(User $user, Flat $flat): bool
+    {
+        return $user->isSuperAdmin() || ($user->society_id === $flat->society_id && $user->hasPermissionTo('flat.update'));
+    }
 }

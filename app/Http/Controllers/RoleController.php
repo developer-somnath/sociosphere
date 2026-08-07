@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RoleRequest;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Services\ActivityLogger;
 use App\Support\PermissionCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,6 +24,10 @@ class RoleController extends Controller
         $this->authorize('viewAny', Role::class);
 
         $search = trim((string) $request->query('search', ''));
+        $sortBy = in_array($request->query('sort_by'), ['name', 'users_count', 'permissions_count', 'created_at'], true)
+            ? $request->query('sort_by')
+            : null;
+        $sortDir = strtolower((string) $request->query('sort_dir')) === 'asc' ? 'asc' : 'desc';
 
         $roles = Role::query()
             ->withCount(['users', 'permissions'])
@@ -30,9 +35,14 @@ class RoleController extends Controller
                 $query->whereLike('name', $search)
                     ->orWhereLike('description', $search);
             })
-            ->orderByRaw("case when name = 'SuperAdmin' then 0 else 1 end")
-            ->orderBy('is_system', 'desc')
-            ->orderBy('name')
+            ->when($sortBy !== null, function ($query) use ($sortBy, $sortDir) {
+                $query->orderBy($sortBy, $sortDir);
+            })
+            ->when($sortBy === null, function ($query) {
+                $query->orderByRaw("case when name = 'SuperAdmin' then 0 else 1 end")
+                    ->orderBy('is_system', 'desc')
+                    ->orderBy('name');
+            })
             ->paginate(10)
             ->withQueryString();
 
@@ -40,6 +50,8 @@ class RoleController extends Controller
             'roles' => $roles,
             'filters' => [
                 'search' => $search,
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
             ],
             'can' => [
                 'create' => $request->user()->hasPermissionTo('role.create'),
@@ -75,6 +87,18 @@ class RoleController extends Controller
 
         $role->syncPermissions($this->selectedPermissions($request));
 
+        app(ActivityLogger::class)->log(
+            action: 'permission.sync',
+            module: 'Role',
+            entityType: Role::class,
+            entityId: (string) $role->id,
+            newValues: [
+                'name' => $role->name,
+                'permissions' => $role->permissions->pluck('name')->all(),
+            ],
+            remarks: "Created role {$role->name} with permissions",
+        );
+
         return redirect()
             ->route('roles.index')
             ->with('success', 'Role created successfully.');
@@ -109,12 +133,27 @@ class RoleController extends Controller
     {
         $this->authorize('update', $role);
 
+        $oldPermissions = $role->permissions->pluck('name')->all();
+
         $role->update([
             'name' => $request->input('name'),
             'description' => $request->input('description') ?: null,
         ]);
 
         $role->syncPermissions($this->selectedPermissions($request));
+
+        app(ActivityLogger::class)->log(
+            action: 'permission.sync',
+            module: 'Role',
+            entityType: Role::class,
+            entityId: (string) $role->id,
+            oldValues: ['permissions' => $oldPermissions],
+            newValues: [
+                'name' => $role->name,
+                'permissions' => $role->fresh()->permissions->pluck('name')->all(),
+            ],
+            remarks: "Updated role {$role->name} permissions",
+        );
 
         return redirect()
             ->route('roles.index')

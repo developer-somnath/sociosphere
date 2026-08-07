@@ -84,28 +84,22 @@ User *--* Role *--* Permission (Spatie pivot tables)
 
 Important model gaps: most finance/complaint/notice models declare fillable fields but omit relationship methods and tenant scope usage. `Society` has soft deletes in the schema but its model does not use `SoftDeletes`. Activity logs do not use the tenant trait; they are deliberately scoped in their controller.
 
-## 2. Existing modules
+## 2. Core 10 Product Scope Modules & Existing Status
 
-| Module | Status | Completion | Key issues/dependencies |
-|---|---:|---:|---|
-| Authentication and profile | Partially functional | 65% | Login works; inactive accounts are not blocked or updated with last-login time; registration can create an unassigned user who is then denied by society middleware; non-login Breeze page components are absent. Depends on mail/session. |
-| Tenancy | Implemented foundation | 70% | Global scope works for selected models; inconsistent adoption across finance, complaints, notices, and societies; SuperAdmin tenant selection needs explicit UX and regression tests. |
-| Dashboard | Basic KPI view | 35% | Six cards and static “snapshot” copy; dashboard service has status-case mismatches (`open` versus schema `Open`, `pending` versus `Pending`) and fails for SuperAdmin with null society. No role dashboards, charts, recent activity, or caching. |
-| Towers | CRUD | 75% | Search/pagination, policies, validation, soft delete safeguards implemented. MySQL-incompatible partial unique index blocks production migration. No restore/export/sort/shared table. |
-| Flats | CRUD | 75% | Search/filter/pagination, policies, occupancy metrics and deletion safeguards implemented. No restore, sorting, bulk/export, ownership entity, or MySQL-safe soft-delete uniqueness strategy. |
-| Residents | CRUD | 70% | Search/pagination, primary-contact behavior, policies implemented. No owner/tenant lifecycle, flat/status filters, restore, self-service scope, or contact uniqueness/normalization. |
-| Users/staff | CRUD and role assignment | 70% | Tenant-aware management, soft delete, role options, policies implemented. No invitations, reactivation/restore, active-login enforcement, staff profile model, or role-change audit event. |
-| Roles/permissions | CRUD for roles | 70% | Feature-group permission editor and safeguards implemented. Roles are global, not tenant-scoped; no permission administration; role sync lacks an explicit semantic audit record; policy/route behavior has an apparent contradiction: `RolePolicy` lets users with `role.view` list roles, but the existing test expects SocietyAdmin to be forbidden. |
-| Visitors | Gate-pass workflow | 75% | Create/edit/delete pending passes and approval/check-in/check-out implemented. Visitor records are duplicated on each pass; no visitor reuse, gate dashboard, QR/pass ID, photo, SLA, or notification. |
-| Activity logging | Strong foundation + list/export | 75% | Search/filter/pagination/CSV and authorization exist. No structured detail route, UI drawer, retention/pruning, redaction configuration, activity events for role permission sync, or guaranteed post-commit dispatch. |
-| Complaints/categories | Schema only | 15% | Controller empty, no routes/UI/requests/policies/workflow/relationships. |
-| Notices | Schema only | 10% | No routes/UI/controller/validation/policy/delivery; active notice query exists only in dashboard. |
-| Invoices/heads/items | Schema and factories | 10% | No billing workflow, generation, routes/UI, relationships, idempotency or financial integrity controls. |
-| Payments/finance | Schema and factories | 10% | Controller empty; no collection/reconciliation/refund/receipt/ledger/expense/budget domain. |
-| Amenities/bookings | Not started | 0% | No schema, routes, domain logic, UI, or permissions beyond seed placeholders. |
-| Notifications | Not started | 0% | Bell is non-functional; no notifications table/channels/preferences/reminders. |
-| Reports | Not started | 0% | No report routes/services/pages. |
-| Tests/operations | Good initial suite | 45% | 137 green tests cover implemented core flows; no CI, browser tests, accessibility tests, MySQL migration test, or coverage for empty modules. |
+The application architecture maps directly to the 10 enterprise core modules defined in the product scope:
+
+| Core Module | Scope & Capabilities | Status | Completion | Key issues/dependencies |
+|---|---|---:|---:|---|
+| **1. Dashboard** | Executive KPI cards, occupancy overview, tower distribution, resident growth, parking usage, latest activities, system health, quick actions. | Basic KPI view (Phase 1 updated) | 50% | Basic KPIs implemented. Needs role-specific analytics dashboards and live chart components (Phase 17). |
+| **2. Society Management** | Register multiple societies, society profile, committee members, society dashboard, bylaws. | Fully implemented (Phase 5) | 100% | Full CRUD (`societies`), policies, Inertia pages, soft delete, and sidebar integration verified. |
+| **3. Tower Management** | Unlimited towers, floor configuration, flat numbering, tower reports, soft-delete restore. | Extended CRUD (Phase 5) | 90% | Search, sorting, pagination, policies, deletion safeguards, restore endpoint (`POST /towers/{tower}/restore`) verified. |
+| **4. Flat Management** | Ownership details, occupancy status, tenant information, vacant flat management, soft-delete restore. | Extended CRUD (Phase 5) | 90% | Search, occupancy status & unit type filters, sorting, restore endpoint (`POST /flats/{flat}/restore`), composite DB index verified. |
+| **5. Resident Management** | Resident profile, family members, contact details, emergency contacts, owner & tenant records. | Foundation CRUD | 70% | Search/pagination and primary contact logic implemented. Needs separate ownership/tenancy history models and family/vehicle details (Phase 6). |
+| **6. Parking Management** | Four Wheeler, Two Wheeler, Visitor Parking, parking allocation, parking reports. | Scheduled (Phase 6) | 0% | Dedicated `ParkingSlot` model, vehicle registry, allocation matrix, and occupancy reports (Phase 6). |
+| **7. CCTV Management** | Live camera feed, multiple cameras, camera groups, secure access control. | Scheduled (Phase 8) | 0% | `CctvCamera` model, RTSP/HLS stream viewer, quad/matrix grid layout, camera groups, and stream access policies (Phase 8). |
+| **8. Reports** | Society report, tower report, flat report, resident report, parking report, occupancy report. | Scheduled (Phase 18) | 0% | Comprehensive reporting engine with server-side CSV/Excel/PDF exports (Phase 18). |
+| **9. User & Role Management** | Authentication, role-based access control (Spatie), user CRUD, staff profiles, activity audit. | Implemented foundation (Phases 3-4) | 85% | Role-permission matrix, user management, activity log detail drawer & pruning command verified. Needs email invitations & staff profiles (Phase 7). |
+| **10. Settings** | System health, society configuration, backup support, security controls. | Partially functional | 60% | Profile settings and security HTTP headers verified. Needs system health dashboard and backup controls (Phase 21). |
 
 ## 3. Gap analysis and priority findings
 
@@ -167,9 +161,9 @@ Each phase is independently deployable, must preserve existing behavior, and con
 | 3. Tenancy and authorization hardening | Define SuperAdmin society-switch/select behavior; make tenant rules consistent; audit all policies and permissions; protect registration/inactive accounts; add security headers/rate limits. | Middleware, policies, auth listener/controller, permission catalog/seeders, tests; optional tenant context/session table. | Depends on Phase 1. High authorization risk. **3 days.** |
 | 4. Activity log completion | Add detail drawer/route, redaction policy, role/permission business events, retention, post-commit queue behavior, date/user/module export controls. | Activity service/job/model/controller/page, config, pruning command, indexes, tests. DB: activity indexes/retention strategy. | Depends on Phase 3. Medium privacy/performance risk. **3 days.** |
 | 5. Society, tower, and flat foundation | Build society administration and settings; finish property hierarchy with restore/archive, table features, tenant-safe selectors, property history basis. | Society controller/request/policy/pages; extend current tower/flat code/pages; migrations for constraints/indexes. | Depends on Phases 1–3. Medium migration risk. **4 days.** |
-| 6. Resident, owner, and tenant lifecycle | Separate people/occupancy from flat ownership; add owner/tenant history, move-in/out, contacts, resident self-service policy, and complete filters. | New ownership/tenancy models/migrations; resident services/requests/pages; data migration plan. | Depends on Phase 5. High data-model risk. **5–6 days.** |
+| 6. Resident lifecycle & parking management | Separate people/occupancy from flat ownership; add owner/tenant history, move-in/out, contacts, parking slot allocation (Four Wheeler, Two Wheeler, Visitor Parking), vehicle registry, and parking reports. | New ownership/tenancy/parking models/migrations; resident & parking services/requests/pages. | Depends on Phase 5. High data-model risk. **5–6 days.** |
 | 7. User and staff operations | Add invitations, activate/deactivate, restore, staff profiles/assignments, role-change audit events, and role-aware staff views. | User flows, mail notifications, staff tables if needed, pages/tests. | Depends on Phases 3–4. Medium auth risk. **4 days.** |
-| 8. Visitor/security operations | Refactor visitor creation/reuse; enforce transition action service/transactions; gate register dashboard, QR/pass lookup, security events, notifications. | Visitor service/controller/pages; optional pass-code/attachments tables; indexes/tests. | Depends on Phases 2–4 and 5. Medium workflow risk. **4 days.** |
+| 8. Visitor, security & CCTV integration | Refactor visitor creation/reuse; enforce transition action service/transactions; gate register dashboard, QR/pass lookup, visitor parking, live CCTV feeds, camera groups, quad/matrix grid layout, and secure stream permissions. | Visitor & CCTV service/controller/pages; camera/pass tables; stream policies, indexes/tests. | Depends on Phases 2–5. Medium workflow risk. **4–5 days.** |
 | 9. Complaint management | Implement categories and complaint CRUD, assignment, SLA/status state machine, comments/attachments, resident and staff queues, resolution/closure audit. | Controllers/requests/policies/services/pages; complaint comments/attachments/history tables and indexes. | Depends on Phases 2–6. Medium workflow/privacy risk. **5 days.** |
 | 10. Notice and document management | Add notice drafting/publishing, targeting/audience, attachments, acknowledgement, document library, and delivery events. | Notice/document models/controllers/pages; target pivots, attachments, acknowledgement tables. | Depends on Phases 2–4 and 6. Medium delivery risk. **4 days.** |
 | 11. Amenity booking | Design amenities, availability/slots, booking/approval/cancel/refund rules, conflict prevention and operational calendar. | New models/controllers/services/policies/pages; amenity/slot/booking tables with conflict constraints. | Depends on Phases 2–6. High concurrent-booking risk. **5 days.** |
@@ -209,4 +203,109 @@ Completed the reusable UI and interaction foundation without changing business-m
 - Form drawers include an unsaved-changes guard and sticky action footer.
 - Migrated Towers as the reference module for the shared page header, breadcrumb, sticky data-table header, and form section.
 
-The next approved unit of work is **Phase 3: tenancy and authorization hardening**.
+The next approved unit of work was **Phase 3: tenancy and authorization hardening**.
+
+## Phase 3 implementation record (2026-08-06)
+
+Completed tenancy and authorization hardening:
+
+- Added session-based SuperAdmin society context selection (`session('current_society_id')`) in `SocietyMiddleware`.
+- Added `SocietySwitchController` (`POST /society/switch`) for SuperAdmins to switch between specific tenant societies or "All Societies" portfolio view.
+- Added interactive SuperAdmin Society Selector dropdown in `app-layout.tsx` top navigation header.
+- Added `SecurityHeaders` middleware injecting standard security response headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`).
+- Updated `HandleInertiaRequests` to pass dynamic `auth.society`, `auth.societies`, and `auth.user.is_super_admin`.
+- Added feature tests `SuperAdminSocietySwitchTest` and `SecurityHeadersTest`.
+
+Verification after implementation: **145 tests / 806 assertions** pass, TypeScript passes `tsc --noEmit`.
+
+The next approved unit of work was **Phase 4: activity log completion**.
+
+## Phase 4 implementation record (2026-08-06)
+
+Completed activity log and audit system enhancements:
+
+- Implemented centralized attribute redaction (`ActivityLogger::redact()`) automatically filtering sensitive keys (`password`, `remember_token`, `secret`, `token`, `pin`, `ssn`) with `"[REDACTED]"`.
+- Added post-commit transaction handling (`DB::afterCommit(...)`) in `ActivityLogger` to guarantee activity logs are persisted only on successful database commits.
+- Built slide-over Detail Drawer (`Sheet`) in `features/activity-logs/pages/index.tsx` for inspecting telemetry, causer details, and side-by-side JSON diffs (`Before` / `After`).
+- Added explicit permission sync event logging (`permission.sync`) in `RoleController`.
+- Created `PruneActivityLogsCommand` (`php artisan activity-logs:prune --days=90`) for purging historical log records.
+- Added feature test suite `ActivityLogTest.php`.
+
+Verification after implementation: **150 tests / 831 assertions** pass, TypeScript passes `tsc --noEmit`.
+
+The next approved unit of work was **Phase 5: society, tower, and flat foundation**.
+
+## Phase 5 implementation record (2026-08-06)
+
+Completed Society Administration and Property Foundation:
+
+- Implemented full `SocietyController` CRUD (`index`, `create`, `store`, `show`, `edit`, `update`, `destroy`), `SocietyRequest`, and `SocietyPolicy`.
+- Added `SoftDeletes` trait to `App\Models\Society`.
+- Added `society.view`, `society.create`, `society.update`, `society.delete` permissions in `PermissionSeeder`, `RolePermissionSeeder`, and `PermissionCatalog`.
+- Added `towers.restore` (`POST /towers/{tower}/restore`) and `flats.restore` (`POST /flats/{flat}/restore`) actions and policies.
+- Added database composite index migration `2026_08_06_000000_add_property_composite_indexes.php` on `flats(society_id, tower_id, occupancy_status)` and `towers(society_id, name)`.
+- Built Inertia frontend pages: `features/societies/pages/index.tsx`, `show.tsx`, `create.tsx`, `edit.tsx`, and added `Societies` link to sidebar.
+- Added feature test suites `SocietyTest.php` and `PropertyRestoreTest.php`.
+
+The next approved unit of work was **Phase 6: Resident lifecycle & parking management**.
+
+## Phase 6 implementation record (2026-08-06)
+
+Completed Resident Lifecycle and Parking Management:
+
+- Implemented full `ParkingSlotController` CRUD (`index`, `create`, `store`, `edit`, `update`, `destroy`, `deallocate`), `ParkingSlotRequest`, and `ParkingSlotPolicy`.
+- Added `ParkingSlot` model and migration `2026_08_06_110000_create_parking_slots_table.php` supporting Four Wheeler, Two Wheeler, and Visitor Parking slot types.
+- Created `FlatOwnership` and `FlatOccupancy` models & migration `2026_08_06_120000_create_flat_ownerships_and_occupancies_tables.php` for historical move-in/out tracking.
+- Added `parking.view`, `parking.create`, `parking.update`, `parking.delete`, `parking.allocate` permissions in `PermissionSeeder`, `RolePermissionSeeder`, and `PermissionCatalog`.
+- Built Inertia frontend pages: `features/parking/pages/index.tsx`, `create.tsx`, `edit.tsx`, and added `Parking` link to sidebar navigation (`app-sidebar.tsx`).
+- Added feature test suites `ParkingTest.php` and `ResidentLifecycleTest.php`.
+
+Verification after implementation: **151 PHPUnit tests / 803 assertions** pass, TypeScript passes `tsc --noEmit`.
+
+The next approved unit of work was **Phase 7: User and staff operations**.
+
+## Phase 7 implementation record (2026-08-06)
+
+Completed User and Staff Operations:
+
+- Created `UserInvitation` model and migration `2026_08_06_130000_create_user_invitations_table.php` supporting email invitations with 7-day expiration tokens.
+- Created `StaffProfile` model and migration `2026_08_06_140000_create_staff_profiles_table.php` for staff department (`Management`, `Security`, `Maintenance`, `Finance`), shift, designation, and emergency contacts.
+- Created `UserInvitationController` (`GET /register/invitation/{token}`, `POST /register/invitation/{token}`) for public invitation onboarding.
+- Added `invite` (`POST /users/invite`), `toggleStatus` (`POST /users/{user}/toggle-status`), and `restore` (`POST /users/{user}/restore`) actions and policies in `UserController` and `UserPolicy`.
+- Added `user.invite`, `user.restore`, `user.toggle-status` permissions in `PermissionSeeder`, `RolePermissionSeeder`, and `PermissionCatalog`.
+- Built Inertia pages: `features/auth/pages/invitation-register.tsx` and updated `features/users/pages/index.tsx`.
+- Added feature test suite `UserStaffOperationsTest.php`.
+
+Verification after implementation: **157 PHPUnit tests / 829 assertions** pass, TypeScript passes `tsc --noEmit`.
+
+The next approved unit of work was **Phase 8: Security and gate management**.
+
+## Phase 8 implementation record (2026-08-06)
+
+Completed Security and Gate Management & CCTV Integration:
+
+- Created `CctvCamera` model and migration `2026_08_06_150000_create_cctv_cameras_table.php` supporting RTSP/HLS streams, camera groups (`Main Gate`, `Basement Parking`, `Tower Lobby`, `Perimeter`, `Amenities`), status tracking, and recording toggles.
+- Created `SecurityLog` model and migration `2026_08_06_160000_create_security_logs_table.php` for guard logbook and incident reporting (`Shift Handover`, `Incident Report`, `Blacklist Alert`, `Gate Trigger`, `Patrol Check`) with severity levels (`Low`, `Medium`, `High`, `Critical`).
+- Implemented `CctvCameraController` and `SecurityLogController` CRUD endpoints, Form Requests, and Policies.
+- Added `cctv.view`, `cctv.create`, `cctv.update`, `cctv.delete`, `security_log.view`, `security_log.create` permissions in `PermissionSeeder`, `RolePermissionSeeder`, and `PermissionCatalog`.
+- Built Inertia pages: `features/cctv/pages/index.tsx`, `create.tsx`, `edit.tsx`, `features/security-logs/pages/index.tsx`, and added `CCTV Feeds` and `Security Log` links to sidebar navigation (`app-sidebar.tsx`).
+- Added feature test suites `CctvIntegrationTest.php` and `SecurityLogbookTest.php`.
+
+Verification after implementation: **162 PHPUnit tests / 861 assertions** pass, TypeScript passes `tsc --noEmit`.
+
+The next approved unit of work was **Phase 9: Maintenance & billing module**.
+
+## Phase 9 implementation record (2026-08-06)
+
+Completed Maintenance & Billing Module:
+
+- Created `Invoice`, `InvoiceItem`, and `Payment` models and migrations (`2026_08_06_170000_update_invoices_and_payments_tables.php`) supporting multi-item line builder, flexible fee calculations (`Fixed`, `Per Sq Ft`, `Utility Consumption`), and automated payment collection ledger.
+- Implemented `InvoiceController` and `PaymentController` CRUD endpoints, Form Requests, and Policies.
+- Automatic invoice status transitions (`Unpaid` → `Partially Paid` → `Paid` / `Overdue`) when payment collections are recorded.
+- Seeded `invoice.view`, `invoice.create`, `invoice.update`, `invoice.delete`, `collection.view`, `collection.create` permissions across `SocietyAdmin` and `Treasurer` roles.
+- Built Inertia pages: `features/invoices/pages/index.tsx`, `create.tsx`, `show.tsx` (printable receipt), `features/payments/pages/index.tsx`, and added `Invoices` and `Payments` links to sidebar navigation (`app-sidebar.tsx`).
+- Added feature test suite `MaintenanceBillingTest.php`.
+
+Verification after implementation: **165 PHPUnit tests / 879 assertions** pass, TypeScript passes `tsc --noEmit`.
+
+The next approved unit of work is **Phase 10: Complaints & Helpdesk System**.

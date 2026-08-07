@@ -1,15 +1,22 @@
 import type { LucideIcon } from "lucide-react";
+import { TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+type TrendDirection = "up" | "down" | "neutral";
 
 type MetricCardProps = {
     label: string;
     value: string | number;
     hint?: string;
     icon: LucideIcon;
-    accent: string;
+    /** NEW: Tailwind class for the left accent bar, e.g. "bg-blue-500" */
+    accentColor?: string;
+    /** NEW: Tailwind classes for the icon wrapper */
+    iconColor?: string;
+    /** LEGACY: old combined accent string (e.g. "bg-blue-50 text-blue-600 ...") */
+    accent?: string;
     trend?: string;
+    trendDir?: TrendDirection;
     className?: string;
 };
 
@@ -18,47 +25,69 @@ export function MetricCard({
     value,
     hint,
     icon: Icon,
-    accent,
+    accentColor,
+    iconColor,
+    accent,          // legacy prop — maps to iconColor (old icon wrapper style)
     trend,
+    trendDir = "neutral",
     className,
 }: MetricCardProps) {
     const displayValue =
         typeof value === "number" ? value.toLocaleString() : value;
 
+    // Legacy compat: if only the old `accent` prop is passed, use it for the
+    // icon wrapper. The accent bar gets a neutral primary color.
+    const resolvedAccentColor = accentColor ?? "bg-primary";
+    const resolvedIconColor   = iconColor ?? accent ?? "bg-primary/10 text-primary";
+
+    const TrendIcon =
+        trendDir === "up" ? TrendingUp :
+        trendDir === "down" ? TrendingDown : Minus;
+
+    const trendClass =
+        trendDir === "up"   ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10" :
+        trendDir === "down" ? "text-rose-600    dark:text-rose-400    bg-rose-50    dark:bg-rose-500/10"    :
+                              "text-muted-foreground bg-muted";
+
     return (
-        <Card
-            className={`group relative overflow-hidden border-border/70 bg-gradient-to-br from-card via-card to-background/80 shadow-[0_16px_40px_-24px_rgba(15,23,42,0.38)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_30px_60px_-28px_rgba(15,23,42,0.45)] ${className ?? ""}`.trim()}
+        <div
+            className={cn(
+                "relative flex overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow duration-150 hover:shadow-md",
+                className
+            )}
         >
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-            <CardContent className="p-5">
-                <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                            <p className="truncate text-sm font-medium text-muted-foreground">
-                                {label}
-                            </p>
-                            {trend ? (
-                                <Badge variant="secondary" className="rounded-full">
-                                    {trend}
-                                </Badge>
-                            ) : null}
-                        </div>
-                        <p className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-                            {displayValue}
-                        </p>
-                        {hint ? (
-                            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                                {hint}
-                            </p>
-                        ) : null}
-                    </div>
-                    <div
-                        className={`flex size-11 shrink-0 items-center justify-center rounded-2xl border ${accent}`}
-                    >
-                        <Icon className="size-5" />
+            {/* Left accent bar */}
+            <div className={cn("w-1 shrink-0 rounded-l-xl", resolvedAccentColor)} />
+
+            <div className="flex flex-1 flex-col gap-3 p-5">
+                {/* Top row: label + icon */}
+                <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-muted-foreground">{label}</p>
+                    <div className={cn("flex size-9 shrink-0 items-center justify-center rounded-lg", resolvedIconColor)}>
+                        <Icon className="size-4" />
                     </div>
                 </div>
-            </CardContent>
-        </Card>
+
+                {/* Value */}
+                <div>
+                    <p className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">
+                        {displayValue}
+                    </p>
+                    {hint && (
+                        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                            {hint}
+                        </p>
+                    )}
+                </div>
+
+                {/* Trend chip */}
+                {trend && (
+                    <div className={cn("inline-flex w-fit items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium", trendClass)}>
+                        <TrendIcon className="size-3" />
+                        {trend}
+                    </div>
+                )}
+            </div>
+        </div>
     );
 }

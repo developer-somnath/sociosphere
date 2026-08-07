@@ -7,18 +7,27 @@ import {
     Pencil,
     Percent,
     Plus,
-    Search,
     Trash2,
-    X,
 } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
+import { PageHeader } from "@/components/app/page-header";
 import { Badge } from "@/components/ui/badge";
+import { BulkActionBar } from "@/components/ui/bulk-action-bar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { DataTableFull, type Selection } from "@/components/ui/data-table";
+import type { ColumnDef } from "@/components/ui/data-table";
+import { EmptyState } from "@/components/ui/empty-state";
+import type { ExportFormat } from "@/components/ui/export-menu";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { Pagination } from "@/components/ui/pagination";
+import { RowActions } from "@/components/ui/row-actions";
+import { exportCsv } from "@/lib/export-csv";
+import { toast } from "@/lib/toast";
 import type { PageProps } from "@/types";
 import type {
     Flat,
@@ -33,6 +42,9 @@ type IndexProps = {
         search: string;
         tower_id: number | null;
         status: "Occupied" | "Vacant" | "Self-Occupied" | null;
+        type: string | null;
+        sort_by: string | null;
+        sort_dir: "asc" | "desc" | null;
     };
     towers: TowerOption[];
     stats: FlatStats;
@@ -72,7 +84,26 @@ export default function FlatsIndex() {
         filters.tower_id === null ? "" : String(filters.tower_id),
     );
     const [status, setStatus] = useState(filters.status ?? "");
-    const [confirming, setConfirming] = useState<number | null>(null);
+    const [selectedIds, setSelectedIds] = useState<Selection>([]);
+    const [confirming, setConfirming] = useState<Flat | null>(null);
+    const isFirstRender = useRef(true);
+
+    const sort = filters.sort_by
+        ? {
+              key: filters.sort_by,
+              direction: (filters.sort_dir === "asc" ? "asc" : "desc") as
+                  | "asc"
+                  | "desc",
+          }
+        : null;
+
+    const buildParams = () => ({
+        search: search.trim() || undefined,
+        tower_id: towerId || undefined,
+        status: status || undefined,
+        sort_by: filters.sort_by ?? undefined,
+        sort_dir: filters.sort_dir ?? undefined,
+    });
 
     const applyFilters = (
         overrides: { search?: string; tower_id?: string; status?: string } = {},
@@ -86,16 +117,219 @@ export default function FlatsIndex() {
         if (nextTower !== "") params.tower_id = nextTower;
         if (nextStatus !== "") params.status = nextStatus;
 
-        router.get(route("flats.index"), params, {
-            preserveState: true,
-            replace: true,
+        router.get(
+            route("flats.index"),
+            { ...params, page: 1 },
+            { preserveState: true, replace: true },
+        );
+    };
+
+    const handleSort = (next: { key: string; direction: "asc" | "desc" }) => {
+        router.get(
+            route("flats.index"),
+            { ...buildParams(), sort_by: next.key, sort_dir: next.direction },
+            { preserveState: true, replace: true },
+        );
+    };
+
+    const bulkDelete = () => {
+        selectedIds.forEach((id, index) => {
+            const flat = flats.data.find(
+                (candidate) => candidate.uuid === id || candidate.id === id,
+            );
+            if (!flat) return;
+            setTimeout(
+                () =>
+                    router.delete(route("flats.destroy", flat.uuid), {
+                        preserveScroll: true,
+                    }),
+                index * 80,
+            );
+        });
+        setSelectedIds([]);
+    };
+
+    const handleExport = (format: ExportFormat) => {
+        if (format !== "csv") {
+            toast({
+                title: "Export coming soon",
+                variant: "info",
+                description: `${format.toUpperCase()} export will be available soon.`,
+            });
+            return;
+        }
+        exportCsv<Flat>({
+            filename: "flats.csv",
+            columns: [
+                { header: "Flat No", accessor: (flat) => flat.flat_no },
+                { header: "Tower", accessor: (flat) => flat.tower?.name ?? "" },
+                { header: "Type", accessor: (flat) => flat.flat_type ?? "" },
+                { header: "Floor", accessor: (flat) => flat.floor_no ?? "" },
+                { header: "Area (sq ft)", accessor: (flat) => flat.area_sqft ?? "" },
+                { header: "Status", accessor: (flat) => flat.occupancy_status },
+                { header: "Ownership", accessor: (flat) => flat.ownership_type },
+                { header: "Residents", accessor: (flat) => flat.residents_count },
+            ],
+            rows: flats.data,
         });
     };
 
-    const submitSearch = (e: FormEvent) => {
-        e.preventDefault();
-        applyFilters();
-    };
+    const columns: ColumnDef<Flat>[] = useMemo(
+        () => [
+            {
+                id: "flat",
+                header: "Flat",
+                sortable: true,
+                sortKey: "flat_no",
+                cell: (flat) => (
+                    <div className="flex items-center gap-3">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-emerald-600/10 text-emerald-600">
+                            <DoorOpen className="size-4" />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="font-medium text-foreground">
+                                {flat.flat_no}
+                            </p>
+                            {flat.tower?.name && (
+                                <p className="truncate text-xs text-muted-foreground">
+                                    {flat.tower.name}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                ),
+            },
+            {
+                id: "type",
+                header: "Type",
+                cell: (flat) =>
+                    flat.flat_type ?? (
+                        <span className="text-muted-foreground">—</span>
+                    ),
+            },
+            {
+                id: "floor",
+                header: "Floor",
+                sortable: true,
+                sortKey: "floor_no",
+                cell: (flat) =>
+                    flat.floor_no ?? (
+                        <span className="text-muted-foreground">—</span>
+                    ),
+            },
+            {
+                id: "area",
+                header: "Area",
+                cell: (flat) =>
+                    flat.area_sqft ? (
+                        <span className="text-muted-foreground">
+                            {flat.area_sqft.toLocaleString()} sq. ft.
+                        </span>
+                    ) : (
+                        <span className="text-muted-foreground">—</span>
+                    ),
+            },
+            {
+                id: "status",
+                header: "Status",
+                sortable: true,
+                sortKey: "occupancy_status",
+                cell: (flat) => (
+                    <Badge
+                        variant="outline"
+                        className={`gap-1.5 ${statusStyles[flat.occupancy_status].badge}`}
+                    >
+                        <span
+                            className={`size-1.5 rounded-full ${statusStyles[flat.occupancy_status].dot}`}
+                        />
+                        {flat.occupancy_status}
+                    </Badge>
+                ),
+            },
+            {
+                id: "ownership",
+                header: "Ownership",
+                cell: (flat) =>
+                    flat.ownership_type === "Tenant" ? (
+                        <Badge variant="outline">Tenant</Badge>
+                    ) : (
+                        <Badge
+                            variant="outline"
+                            className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                        >
+                            Owner
+                        </Badge>
+                    ),
+            },
+            {
+                id: "residents",
+                header: "Residents",
+                cell: (flat) =>
+                    flat.residents_count > 0 ? (
+                        <Link
+                            href={route("residents.index")}
+                            className="font-medium text-foreground underline-offset-4 hover:underline"
+                        >
+                            {flat.residents_count} resident
+                            {flat.residents_count === 1 ? "" : "s"}
+                        </Link>
+                    ) : (
+                        <span className="text-muted-foreground">
+                            0 residents
+                        </span>
+                    ),
+            },
+            {
+                id: "actions",
+                header: "Actions",
+                align: "right",
+                cell: (flat) => (
+                    <div
+                        className="flex justify-end"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <RowActions
+                            actions={[
+                                {
+                                    label: "Edit",
+                                    icon: Pencil,
+                                    onClick: () =>
+                                        router.visit(
+                                            route("flats.edit", flat.uuid),
+                                        ),
+                                },
+                                {
+                                    label: "Remove",
+                                    icon: Trash2,
+                                    destructive: true,
+                                    separatorBefore: true,
+                                    disabled: !can.delete,
+                                    onClick: () => setConfirming(flat),
+                                },
+                            ]}
+                        />
+                    </div>
+                ),
+            },
+        ],
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [can],
+    );
+
+    // Debounced, URL-synced search (blueprint §8). Always reset to page 1
+    // when the search term changes.
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timeout = window.setTimeout(() => {
+            applyFilters({ search });
+        }, 300);
+
+        return () => window.clearTimeout(timeout);
+    }, [search]);
 
     const clearAll = () => {
         setSearch("");
@@ -108,17 +342,13 @@ export default function FlatsIndex() {
         );
     };
 
-    const destroy = (flat: Flat) => {
+    const handleDelete = () => {
+        if (!confirming) return;
+        const flat = confirming;
         setConfirming(null);
-        if (
-            window.confirm(
-                `Remove flat "${flat.flat_no}"? Flats with residents cannot be removed.`,
-            )
-        ) {
-            router.delete(route("flats.destroy", flat.uuid), {
-                preserveScroll: true,
-            });
-        }
+        router.delete(route("flats.destroy", flat.uuid), {
+            preserveScroll: true,
+        });
     };
 
     const statCards = [
@@ -156,26 +386,21 @@ export default function FlatsIndex() {
         <AppLayout>
             <Head title="Flats" />
 
-            <div className="rounded-3xl border border-border/70 bg-card/80 p-5 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.4)] backdrop-blur">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">Flats</h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Manage the property units, occupancy states, and resident assignments.
-                        </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        {can.create && (
-                            <Button asChild>
-                                <Link href={route("flats.create")}>
-                                    <Plus />
-                                    Add flat
-                                </Link>
-                            </Button>
-                        )}
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                title="Flats"
+                description="Manage the property units, occupancy states, and resident assignments."
+                icon={<Building2 className="size-5" />}
+                actions={
+                    can.create && (
+                        <Button asChild>
+                            <Link href={route("flats.create")}>
+                                <Plus />
+                                Add flat
+                            </Link>
+                        </Button>
+                    )
+                }
+            />
 
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {statCards.map((card) => (
@@ -199,364 +424,169 @@ export default function FlatsIndex() {
                 ))}
             </div>
 
-            <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)] lg:flex-row lg:items-center lg:justify-between">
-                <form
-                    onSubmit={submitSearch}
-                    className="relative w-full max-w-sm"
+            <FilterBar
+                searchValue={search}
+                onSearchChange={setSearch}
+                searchPlaceholder="Search flats, towers, residents…"
+                searchLabel="Search flats"
+                activeFilters={[
+                    ...(towerId
+                        ? [
+                              {
+                                  label:
+                                      towers.find(
+                                          (tower) =>
+                                              String(tower.id) === towerId,
+                                      )?.label ?? "Tower",
+                                  onRemove: () => {
+                                      setTowerId("");
+                                      applyFilters({ tower_id: "" });
+                                  },
+                              },
+                          ]
+                        : []),
+                    ...(status
+                        ? [
+                              {
+                                  label: status,
+                                  onRemove: () => {
+                                      setStatus("");
+                                      applyFilters({ status: "" });
+                                  },
+                              },
+                          ]
+                        : []),
+                ]}
+                onReset={clearAll}
+                className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
+            >
+                <select
+                    aria-label="Filter by tower"
+                    className={`${selectClasses} w-auto min-w-44`}
+                    value={towerId}
+                    onChange={(e) => {
+                        setTowerId(e.target.value);
+                        applyFilters({ tower_id: e.target.value });
+                    }}
                 >
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search flats, towers, residents…"
-                        className="pl-9 pr-9"
-                    />
-                    {search !== "" && (
-                        <button
-                            type="button"
-                            onClick={() => applyFilters({ search: "" })}
-                            aria-label="Clear search"
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        >
-                            <X className="size-4" />
-                        </button>
-                    )}
-                </form>
+                    <option value="">All towers</option>
+                    {towers.map((tower) => (
+                        <option key={tower.id} value={tower.id}>
+                            {tower.label}
+                        </option>
+                    ))}
+                </select>
 
-                <div className="flex flex-wrap items-center gap-3">
-                    <select
-                        aria-label="Filter by tower"
-                        className={`${selectClasses} w-auto min-w-44`}
-                        value={towerId}
-                        onChange={(e) => {
-                            setTowerId(e.target.value);
-                            applyFilters({ tower_id: e.target.value });
-                        }}
-                    >
-                        <option value="">All towers</option>
-                        {towers.map((tower) => (
-                            <option key={tower.id} value={tower.id}>
-                                {tower.label}
-                            </option>
-                        ))}
-                    </select>
-
-                    <select
-                        aria-label="Filter by status"
-                        className={`${selectClasses} w-auto min-w-40`}
-                        value={status}
-                        onChange={(e) => {
-                            setStatus(e.target.value);
-                            applyFilters({ status: e.target.value });
-                        }}
-                    >
-                        <option value="">All statuses</option>
-                        <option value="Occupied">Occupied</option>
-                        <option value="Vacant">Vacant</option>
-                        <option value="Self-Occupied">Self-Occupied</option>
-                    </select>
-
-                    {(search !== "" || towerId !== "" || status !== "") && (
-                        <Button variant="outline" size="sm" onClick={clearAll}>
-                            <X />
-                            Clear
-                        </Button>
-                    )}
-
-                    {can.create && (
-                        <Button
-                            asChild
-                            className="bg-emerald-600 hover:bg-emerald-700"
-                        >
-                            <Link href={route("flats.create")}>
-                                <Plus />
-                                Add Flat
-                            </Link>
-                        </Button>
-                    )}
-                </div>
-            </div>
+                <select
+                    aria-label="Filter by status"
+                    className={`${selectClasses} w-auto min-w-40`}
+                    value={status}
+                    onChange={(e) => {
+                        setStatus(e.target.value);
+                        applyFilters({ status: e.target.value });
+                    }}
+                >
+                    <option value="">All statuses</option>
+                    <option value="Occupied">Occupied</option>
+                    <option value="Vacant">Vacant</option>
+                    <option value="Self-Occupied">Self-Occupied</option>
+                </select>
+            </FilterBar>
 
             <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardContent className="p-0">
-                    {flats.data.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-                            <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-                                <Inbox className="size-6 text-muted-foreground" />
-                            </div>
-                            <p className="text-sm font-medium">
-                                {filters.search ||
-                                filters.tower_id ||
-                                filters.status
-                                    ? "No flats match your filters."
-                                    : "No flats yet."}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                {filters.search ||
-                                filters.tower_id ||
-                                filters.status
-                                    ? "Try adjusting your search or filters."
-                                    : can.create
-                                      ? "Add your first flat to get started."
-                                      : "Check back later."}
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                                        <th className="px-5 py-3 font-medium">
-                                            Flat
-                                        </th>
-                                        <th className="px-5 py-3 font-medium">
-                                            Type
-                                        </th>
-                                        <th className="px-5 py-3 font-medium">
-                                            Floor
-                                        </th>
-                                        <th className="px-5 py-3 font-medium">
-                                            Area
-                                        </th>
-                                        <th className="px-5 py-3 font-medium">
-                                            Status
-                                        </th>
-                                        <th className="px-5 py-3 font-medium">
-                                            Ownership
-                                        </th>
-                                        <th className="px-5 py-3 font-medium">
-                                            Residents
-                                        </th>
-                                        <th className="px-5 py-3 text-right font-medium">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {flats.data.map((flat) => (
-                                        <tr
-                                            key={flat.id}
-                                            className="border-b border-border/40 last:border-b-0 hover:bg-muted/40"
-                                        >
-                                            <td className="px-5 py-3">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex size-9 items-center justify-center rounded-md bg-emerald-600/10 text-emerald-600">
-                                                        <DoorOpen className="size-4" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium">
-                                                            {flat.flat_no}
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {flat.tower?.name ??
-                                                                "—"}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                {flat.flat_type ?? (
-                                                    <span className="text-muted-foreground">
-                                                        —
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                {flat.floor_no ?? (
-                                                    <span className="text-muted-foreground">
-                                                        —
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                {flat.area_sqft ? (
-                                                    <span className="text-muted-foreground">
-                                                        {flat.area_sqft.toLocaleString()}{" "}
-                                                        sq. ft.
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-muted-foreground">
-                                                        —
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                <Badge
-                                                    variant="outline"
-                                                    className={`gap-1.5 ${statusStyles[flat.occupancy_status].badge}`}
-                                                >
-                                                    <span
-                                                        className={`size-1.5 rounded-full ${statusStyles[flat.occupancy_status].dot}`}
-                                                    />
-                                                    {flat.occupancy_status}
-                                                </Badge>
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                {flat.ownership_type ===
-                                                "Tenant" ? (
-                                                    <Badge variant="outline">
-                                                        Tenant
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge
-                                                        variant="outline"
-                                                        className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                                                    >
-                                                        Owner
-                                                    </Badge>
-                                                )}
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                <span className="text-muted-foreground">
-                                                    {flat.residents_count > 0 ? (
-                                                        <Link
-                                                            href={route(
-                                                                "residents.index",
-                                                            )}
-                                                            className="font-medium text-foreground underline-offset-4 hover:underline"
-                                                        >
-                                                            {flat.residents_count}{" "}
-                                                            resident
-                                                            {flat.residents_count ===
-                                                            1
-                                                                ? ""
-                                                                : "s"}
-                                                        </Link>
-                                                    ) : (
-                                                        "0 residents"
-                                                    )}
-                                                </span>
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                <div className="flex items-center justify-end gap-1">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        asChild
-                                                        aria-label={`Edit ${flat.flat_no}`}
-                                                    >
-                                                        <Link
-                                                            href={route(
-                                                                "flats.edit",
-                                                                flat.uuid,
-                                                            )}
-                                                        >
-                                                            <Pencil className="size-4" />
-                                                        </Link>
-                                                    </Button>
-                                                    {can.delete && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            aria-label={`Remove ${flat.flat_no}`}
-                                                            onClick={() =>
-                                                                setConfirming(
-                                                                    flat.id,
-                                                                )
-                                                            }
-                                                        >
-                                                            <Trash2 className="size-4 text-destructive" />
-                                                        </Button>
-                                                    )}
-                                                </div>
-
-                                                {confirming === flat.id && (
-                                                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                                                        <Card className="w-full max-w-sm shadow-lg">
-                                                            <CardContent className="p-6">
-                                                                <h2 className="text-lg font-semibold">
-                                                                    Remove flat{" "}
-                                                                    {flat.flat_no}
-                                                                    ?
-                                                                </h2>
-                                                                <p className="mt-1 text-sm text-muted-foreground">
-                                                                    This will
-                                                                    remove the
-                                                                    flat from
-                                                                    the society.
-                                                                    Flats with
-                                                                    residents
-                                                                    attached
-                                                                    cannot be
-                                                                    removed.
-                                                                </p>
-                                                                <div className="mt-5 flex justify-end gap-2">
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        onClick={() =>
-                                                                            setConfirming(
-                                                                                null,
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Cancel
-                                                                    </Button>
-                                                                    <Button
-                                                                        variant="destructive"
-                                                                        onClick={() =>
-                                                                            destroy(
-                                                                                flat,
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Remove
-                                                                    </Button>
-                                                                </div>
-                                                            </CardContent>
-                                                        </Card>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                    <DataTableFull<Flat>
+                        columns={columns}
+                        data={flats.data}
+                        rowKey={(flat) => flat.uuid}
+                        sort={sort}
+                        onSort={handleSort}
+                        selectedIds={selectedIds}
+                        onSelectionChange={setSelectedIds}
+                        onExport={handleExport}
+                        emptyState={
+                            <EmptyState
+                                icon={Inbox}
+                                title={
+                                    filters.search ||
+                                    filters.tower_id ||
+                                    filters.status
+                                        ? "No flats match your filters"
+                                        : "No flats yet"
+                                }
+                                description={
+                                    filters.search ||
+                                    filters.tower_id ||
+                                    filters.status
+                                        ? "Try adjusting your search or filters."
+                                        : can.create
+                                          ? "Add your first flat to get started."
+                                          : "Check back later."
+                                }
+                                action={
+                                    can.create &&
+                                    !filters.search &&
+                                    !filters.tower_id &&
+                                    !filters.status ? (
+                                        <Button asChild>
+                                            <Link href={route("flats.create")}>
+                                                <Plus />
+                                                Add flat
+                                            </Link>
+                                        </Button>
+                                    ) : undefined
+                                }
+                            />
+                        }
+                    />
+                    {flats.last_page > 1 && (
+                        <Pagination
+                            page={flats.current_page}
+                            perPage={flats.per_page}
+                            total={flats.total}
+                            onPageChange={(next) =>
+                                router.get(
+                                    route("flats.index"),
+                                    { ...buildParams(), page: next },
+                                    { preserveState: true, replace: true },
+                                )
+                            }
+                            noun="flats"
+                        />
                     )}
                 </CardContent>
             </Card>
 
-            {flats.last_page > 1 && (
-                <div className="flex items-center justify-between text-sm">
-                    <p className="text-muted-foreground">
-                        Showing{" "}
-                        <span className="font-medium text-foreground">
-                            {flats.from ?? 0}–{flats.to ?? 0}
-                        </span>{" "}
-                        of{" "}
-                        <span className="font-medium text-foreground">
-                            {flats.total}
-                        </span>{" "}
-                        flats
-                    </p>
-                    <div className="flex gap-2">
-                        {flats.current_page > 1 && (
-                            <Button variant="outline" size="sm" asChild>
-                                <Link
-                                    href={
-                                        flats.links[0]?.url ??
-                                        route("flats.index")
-                                    }
-                                >
-                                    Previous
-                                </Link>
-                            </Button>
-                        )}
-                        {flats.current_page < flats.last_page && (
-                            <Button variant="outline" size="sm" asChild>
-                                <Link
-                                    href={
-                                        flats.links.at(-1)?.url ??
-                                        route("flats.index")
-                                    }
-                                >
-                                    Next
-                                </Link>
-                            </Button>
-                        )}
-                    </div>
-                </div>
-            )}
+            <BulkActionBar
+                count={selectedIds.length}
+                onClear={() => setSelectedIds([])}
+                noun="flats"
+                actions={[
+                    {
+                        label: "Delete",
+                        icon: <Trash2 />,
+                        destructive: true,
+                        disabled: !can.delete,
+                        onClick: bulkDelete,
+                    },
+                ]}
+            />
+
+            <ConfirmDialog
+                open={confirming !== null}
+                onOpenChange={(open) => {
+                    if (!open) setConfirming(null);
+                }}
+                title={
+                    confirming
+                        ? `Remove flat ${confirming.flat_no}?`
+                        : "Remove flat?"
+                }
+                description="This will remove the flat from the society. Flats with residents attached cannot be removed."
+                confirmLabel="Remove"
+                destructive
+                onConfirm={handleDelete}
+            />
         </AppLayout>
     );
 }

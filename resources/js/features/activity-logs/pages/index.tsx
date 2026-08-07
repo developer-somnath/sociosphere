@@ -1,20 +1,28 @@
-import { Head, Link, router, usePage } from "@inertiajs/react";
-import {
-    Download,
-    Inbox,
-    Search,
-    X,
-} from "lucide-react";
-import { FormEvent, Fragment, useState } from "react";
+import { Head, router, usePage } from "@inertiajs/react";
+import { History, Inbox } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
+import { PageHeader } from "@/components/app/page-header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { DataTableFull } from "@/components/ui/data-table";
+import type { ColumnDef } from "@/components/ui/data-table";
+import { EmptyState } from "@/components/ui/empty-state";
+import type { ExportFormat } from "@/components/ui/export-menu";
+import { FilterBar } from "@/components/ui/filter-bar";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Pagination } from "@/components/ui/pagination";
+import { toast } from "@/lib/toast";
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
 import type { PageProps } from "@/types";
 import type {
     ActivityLog,
@@ -25,7 +33,10 @@ import type {
 
 type IndexProps = {
     logs: Paginated<ActivityLog>;
-    filters: ActivityLogFilters;
+    filters: ActivityLogFilters & {
+        sort_by: string | null;
+        sort_dir: "asc" | "desc" | null;
+    };
     filterOptions: FilterOptions;
     stats: { today: number };
 };
@@ -100,7 +111,17 @@ export default function ActivityLogsIndex() {
     );
     const [dateFrom, setDateFrom] = useState(filters.date_from ?? "");
     const [dateTo, setDateTo] = useState(filters.date_to ?? "");
-    const [expanded, setExpanded] = useState<number | null>(null);
+    const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
+    const isFirstRender = useRef(true);
+
+    const sort = filters.sort_by
+        ? {
+              key: filters.sort_by,
+              direction: (filters.sort_dir === "asc" ? "asc" : "desc") as
+                  | "asc"
+                  | "desc",
+          }
+        : null;
 
     const buildParams = (): Record<string, string> => {
         const params: Record<string, string> = {};
@@ -111,20 +132,57 @@ export default function ActivityLogsIndex() {
         if (causerId !== "") params.causer_id = causerId;
         if (dateFrom !== "") params.date_from = dateFrom;
         if (dateTo !== "") params.date_to = dateTo;
+        if (filters.sort_by) params.sort_by = filters.sort_by;
+        if (filters.sort_dir) params.sort_dir = filters.sort_dir;
         return params;
     };
 
-    const applyFilters = () => {
-        router.get(route("activity-logs.index"), buildParams(), {
+    const applyFilters = (
+        overrides: {
+            search?: string;
+            module?: string;
+            action?: string;
+            causer_id?: string;
+            date_from?: string;
+            date_to?: string;
+        } = {},
+    ) => {
+        const params: Record<string, string> = {};
+        const nextSearch = (overrides.search ?? search).trim();
+        const nextModule = overrides.module ?? module;
+        const nextAction = overrides.action ?? action;
+        const nextCauser = overrides.causer_id ?? causerId;
+        const nextFrom = overrides.date_from ?? dateFrom;
+        const nextTo = overrides.date_to ?? dateTo;
+
+        if (nextSearch !== "") params.search = nextSearch;
+        if (nextModule !== "") params.module = nextModule;
+        if (nextAction !== "") params.action = nextAction;
+        if (nextCauser !== "") params.causer_id = nextCauser;
+        if (nextFrom !== "") params.date_from = nextFrom;
+        if (nextTo !== "") params.date_to = nextTo;
+        if (filters.sort_by) params.sort_by = filters.sort_by;
+        if (filters.sort_dir) params.sort_dir = filters.sort_dir;
+
+        router.get(route("activity-logs.index"), { ...params, page: 1 }, {
             preserveState: true,
             replace: true,
         });
     };
 
-    const submitSearch = (e: FormEvent) => {
-        e.preventDefault();
-        applyFilters();
-    };
+    // Debounced, URL-synced search (blueprint §8)
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timeout = window.setTimeout(() => {
+            applyFilters({ search });
+        }, 300);
+
+        return () => window.clearTimeout(timeout);
+    }, [search]);
 
     const clearAll = () => {
         setSearch("");
@@ -144,13 +202,110 @@ export default function ActivityLogsIndex() {
         buildParams(),
     ).toString()}`;
 
-    const hasActiveFilters =
-        search !== "" ||
-        module !== "" ||
-        action !== "" ||
-        causerId !== "" ||
-        dateFrom !== "" ||
-        dateTo !== "";
+    const handleSort = (next: { key: string; direction: "asc" | "desc" }) => {
+        router.get(
+            route("activity-logs.index"),
+            { ...buildParams(), sort_by: next.key, sort_dir: next.direction },
+            { preserveState: true, replace: true },
+        );
+    };
+
+    const handleExport = (format: ExportFormat) => {
+        if (format !== "csv") {
+            toast({
+                title: "Export coming soon",
+                variant: "info",
+                description: `${format.toUpperCase()} export will be available soon.`,
+            });
+            return;
+        }
+        window.location.href = exportUrl;
+    };
+
+    const columns: ColumnDef<ActivityLog>[] = useMemo(
+        () => [
+            {
+                id: "when",
+                header: "When",
+                sortable: true,
+                sortKey: "created_at",
+                cell: (log) => (
+                    <span className="whitespace-nowrap text-muted-foreground">
+                        {formatTime(log.created_at)}
+                    </span>
+                ),
+            },
+            {
+                id: "user",
+                header: "User",
+                cell: (log) =>
+                    log.causer ? (
+                        <div className="flex items-center gap-2">
+                            <Avatar className="size-6">
+                                <AvatarFallback className="text-[10px]">
+                                    {initials(log.causer.name)}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p className="font-medium">
+                                    {log.causer.name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    {log.causer.email}
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <span className="text-muted-foreground">System</span>
+                    ),
+            },
+            {
+                id: "module",
+                header: "Module",
+                sortable: true,
+                sortKey: "module",
+                cell: (log) => <Badge variant="outline">{log.module}</Badge>,
+            },
+            {
+                id: "action",
+                header: "Action",
+                sortable: true,
+                sortKey: "action",
+                cell: (log) => actionBadge(log.action),
+            },
+            {
+                id: "entity",
+                header: "Entity",
+                sortable: true,
+                sortKey: "entity_type",
+                cell: (log) => (
+                    <span className="text-muted-foreground">
+                        {entityName(log)}
+                        {log.entity_id ? ` #${log.entity_id}` : ""}
+                    </span>
+                ),
+            },
+            {
+                id: "details",
+                header: "Details",
+                cell: (log) => (
+                    <p className="max-w-md truncate text-muted-foreground">
+                        {log.remarks ?? "—"}
+                    </p>
+                ),
+            },
+            {
+                id: "ip",
+                header: "IP",
+                cell: (log) => (
+                    <span className="whitespace-nowrap font-mono text-xs text-muted-foreground">
+                        {log.ip_address ?? "—"}
+                    </span>
+                ),
+            },
+        ],
+        [],
+    );
 
     const formatTime = (iso: string) => {
         const date = new Date(iso);
@@ -168,409 +323,330 @@ export default function ActivityLogsIndex() {
         <AppLayout>
             <Head title="Activity Logs" />
 
-            <div className="rounded-3xl border border-border/70 bg-card/80 p-5 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.4)] backdrop-blur">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            Activity Logs
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Searchable audit trail of who did what, when, and where.
-                        </p>
-                    </div>
-                    <a
-                        href={exportUrl}
-                        className="inline-flex h-10 items-center gap-2 rounded-xl border border-border/70 bg-background px-4 text-sm font-medium text-foreground shadow-sm transition hover:bg-muted"
-                    >
-                        <Download />
-                        Export CSV
-                    </a>
-                </div>
-            </div>
+            <PageHeader
+                title="Activity Logs"
+                description="Searchable audit trail of who did what, when, and where."
+                icon={<History className="size-5" />}
+            />
 
-            <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)] lg:flex-row lg:items-center lg:justify-between">
-                <form onSubmit={submitSearch} className="relative w-full max-w-sm">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search remarks, module, user…"
-                        className="pl-9 pr-9"
-                    />
-                    {search !== "" && (
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setSearch("");
-                                applyFilters();
-                            }}
-                            aria-label="Clear search"
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        >
-                            <X className="size-4" />
-                        </button>
-                    )}
-                </form>
+            <FilterBar
+                searchValue={search}
+                onSearchChange={setSearch}
+                searchPlaceholder="Search remarks, module, user…"
+                searchLabel="Search activity logs"
+                activeFilters={[
+                    ...(module
+                        ? [
+                              {
+                                  label: `Module: ${module}`,
+                                  onRemove: () => {
+                                      setModule("");
+                                      applyFilters({ module: "" });
+                                  },
+                              },
+                          ]
+                        : []),
+                    ...(action
+                        ? [
+                              {
+                                  label: `Action: ${action}`,
+                                  onRemove: () => {
+                                      setAction("");
+                                      applyFilters({ action: "" });
+                                  },
+                              },
+                          ]
+                        : []),
+                    ...(causerId
+                        ? [
+                              {
+                                  label: `User: ${
+                                      filterOptions.causers.find(
+                                          (causer) =>
+                                              String(causer.id) === causerId,
+                                      )?.name ?? causerId
+                                  }`,
+                                  onRemove: () => {
+                                      setCauserId("");
+                                      applyFilters({ causer_id: "" });
+                                  },
+                              },
+                          ]
+                        : []),
+                    ...(dateFrom
+                        ? [
+                              {
+                                  label: `From ${dateFrom}`,
+                                  onRemove: () => {
+                                      setDateFrom("");
+                                      applyFilters({ date_from: "" });
+                                  },
+                              },
+                          ]
+                        : []),
+                    ...(dateTo
+                        ? [
+                              {
+                                  label: `To ${dateTo}`,
+                                  onRemove: () => {
+                                      setDateTo("");
+                                      applyFilters({ date_to: "" });
+                                  },
+                              },
+                          ]
+                        : []),
+                ]}
+                onReset={clearAll}
+                className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
+            >
+                <select
+                    className={`${selectClasses} w-auto min-w-36`}
+                    value={module}
+                    onChange={(e) => {
+                        setModule(e.target.value);
+                        applyFilters({ module: e.target.value });
+                    }}
+                    aria-label="Filter by module"
+                >
+                    <option value="">All modules</option>
+                    {filterOptions.modules.map((option) => (
+                        <option key={option} value={option}>
+                            {option}
+                        </option>
+                    ))}
+                </select>
+
+                <select
+                    className={`${selectClasses} w-auto min-w-36`}
+                    value={action}
+                    onChange={(e) => {
+                        setAction(e.target.value);
+                        applyFilters({ action: e.target.value });
+                    }}
+                    aria-label="Filter by action"
+                >
+                    <option value="">All actions</option>
+                    {filterOptions.actions.map((option) => (
+                        <option key={option} value={option}>
+                            {option}
+                        </option>
+                    ))}
+                </select>
+
+                <select
+                    className={`${selectClasses} w-auto min-w-40`}
+                    value={causerId}
+                    onChange={(e) => {
+                        setCauserId(e.target.value);
+                        applyFilters({ causer_id: e.target.value });
+                    }}
+                    aria-label="Filter by user"
+                >
+                    <option value="">All users</option>
+                    {filterOptions.causers.map((option) => (
+                        <option key={option.id} value={option.id}>
+                            {option.name}
+                        </option>
+                    ))}
+                </select>
+
+                <Input
+                    type="date"
+                    className="h-10 w-auto"
+                    value={dateFrom}
+                    onChange={(e) => {
+                        setDateFrom(e.target.value);
+                        applyFilters({ date_from: e.target.value });
+                    }}
+                    aria-label="Filter from date"
+                />
+
+                <Input
+                    type="date"
+                    className="h-10 w-auto"
+                    value={dateTo}
+                    onChange={(e) => {
+                        setDateTo(e.target.value);
+                        applyFilters({ date_to: e.target.value });
+                    }}
+                    aria-label="Filter to date"
+                />
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Inbox className="size-4" />
                     {stats.today} entries today
                 </div>
-            </div>
-
-            <div className="flex flex-wrap items-end gap-3">
-                <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="module-filter">Module</Label>
-                    <select
-                        id="module-filter"
-                        className={`${selectClasses} w-auto`}
-                        value={module}
-                        onChange={(e) => {
-                            setModule(e.target.value);
-                            applyFilters();
-                        }}
-                        aria-label="Filter by module"
-                    >
-                        <option value="">All modules</option>
-                        {filterOptions.modules.map((option) => (
-                            <option key={option} value={option}>
-                                {option}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="action-filter">Action</Label>
-                    <select
-                        id="action-filter"
-                        className={`${selectClasses} w-auto`}
-                        value={action}
-                        onChange={(e) => {
-                            setAction(e.target.value);
-                            applyFilters();
-                        }}
-                        aria-label="Filter by action"
-                    >
-                        <option value="">All actions</option>
-                        {filterOptions.actions.map((option) => (
-                            <option key={option} value={option}>
-                                {option}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="causer-filter">User</Label>
-                    <select
-                        id="causer-filter"
-                        className={`${selectClasses} w-auto`}
-                        value={causerId}
-                        onChange={(e) => {
-                            setCauserId(e.target.value);
-                            applyFilters();
-                        }}
-                        aria-label="Filter by user"
-                    >
-                        <option value="">All users</option>
-                        {filterOptions.causers.map((option) => (
-                            <option key={option.id} value={option.id}>
-                                {option.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="date-from">From</Label>
-                    <Input
-                        id="date-from"
-                        type="date"
-                        className="h-10 w-auto"
-                        value={dateFrom}
-                        onChange={(e) => {
-                            setDateFrom(e.target.value);
-                            applyFilters();
-                        }}
-                    />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="date-to">To</Label>
-                    <Input
-                        id="date-to"
-                        type="date"
-                        className="h-10 w-auto"
-                        value={dateTo}
-                        onChange={(e) => {
-                            setDateTo(e.target.value);
-                            applyFilters();
-                        }}
-                    />
-                </div>
-
-                {hasActiveFilters && (
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={clearAll}
-                        className="text-muted-foreground"
-                    >
-                        <X />
-                        Clear filters
-                    </Button>
-                )}
-            </div>
+            </FilterBar>
 
             <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardContent className="p-0">
-                    {logs.data.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-                            <Inbox className="size-8 text-muted-foreground" />
-                            <p className="text-sm font-medium">
-                                No activity found
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                Try adjusting your search or filters.
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wider text-muted-foreground">
-                                        <th className="px-4 py-3 font-medium">
-                                            When
-                                        </th>
-                                        <th className="px-4 py-3 font-medium">
-                                            User
-                                        </th>
-                                        <th className="px-4 py-3 font-medium">
-                                            Module
-                                        </th>
-                                        <th className="px-4 py-3 font-medium">
-                                            Action
-                                        </th>
-                                        <th className="px-4 py-3 font-medium">
-                                            Entity
-                                        </th>
-                                        <th className="px-4 py-3 font-medium">
-                                            Details
-                                        </th>
-                                        <th className="px-4 py-3 font-medium">
-                                            IP
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {logs.data.map((log) => (
-                                        <Fragment key={log.id}>
-                                            <tr
-                                                onClick={() =>
-                                                    setExpanded(
-                                                        expanded === log.id
-                                                            ? null
-                                                            : log.id,
-                                                    )
-                                                }
-                                                className="cursor-pointer border-b border-border/40 last:border-0 hover:bg-muted/30"
-                                            >
-                                                <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                                                    {formatTime(log.created_at)}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {log.causer ? (
-                                                        <div className="flex items-center gap-2">
-                                                            <Avatar className="size-6">
-                                                                <AvatarFallback className="text-[10px]">
-                                                                    {initials(
-                                                                        log.causer.name,
-                                                                    )}
-                                                                </AvatarFallback>
-                                                            </Avatar>
-                                                            <div>
-                                                                <p className="font-medium">
-                                                                    {
-                                                                        log
-                                                                            .causer
-                                                                            .name
-                                                                    }
-                                                                </p>
-                                                                <p className="text-xs text-muted-foreground">
-                                                                    {
-                                                                        log
-                                                                            .causer
-                                                                            .email
-                                                                    }
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-muted-foreground">
-                                                            System
-                                                        </span>
-                                                    )}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <Badge variant="outline">
-                                                        {log.module}
-                                                    </Badge>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    {actionBadge(log.action)}
-                                                </td>
-                                                <td className="px-4 py-3 text-muted-foreground">
-                                                    {entityName(log)}
-                                                    {log.entity_id
-                                                        ? ` #${log.entity_id}`
-                                                        : ""}
-                                                </td>
-                                                <td className="max-w-md px-4 py-3">
-                                                    <p className="truncate text-muted-foreground">
-                                                        {log.remarks ?? "—"}
-                                                    </p>
-                                                </td>
-                                                <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                                                    {log.ip_address ?? "—"}
-                                                </td>
-                                            </tr>
-                                            {expanded === log.id && (
-                                                <tr
-                                                    className="border-b border-border/40 bg-muted/20"
-                                                >
-                                                    <td
-                                                        colSpan={7}
-                                                        className="px-4 py-4"
-                                                    >
-                                                        <div className="grid gap-4 md:grid-cols-2">
-                                                            <div className="flex flex-col gap-1.5">
-                                                                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                                                    Request
-                                                                </p>
-                                                                <p className="text-sm">
-                                                                    {log.method ??
-                                                                        "—"}{" "}
-                                                                    <span className="text-muted-foreground">
-                                                                        {
-                                                                            log.request_url
-                                                                        }
-                                                                    </span>
-                                                                </p>
-                                                                <p className="text-xs text-muted-foreground">
-                                                                    Society:{" "}
-                                                                    {log.society
-                                                                        ?.name ??
-                                                                        "—"}
-                                                                </p>
-                                                                <p className="text-xs text-muted-foreground">
-                                                                    Entity:{" "}
-                                                                    {log.entity_type ??
-                                                                        "—"}
-                                                                </p>
-                                                            </div>
-                                                            <div className="flex flex-col gap-1.5">
-                                                                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                                                    Change
-                                                                </p>
-                                                                {log.old_values &&
-                                                                    log.new_values ? (
-                                                                    <div className="grid gap-2 text-xs">
-                                                                        <div>
-                                                                            <p className="mb-1 font-medium text-amber-600 dark:text-amber-400">
-                                                                                Before
-                                                                            </p>
-                                                                            <pre className="overflow-x-auto rounded-md bg-muted p-2 font-mono text-[11px]">
-                                                                                {JSON.stringify(
-                                                                                    log.old_values,
-                                                                                    null,
-                                                                                    2,
-                                                                                )}
-                                                                            </pre>
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className="mb-1 font-medium text-emerald-600 dark:text-emerald-400">
-                                                                                After
-                                                                            </p>
-                                                                            <pre className="overflow-x-auto rounded-md bg-muted p-2 font-mono text-[11px]">
-                                                                                {JSON.stringify(
-                                                                                    log.new_values,
-                                                                                    null,
-                                                                                    2,
-                                                                                )}
-                                                                            </pre>
-                                                                        </div>
-                                                                    </div>
-                                                                ) : log.properties ? (
-                                                                    <pre className="overflow-x-auto rounded-md bg-muted p-2 font-mono text-[11px]">
-                                                                        {JSON.stringify(
-                                                                            log.properties,
-                                                                            null,
-                                                                            2,
-                                                                        )}
-                                                                    </pre>
-                                                                ) : (
-                                                                    <p className="text-xs text-muted-foreground">
-                                                                        No
-                                                                        property
-                                                                        changes
-                                                                        recorded.
-                                                                    </p>
-                                                                )}
-                                                                {log.user_agent && (
-                                                                    <p className="truncate text-[11px] text-muted-foreground">
-                                                                        {log.user_agent}
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </Fragment>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                    <DataTableFull<ActivityLog>
+                        columns={columns}
+                        data={logs.data}
+                        rowKey={(log) => log.id}
+                        sort={sort}
+                        onSort={handleSort}
+                        onExport={handleExport}
+                        onRowClick={(log) => setSelectedLog(log)}
+                        emptyState={
+                            <EmptyState
+                                icon={Inbox}
+                                title="No activity found"
+                                description="Try adjusting your search or filters."
+                            />
+                        }
+                    />
+                    {logs.last_page > 1 && (
+                        <Pagination
+                            page={logs.current_page}
+                            perPage={logs.per_page}
+                            total={logs.total}
+                            onPageChange={(next) =>
+                                router.get(
+                                    route("activity-logs.index"),
+                                    { ...buildParams(), page: next },
+                                    { preserveState: true, replace: true },
+                                )
+                            }
+                            noun="entries"
+                        />
                     )}
                 </CardContent>
             </Card>
 
-            <div className="flex flex-col items-center justify-between gap-2 text-sm text-muted-foreground sm:flex-row">
-                <p>
-                    Showing {logs.from ?? 0}–{logs.to ?? 0} of {logs.total}{" "}
-                    entries · {stats.today} today
-                </p>
-                {logs.links.length > 3 && (
-                    <div className="flex items-center gap-2">
-                        {logs.links.map((link, index) => (
-                            <Button
-                                key={index}
-                                variant={link.active ? "default" : "outline"}
-                                size="sm"
-                                disabled={!link.url}
-                                asChild={link.url !== null}
-                            >
-                                {link.url ? (
-                                    <Link
-                                        href={link.url}
-                                        preserveScroll
-                                        dangerouslySetInnerHTML={{
-                                            __html: link.label,
-                                        }}
-                                    />
-                                ) : (
-                                    <span
-                                        dangerouslySetInnerHTML={{
-                                            __html: link.label,
-                                        }}
-                                    />
+            {/* Blueprint §8 Slide-Over Detail Drawer */}
+            <Sheet open={selectedLog !== null} onOpenChange={(open) => !open && setSelectedLog(null)}>
+                <SheetContent side="right" className="sm:max-w-xl p-0 overflow-y-auto">
+                    {selectedLog && (
+                        <div className="flex flex-col gap-6 p-6">
+                            <SheetHeader className="p-0 space-y-2">
+                                <div className="flex items-center gap-2">
+                                    <Badge variant="outline">{selectedLog.module}</Badge>
+                                    {actionBadge(selectedLog.action)}
+                                    <span className="ml-auto text-xs text-muted-foreground font-mono">
+                                        #{selectedLog.id}
+                                    </span>
+                                </div>
+                                <SheetTitle className="text-lg font-semibold text-foreground">
+                                    {selectedLog.remarks ?? `${selectedLog.action} ${selectedLog.module}`}
+                                </SheetTitle>
+                                <SheetDescription className="text-xs text-muted-foreground">
+                                    {formatTime(selectedLog.created_at)}
+                                </SheetDescription>
+                            </SheetHeader>
+
+                            {/* User & Telemetry Section */}
+                            <div className="rounded-xl border border-border/70 bg-muted/40 p-4 space-y-3">
+                                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                    Causer & Network Telemetry
+                                </h4>
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="size-9">
+                                        <AvatarFallback>
+                                            {selectedLog.causer ? initials(selectedLog.causer.name) : "SYS"}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="font-medium text-sm">
+                                            {selectedLog.causer?.name ?? "System Process"}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {selectedLog.causer?.email ?? "Automated System Event"}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/50 text-xs">
+                                    <div>
+                                        <span className="text-muted-foreground">IP Address: </span>
+                                        <span className="font-mono font-medium">{selectedLog.ip_address ?? "—"}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-muted-foreground">HTTP Method: </span>
+                                        <span className="font-semibold">{selectedLog.method ?? "—"}</span>
+                                    </div>
+                                    <div className="col-span-2 truncate">
+                                        <span className="text-muted-foreground">Request URL: </span>
+                                        <span className="font-mono text-[11px]">{selectedLog.request_url ?? "—"}</span>
+                                    </div>
+                                    {selectedLog.society && (
+                                        <div className="col-span-2">
+                                            <span className="text-muted-foreground">Society: </span>
+                                            <span className="font-medium">{selectedLog.society.name}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Target Entity Section */}
+                            <div className="rounded-xl border border-border/70 bg-muted/40 p-4 space-y-2 text-xs">
+                                <h4 className="font-semibold uppercase tracking-wider text-muted-foreground text-[11px]">
+                                    Target Entity Context
+                                </h4>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-muted-foreground">Entity Type:</span>
+                                    <span className="font-mono font-medium">{selectedLog.entity_type ?? "—"}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-muted-foreground">Entity ID:</span>
+                                    <span className="font-mono font-medium">{selectedLog.entity_id ?? "—"}</span>
+                                </div>
+                                {selectedLog.user_agent && (
+                                    <div className="pt-2 border-t border-border/50 text-[11px] text-muted-foreground truncate">
+                                        Agent: {selectedLog.user_agent}
+                                    </div>
                                 )}
-                            </Button>
-                        ))}
-                    </div>
-                )}
-            </div>
+                            </div>
+
+                            {/* Diff / Payload Section */}
+                            <div className="space-y-3">
+                                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                    Recorded Diff & Payload
+                                </h4>
+
+                                {selectedLog.old_values && selectedLog.new_values ? (
+                                    <div className="grid gap-3">
+                                        <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3">
+                                            <p className="text-xs font-semibold text-red-600 dark:text-red-400 mb-1.5">
+                                                Before (Previous Attributes)
+                                            </p>
+                                            <pre className="overflow-x-auto rounded-lg bg-background/80 p-3 font-mono text-[11px] text-foreground border border-border/50">
+                                                {JSON.stringify(selectedLog.old_values, null, 2)}
+                                            </pre>
+                                        </div>
+                                        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
+                                            <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1.5">
+                                                After (Updated Attributes)
+                                            </p>
+                                            <pre className="overflow-x-auto rounded-lg bg-background/80 p-3 font-mono text-[11px] text-foreground border border-border/50">
+                                                {JSON.stringify(selectedLog.new_values, null, 2)}
+                                            </pre>
+                                        </div>
+                                    </div>
+                                ) : selectedLog.new_values ? (
+                                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
+                                        <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1.5">
+                                            Created Payload
+                                        </p>
+                                        <pre className="overflow-x-auto rounded-lg bg-background/80 p-3 font-mono text-[11px] text-foreground border border-border/50">
+                                            {JSON.stringify(selectedLog.new_values, null, 2)}
+                                        </pre>
+                                    </div>
+                                ) : selectedLog.properties ? (
+                                    <div className="rounded-xl border border-border/70 bg-muted/40 p-3">
+                                        <pre className="overflow-x-auto rounded-lg bg-background/80 p-3 font-mono text-[11px] text-foreground border border-border/50">
+                                            {JSON.stringify(selectedLog.properties, null, 2)}
+                                        </pre>
+                                    </div>
+                                ) : (
+                                    <p className="text-xs text-muted-foreground italic">
+                                        No value diff payload recorded for this operation.
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </SheetContent>
+            </Sheet>
         </AppLayout>
     );
 }

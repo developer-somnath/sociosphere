@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Loader2 } from "lucide-react"
 import { Slot } from "radix-ui"
 
 import { cn } from "@/lib/utils"
@@ -18,6 +19,10 @@ const buttonVariants = cva(
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        "destructive-solid":
+          "bg-destructive text-white hover:bg-destructive/90 focus-visible:border-destructive/40 focus-visible:ring-destructive/20",
+        "destructive-ghost":
+          "text-destructive hover:bg-destructive/10 focus-visible:ring-destructive/20 dark:hover:bg-destructive/20",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
@@ -41,27 +46,57 @@ const buttonVariants = cva(
   }
 )
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  asChild = false,
-  ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
+const Button = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<"button"> &
+    VariantProps<typeof buttonVariants> & {
+      asChild?: boolean
+      loading?: boolean
+    }
+>(function Button(
+  {
+    className,
+    variant = "default",
+    size = "default",
+    asChild = false,
+    loading = false,
+    disabled,
+    children,
+    ...props
+  },
+  ref
+) {
   const Comp = asChild ? Slot.Root : "button"
+  const isDisabled = disabled || loading
+
+  // When asChild=true, Radix Slot.Root calls React.Children.only() on its
+  // children. Rendering spinner + children as two siblings would crash with
+  // "expected a single React element child". Wrap them in a Fragment so
+  // Slot sees exactly one child regardless of asChild mode.
+  const content = loading ? (
+    <>
+      <Loader2 className="animate-spin" aria-hidden />
+      {children}
+    </>
+  ) : (
+    <>{children}</>
+  )
 
   return (
     <Comp
+      ref={ref}
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      aria-busy={loading || undefined}
+      className={cn(buttonVariants({ variant, size, className }), loading && "pointer-events-none")}
+      disabled={isDisabled}
       {...props}
-    />
+    >
+      {content}
+    </Comp>
   )
-}
+})
+Button.displayName = "Button"
 
 export { Button, buttonVariants }

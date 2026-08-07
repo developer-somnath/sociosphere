@@ -5,6 +5,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import UserForm, {
     type UserFormValues,
 } from "@/features/users/components/user-form";
@@ -19,7 +20,7 @@ type CreateProps = {
 export default function UsersCreate() {
     const { roleOptions, societies } = usePage<PageProps<CreateProps>>().props;
 
-    const { data, setData, post, errors, processing } =
+    const { data, setData: rawSetData, post, errors, processing } =
         useForm<UserFormValues>({
             name: "",
             email: "",
@@ -31,9 +32,26 @@ export default function UsersCreate() {
             is_active: true,
         });
 
+    // UserFormValues are all primitives, so narrowing the Inertia
+    // setData signature to (key, value) is safe.
+    const setData = rawSetData as <K extends keyof UserFormValues>(
+        key: K,
+        value: UserFormValues[K],
+    ) => void;
+
+    const { markDirty, reset } = useUnsavedChanges();
+
+    // Mark the guard dirty on every field change (blueprint §10)
+    const updateData: typeof setData = (key, value) => {
+        markDirty();
+        setData(key, value);
+    };
+
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        post(route("users.store"));
+        post(route("users.store"), {
+            onSuccess: () => reset(),
+        });
     };
 
     return (
@@ -57,7 +75,7 @@ export default function UsersCreate() {
                     </div>
                 </div>
 
-                <Card className="max-w-4xl border-border/60 bg-background/70 shadow-sm">
+                <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
                             <UserPlus className="size-5 text-sky-600" />
@@ -69,7 +87,7 @@ export default function UsersCreate() {
                             roles={roleOptions}
                             societies={societies}
                             data={data}
-                            setData={setData}
+                            setData={updateData}
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}

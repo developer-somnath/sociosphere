@@ -25,9 +25,22 @@ class ActivityLogController extends Controller
 
         $filters = $this->validatedFilters($request);
 
+        $sortBy = in_array($request->query('sort_by'), ['created_at', 'module', 'action', 'entity_type', 'causer_id'], true)
+            ? $request->query('sort_by')
+            : null;
+        $sortDir = strtolower((string) $request->query('sort_dir')) === 'asc' ? 'asc' : 'desc';
+
         $logs = $this->baseQuery($request, $filters)
-            ->latest('created_at')
-            ->latest('id')
+            ->when($sortBy !== null, function (Builder $query) use ($sortBy, $sortDir) {
+                if ($sortBy === 'created_at') {
+                    $query->orderBy('created_at', $sortDir)->orderBy('id', $sortDir);
+                } else {
+                    $query->orderBy($sortBy, $sortDir);
+                }
+            })
+            ->when($sortBy === null, function (Builder $query) {
+                $query->latest('created_at')->latest('id');
+            })
             ->paginate(15)
             ->withQueryString();
 
@@ -35,7 +48,10 @@ class ActivityLogController extends Controller
 
         return Inertia::render('features/activity-logs/pages/index', [
             'logs' => $logs,
-            'filters' => $filters,
+            'filters' => $filters + [
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
+            ],
             'filterOptions' => [
                 'modules' => (clone $scoped)
                     ->select('module')

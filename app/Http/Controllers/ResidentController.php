@@ -25,6 +25,11 @@ class ResidentController extends Controller
 
         $search = trim((string) $request->query('search', ''));
 
+        $sortBy = in_array($request->string('sort_by', 'id'), ['name', 'created_at'], true)
+            ? (string) $request->string('sort_by')
+            : 'id';
+        $sortDir = $request->string('sort_dir', 'desc') === 'asc' ? 'asc' : 'desc';
+
         $residents = Resident::query()
             ->with(['flat', 'flat.tower'])
             ->when($search !== '', function ($query) use ($search) {
@@ -35,7 +40,7 @@ class ResidentController extends Controller
                         ->orWhereHas('flat', fn ($query) => $query->whereLike('flat_no', $search));
                 });
             })
-            ->latest('id')
+            ->orderBy($sortBy, $sortDir)
             ->paginate(10)
             ->withQueryString();
 
@@ -43,6 +48,8 @@ class ResidentController extends Controller
             'residents' => $residents,
             'filters' => [
                 'search' => $search,
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
             ],
             'can' => [
                 'create' => $request->user()->hasPermissionTo('resident.create'),

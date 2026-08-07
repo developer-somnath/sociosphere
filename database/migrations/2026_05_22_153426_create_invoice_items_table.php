@@ -20,10 +20,11 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->foreignId('head_id')
+                ->nullable()
                 ->constrained('invoice_heads')
-                ->cascadeOnDelete();
+                ->nullOnDelete();
 
-            $table->string('description');
+            $table->string('description')->nullable();
 
             $table->decimal(
                 'amount',

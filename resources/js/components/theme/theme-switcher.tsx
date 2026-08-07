@@ -9,45 +9,66 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 export function ThemeSwitcher() {
     const [mounted, setMounted] = useState(false);
-
-    const { setTheme } = useTheme();
+    const { theme, setTheme, resolvedTheme } = useTheme();
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
+    // Avoid hydration mismatch — render a placeholder until mounted
     if (!mounted) {
-        return null;
+        return (
+            <Button variant="ghost" size="icon" className="size-8 rounded-lg" aria-label="Toggle theme">
+                <Sun className="size-4 opacity-0" />
+            </Button>
+        );
     }
+
+    const isDark = resolvedTheme === "dark";
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
-                    className="rounded-xl border-border/70 bg-background/70 shadow-sm backdrop-blur"
+                    className="size-8 rounded-lg text-muted-foreground hover:text-foreground"
+                    aria-label="Toggle theme"
                 >
-                    <Sun className="h-4 w-4" />
+                    {isDark ? (
+                        <Moon className="size-4" />
+                    ) : (
+                        <Sun className="size-4" />
+                    )}
                 </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" className="rounded-xl">
-                <DropdownMenuItem onClick={() => setTheme("light")}>
-                    <Sun className="mr-2 h-4 w-4" />
+            <DropdownMenuContent align="end" className="w-36 rounded-xl">
+                <DropdownMenuItem
+                    onClick={() => setTheme("light")}
+                    className={cn(theme === "light" && "bg-accent font-medium")}
+                >
+                    <Sun className="size-4" />
                     Light
                 </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
-                    <Moon className="mr-2 h-4 w-4" />
+                <DropdownMenuItem
+                    onClick={() => setTheme("dark")}
+                    className={cn(theme === "dark" && "bg-accent font-medium")}
+                >
+                    <Moon className="size-4" />
                     Dark
                 </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={() => setTheme("system")}>
-                    <Monitor className="mr-2 h-4 w-4" />
+                <DropdownMenuItem
+                    onClick={() => setTheme("system")}
+                    className={cn(theme === "system" && "bg-accent font-medium")}
+                >
+                    <Monitor className="size-4" />
                     System
                 </DropdownMenuItem>
             </DropdownMenuContent>

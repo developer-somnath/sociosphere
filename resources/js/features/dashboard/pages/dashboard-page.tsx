@@ -2,200 +2,292 @@ import { Head, Link, usePage } from "@inertiajs/react";
 import {
     AlertCircle,
     ArrowRight,
-    BadgeCheck,
     Building2,
+    CheckCircle2,
+    Clock,
     CreditCard,
     DoorOpen,
     Megaphone,
-    Sparkles,
+    Plus,
+    ReceiptText,
+    TrendingUp,
     Users,
-    Wallet2,
 } from "lucide-react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/ui/metric-card";
+import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import type { DashboardStats, PageProps } from "@/types";
 
+function safeRoute(name: string): string {
+    try { return route(name); } catch { return "#"; }
+}
+
 function greeting(): string {
-    const hour = new Date().getHours();
-
-    if (hour < 12) {
-        return "Good morning";
-    }
-
-    if (hour < 17) {
-        return "Good afternoon";
-    }
-
+    const h = new Date().getHours();
+    if (h < 12) return "Good morning";
+    if (h < 17) return "Good afternoon";
     return "Good evening";
 }
 
 export default function DashboardPage() {
-    const { auth, stats } = usePage<PageProps<{ stats: DashboardStats }>>()
-        .props;
-
+    const { auth, stats } = usePage<PageProps<{ stats: DashboardStats }>>().props;
     const firstName = auth.user?.name.split(" ")[0] ?? "there";
     const occupancyRate =
-        stats.flats > 0
-            ? Math.round((stats.occupied_flats / stats.flats) * 100)
-            : 0;
+        stats.flats > 0 ? Math.round((stats.occupied_flats / stats.flats) * 100) : 0;
+    const vacantFlats = stats.flats - stats.occupied_flats;
 
     return (
         <AppLayout>
             <Head title="Overview" />
 
-            <div className="rounded-3xl border border-border/70 bg-card/80 p-5 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.4)] backdrop-blur">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="space-y-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <Badge variant="secondary" className="rounded-full border-primary/20 bg-primary/10 text-primary">
-                                <Sparkles className="size-3" />
-                                Premium operations hub
-                            </Badge>
-                            <Badge variant="outline" className="rounded-full">
-                                <BadgeCheck className="size-3" />
-                                Live overview
-                            </Badge>
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                                {greeting()}, {firstName}
-                            </h1>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                Here’s what’s happening at{" "}
-                                <span className="font-medium text-foreground">
-                                    {auth.society?.name ?? "your society"}
-                                </span>{" "}
-                                today.
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        <Button variant="outline" asChild>
-                            <Link href={route("residents.index")}>
-                                Residents
-                                <ArrowRight />
-                            </Link>
-                        </Button>
-                        <Button asChild>
-                            <Link href={route("flats.index")}>
-                                Property units
-                                <ArrowRight />
-                            </Link>
-                        </Button>
-                    </div>
+            {/* ── Page header ─────────────────────────────────────────────── */}
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 className="text-xl font-semibold tracking-tight text-foreground">
+                        {greeting()}, {firstName}
+                    </h1>
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                        Here's what's happening at{" "}
+                        <span className="font-medium text-foreground">
+                            {auth.society?.name ?? "your society"}
+                        </span>{" "}
+                        today.
+                    </p>
+                </div>
+
+                {/* Quick actions row */}
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button variant="outline" size="sm" asChild>
+                        <Link href={safeRoute("residents.create")}>
+                            <Plus className="size-3.5" />
+                            Add resident
+                        </Link>
+                    </Button>
+                    <Button size="sm" asChild>
+                        <Link href={safeRoute("invoices.create")}>
+                            <ReceiptText className="size-3.5" />
+                            New invoice
+                        </Link>
+                    </Button>
                 </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {/* ── KPI grid ────────────────────────────────────────────────── */}
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <MetricCard
-                    label="Residents"
+                    label="Total residents"
                     value={stats.residents}
                     hint="Registered owners & tenants"
                     icon={Users}
-                    accent="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
+                    accentColor="bg-blue-500"
+                    iconColor="bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
                     trend="+4.2%"
+                    trendDir="up"
                 />
                 <MetricCard
                     label="Property units"
                     value={stats.flats}
-                    hint={`${stats.occupied_flats.toLocaleString()} occupied (${occupancyRate}%)`}
+                    hint={`${stats.occupied_flats.toLocaleString()} occupied · ${occupancyRate}% rate`}
                     icon={DoorOpen}
-                    accent="bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400"
-                    trend="Stable"
+                    accentColor="bg-violet-500"
+                    iconColor="bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400"
+                    trend={`${occupancyRate}% full`}
+                    trendDir={occupancyRate >= 75 ? "up" : "neutral"}
                 />
                 <MetricCard
                     label="Open complaints"
                     value={stats.open_complaints}
                     hint="Awaiting resolution"
                     icon={AlertCircle}
-                    accent="bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                    trend="Priority"
-                />
-                <MetricCard
-                    label="Active notices"
-                    value={stats.active_notices}
-                    hint="Currently published"
-                    icon={Megaphone}
-                    accent="bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
+                    accentColor="bg-amber-500"
+                    iconColor="bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                    trend={stats.open_complaints > 0 ? "Needs attention" : "All clear"}
+                    trendDir={stats.open_complaints > 0 ? "down" : "up"}
                 />
                 <MetricCard
                     label="Pending payments"
                     value={stats.pending_payments}
                     hint="Outstanding invoices"
                     icon={CreditCard}
-                    accent="bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                    trend="Due soon"
-                />
-                <MetricCard
-                    label="Tower coverage"
-                    value={stats.towers}
-                    hint="Blocks under management"
-                    icon={Building2}
-                    accent="bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400"
+                    accentColor="bg-rose-500"
+                    iconColor="bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
+                    trend={stats.pending_payments > 0 ? "Due soon" : "Up to date"}
+                    trendDir={stats.pending_payments === 0 ? "up" : "neutral"}
                 />
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-[1.45fr_0.85fr]">
-                <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Wallet2 className="size-4 text-primary" />
-                            Society snapshot
-                        </CardTitle>
-                        <CardDescription>
-                            A premium view of financial and operational health for the community.
-                        </CardDescription>
+            {/* ── Mid section: Occupancy + quick stats ──────────────────── */}
+            <div className="grid gap-4 lg:grid-cols-3">
+                {/* Occupancy card */}
+                <Card className="col-span-2 border-border bg-card shadow-sm">
+                    <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-sm font-semibold text-foreground">
+                                Occupancy overview
+                            </CardTitle>
+                            <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs text-muted-foreground" asChild>
+                                <Link href={safeRoute("flats.index")}>
+                                    View all <ArrowRight className="size-3" />
+                                </Link>
+                            </Button>
+                        </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="rounded-2xl border border-border/70 bg-muted/40 p-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-foreground">Occupancy performance</p>
-                                    <p className="text-sm text-muted-foreground">{occupancyRate}% of units currently occupied</p>
-                                </div>
-                                <div className="text-2xl font-semibold text-foreground">{occupancyRate}%</div>
+                        {/* Occupancy progress */}
+                        <div>
+                            <div className="mb-2 flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Overall occupancy</span>
+                                <span className="font-semibold tabular-nums text-foreground">{occupancyRate}%</span>
+                            </div>
+                            <Progress value={occupancyRate} className="h-2" />
+                        </div>
+
+                        <Separator />
+
+                        {/* Stat breakdown grid */}
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground">Total flats</p>
+                                <p className="text-xl font-semibold tabular-nums text-foreground">{stats.flats.toLocaleString()}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground">Occupied</p>
+                                <p className="text-xl font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{stats.occupied_flats.toLocaleString()}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground">Vacant</p>
+                                <p className="text-xl font-semibold tabular-nums text-muted-foreground">{vacantFlats.toLocaleString()}</p>
                             </div>
                         </div>
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                                <p className="text-sm text-muted-foreground">Resident engagement</p>
-                                <p className="mt-2 text-xl font-semibold text-foreground">High activity</p>
+
+                        <Separator />
+
+                        {/* Bottom row */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground">Total towers</p>
+                                <p className="text-lg font-semibold tabular-nums text-foreground">{stats.towers.toLocaleString()}</p>
                             </div>
-                            <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                                <p className="text-sm text-muted-foreground">Payment posture</p>
-                                <p className="mt-2 text-xl font-semibold text-foreground">Healthy</p>
+                            <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground">Active notices</p>
+                                <p className="text-lg font-semibold tabular-nums text-foreground">{stats.active_notices.toLocaleString()}</p>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
-                    <CardHeader>
-                        <CardTitle>Next best actions</CardTitle>
-                        <CardDescription>Suggested follow-up for the management team.</CardDescription>
+                {/* Right col: action items */}
+                <Card className="border-border bg-card shadow-sm">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-semibold text-foreground">
+                            Action items
+                        </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3">
-                        <div className="rounded-2xl border border-border/70 bg-background/70 p-3">
-                            <p className="text-sm font-medium text-foreground">Review pending payments</p>
-                            <p className="text-sm text-muted-foreground">Keep billing momentum strong before dues pile up.</p>
-                        </div>
-                        <div className="rounded-2xl border border-border/70 bg-background/70 p-3">
-                            <p className="text-sm font-medium text-foreground">Prioritize unresolved complaints</p>
-                            <p className="text-sm text-muted-foreground">Improve satisfaction with faster follow-up.</p>
-                        </div>
-                        <div className="rounded-2xl border border-border/70 bg-background/70 p-3">
-                            <p className="text-sm font-medium text-foreground">Publish a fresh notice</p>
-                            <p className="text-sm text-muted-foreground">Keep residents informed about community updates.</p>
-                        </div>
+                    <CardContent>
+                        <ul className="space-y-2">
+                            <ActionItem
+                                icon={AlertCircle}
+                                iconClass="text-amber-500"
+                                label="Review open complaints"
+                                count={stats.open_complaints}
+                                href={safeRoute("visitors.index")}
+                            />
+                            <ActionItem
+                                icon={CreditCard}
+                                iconClass="text-rose-500"
+                                label="Collect pending dues"
+                                count={stats.pending_payments}
+                                href={safeRoute("payments.index")}
+                            />
+                            <ActionItem
+                                icon={Megaphone}
+                                iconClass="text-blue-500"
+                                label="Active notices"
+                                count={stats.active_notices}
+                                href={safeRoute("visitors.index")}
+                            />
+                            <ActionItem
+                                icon={DoorOpen}
+                                iconClass="text-violet-500"
+                                label="Visitor passes today"
+                                count={null}
+                                href={safeRoute("visitors.index")}
+                            />
+                        </ul>
                     </CardContent>
                 </Card>
             </div>
+
+            {/* ── Bottom: quick-create strip ─────────────────────────────── */}
+            <Card className="border-border bg-card shadow-sm">
+                <CardContent className="py-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <p className="mr-2 text-sm font-medium text-muted-foreground">Quick actions:</p>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={safeRoute("towers.create")}>
+                                <Plus className="size-3.5" /> New tower
+                            </Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={safeRoute("flats.create")}>
+                                <Plus className="size-3.5" /> New flat
+                            </Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={safeRoute("residents.create")}>
+                                <Plus className="size-3.5" /> New resident
+                            </Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={safeRoute("parking-slots.create")}>
+                                <Plus className="size-3.5" /> Allocate parking
+                            </Link>
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
         </AppLayout>
     );
 }
+
+/* ─── Helper sub-component ──────────────────────────────────────────────── */
+
+function ActionItem({
+    icon: Icon,
+    iconClass,
+    label,
+    count,
+    href,
+}: {
+    icon: LucideIcon;
+    iconClass: string;
+    label: string;
+    count: number | null;
+    href: string;
+}) {
+    return (
+        <li>
+            <Link
+                href={href}
+                className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm transition-colors hover:bg-muted"
+            >
+                <Icon className={`size-4 shrink-0 ${iconClass}`} />
+                <span className="flex-1 text-foreground">{label}</span>
+                {count !== null && (
+                    <span className="tabular-nums text-xs font-semibold text-muted-foreground">
+                        {count}
+                    </span>
+                )}
+                <ArrowRight className="size-3.5 text-muted-foreground/50" />
+            </Link>
+        </li>
+    );
+}
+
+// Re-export type for TypeScript
+type LucideIcon = typeof AlertCircle;

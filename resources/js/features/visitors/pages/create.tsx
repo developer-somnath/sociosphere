@@ -11,6 +11,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import type { PageProps } from "@/types";
 import type { FlatOption } from "@/features/visitors/types";
 import VisitorForm, {
@@ -24,7 +25,7 @@ type CreateProps = {
 export default function VisitorsCreate() {
     const { flats } = usePage<PageProps<CreateProps>>().props;
 
-    const { data, setData, post, processing, errors } =
+    const { data, setData: rawSetData, post, processing, errors } =
         useForm<VisitorFormValues>({
             name: "",
             phone: "",
@@ -36,9 +37,26 @@ export default function VisitorsCreate() {
             scheduled_for: "",
         });
 
+    // All VisitorFormValues are plain primitives, so narrowing the
+    // Inertia setData signature to (key, value) is safe.
+    const setData = rawSetData as <K extends keyof VisitorFormValues>(
+        key: K,
+        value: VisitorFormValues[K],
+    ) => void;
+
+    const { markDirty, reset } = useUnsavedChanges();
+
+    // Mark the guard dirty on every field change (blueprint §10)
+    const updateData: typeof setData = (key, value) => {
+        markDirty();
+        setData(key, value);
+    };
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route("visitors.store"));
+        post(route("visitors.store"), {
+            onSuccess: () => reset(),
+        });
     };
 
     return (
@@ -71,7 +89,7 @@ export default function VisitorsCreate() {
                     </div>
                 </div>
 
-                <Card className="max-w-4xl border-border/60 bg-background/70 shadow-sm">
+                <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <div className="flex items-center gap-2">
                             <div className="flex size-8 items-center justify-center rounded-md bg-violet-600/10 text-violet-600">
@@ -92,7 +110,7 @@ export default function VisitorsCreate() {
                         <VisitorForm
                             flats={flats}
                             data={data}
-                            setData={setData}
+                            setData={updateData}
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}

@@ -29,13 +29,7 @@ return new class extends Migration
                 2
             );
 
-            $table->enum('payment_method', [
-                'UPI',
-                'Card',
-                'NetBanking',
-                'Cash',
-                'Cheque'
-            ]);
+            $table->string('payment_method');
 
             $table->string('transaction_reference')
                 ->nullable();
@@ -46,11 +40,7 @@ return new class extends Migration
             $table->timestamp('paid_at')
                 ->nullable();
 
-            $table->enum('status', [
-                'Pending',
-                'Success',
-                'Failed'
-            ])->default('Success');
+            $table->string('status')->default('Completed');
 
             $table->timestamps();
         });

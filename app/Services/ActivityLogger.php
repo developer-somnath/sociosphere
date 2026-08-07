@@ -9,8 +9,30 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Queue;
 
+use Illuminate\Support\Facades\DB;
+
 class ActivityLogger
 {
+    /**
+     * Sensitive attribute names to redact across all log payloads.
+     *
+     * @var array<int, string>
+     */
+    protected static array $sensitiveKeys = [
+        'password',
+        'password_confirmation',
+        'remember_token',
+        'token',
+        'secret',
+        'api_token',
+        'access_token',
+        'credit_card',
+        'card_number',
+        'cvv',
+        'pin',
+        'ssn',
+    ];
+
     /**
      * Record an activity log entry.
      *
@@ -45,9 +67,9 @@ class ActivityLogger
             'action' => $action,
             'entity_type' => $entityType,
             'entity_id' => $entityId,
-            'properties' => $properties,
-            'old_values' => $oldValues,
-            'new_values' => $newValues,
+            'properties' => static::redact($properties),
+            'old_values' => static::redact($oldValues),
+            'new_values' => static::redact($newValues),
             'remarks' => $remarks,
             'ip_address' => $request?->ip(),
             'user_agent' => $request?->userAgent(),
@@ -56,13 +78,43 @@ class ActivityLogger
             'created_at' => now(),
         ];
 
-        if (Config::get('activity-log.queue', false)) {
-            Queue::connection(Config::get('activity-log.queue_connection'))
-                ->push(new LogActivityJob($payload));
+        $persist = function () use ($payload) {
+            if (Config::get('activity-log.queue', false)) {
+                Queue::connection(Config::get('activity-log.queue_connection'))
+                    ->push(new LogActivityJob($payload));
+
+                return null;
+            }
+
+            return ActivityLog::query()->create($payload);
+        };
+
+        if (DB::transactionLevel() > 0) {
+            DB::afterCommit($persist);
 
             return null;
         }
 
-        return ActivityLog::query()->create($payload);
+        return $persist();
+    }
+
+    /**
+     * Recursively redact sensitive values in array payloads.
+     */
+    public static function redact(?array $data): ?array
+    {
+        if ($data === null) {
+            return null;
+        }
+
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = static::redact($value);
+            } elseif (in_array(strtolower((string) $key), static::$sensitiveKeys, true)) {
+                $data[$key] = '[REDACTED]';
+            }
+        }
+
+        return $data;
     }
 }

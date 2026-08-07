@@ -53,4 +53,12 @@ class TowerPolicy
 
         return $this->update($user, $tower);
     }
+
+    /**
+     * Determine whether the user can restore a soft-deleted tower.
+     */
+    public function restore(User $user, Tower $tower): bool
+    {
+        return $user->isSuperAdmin() || ($user->society_id === $tower->society_id && $user->hasPermissionTo('tower.update'));
+    }
 }

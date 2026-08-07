@@ -12,7 +12,11 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import type { PageProps } from "@/types";
-import type { PermissionGroup } from "@/features/roles/types";
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import type {
+    PermissionGroup,
+    RoleFormValues,
+} from "@/features/roles/types";
 import RoleForm from "@/features/roles/components/role-form";
 
 type CreateProps = {
@@ -22,15 +26,33 @@ type CreateProps = {
 export default function RolesCreate() {
     const { permissionGroups } = usePage<PageProps<CreateProps>>().props;
 
-    const { data, setData, post, processing, errors } = useForm({
-        name: "",
-        description: "",
-        permissions: [] as number[],
-    });
+    const { data, setData: rawSetData, post, processing, errors } =
+        useForm<RoleFormValues>({
+            name: "",
+            description: "",
+            permissions: [] as number[],
+        });
+
+    // RoleFormValues are primitives plus a permissions array, so
+    // narrowing the Inertia setData signature to (key, value) is safe.
+    const setData = rawSetData as <K extends keyof RoleFormValues>(
+        key: K,
+        value: RoleFormValues[K],
+    ) => void;
+
+    const { markDirty, reset } = useUnsavedChanges();
+
+    // Mark the guard dirty on every field change (blueprint §10)
+    const updateData: typeof setData = (key, value) => {
+        markDirty();
+        setData(key, value);
+    };
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route("roles.store"));
+        post(route("roles.store"), {
+            onSuccess: () => reset(),
+        });
     };
 
     return (
@@ -62,7 +84,7 @@ export default function RolesCreate() {
                     </div>
                 </div>
 
-                <Card className="max-w-4xl border-border/60 bg-background/70 shadow-sm">
+                <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <div className="flex items-center gap-2">
                             <div className="flex size-8 items-center justify-center rounded-md bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
@@ -83,7 +105,7 @@ export default function RolesCreate() {
                         <RoleForm
                             groups={permissionGroups}
                             data={data}
-                            setData={setData}
+                            setData={updateData}
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}

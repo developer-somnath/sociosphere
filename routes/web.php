@@ -1,11 +1,18 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\CctvCameraController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FlatController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ParkingSlotController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SecurityLogController;
+use App\Http\Controllers\SocietyController;
 use App\Http\Controllers\TowerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisitorController;
@@ -31,11 +38,51 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+use App\Http\Controllers\UserInvitationController;
+
+Route::get('/register/invitation/{token}', [UserInvitationController::class, 'showRegistrationForm'])
+    ->name('invitations.register');
+Route::post('/register/invitation/{token}', [UserInvitationController::class, 'acceptInvitation'])
+    ->name('invitations.accept');
+
 Route::middleware(['auth', 'society'])->group(function () {
 
     Route::get('/overview', [DashboardController::class, 'index'])
         ->middleware('permission:dashboard.view')
         ->name('overview');
+
+    Route::post('users/invite', [UserController::class, 'invite'])
+        ->middleware('permission:user.invite')
+        ->name('users.invite');
+
+    Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
+        ->middleware('permission:user.toggle-status')
+        ->name('users.toggle-status');
+
+    Route::post('users/{user}/restore', [UserController::class, 'restore'])
+        ->middleware('permission:user.restore')
+        ->name('users.restore');
+
+    Route::resource('societies', SocietyController::class)
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
+        ->middleware('permission:society.view')
+        ->names([
+            'index' => 'societies.index',
+            'create' => 'societies.create',
+            'store' => 'societies.store',
+            'show' => 'societies.show',
+            'edit' => 'societies.edit',
+            'update' => 'societies.update',
+            'destroy' => 'societies.destroy',
+        ]);
+
+    Route::post('towers/{tower}/restore', [TowerController::class, 'restore'])
+        ->middleware('permission:tower.update')
+        ->name('towers.restore');
+
+    Route::post('flats/{flat}/restore', [FlatController::class, 'restore'])
+        ->middleware('permission:flat.update')
+        ->name('flats.restore');
 
     Route::resource('users', UserController::class)
         ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
@@ -72,6 +119,67 @@ Route::middleware(['auth', 'society'])->group(function () {
             'edit' => 'visitors.edit',
             'update' => 'visitors.update',
             'destroy' => 'visitors.destroy',
+        ]);
+
+    Route::post('parking-slots/{parking_slot}/deallocate', [ParkingSlotController::class, 'deallocate'])
+        ->middleware('permission:parking.allocate')
+        ->name('parking-slots.deallocate');
+
+    Route::post('parking-slots/{parking_slot}/allocate', [ParkingSlotController::class, 'allocate'])
+        ->middleware('permission:parking.allocate')
+        ->name('parking-slots.allocate');
+
+    Route::resource('parking-slots', ParkingSlotController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+        ->middleware('permission:parking.view')
+        ->names([
+            'index' => 'parking-slots.index',
+            'create' => 'parking-slots.create',
+            'store' => 'parking-slots.store',
+            'edit' => 'parking-slots.edit',
+            'update' => 'parking-slots.update',
+            'destroy' => 'parking-slots.destroy',
+        ]);
+
+    Route::resource('cctv-cameras', CctvCameraController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+        ->middleware('permission:cctv.view')
+        ->names([
+            'index' => 'cctv-cameras.index',
+            'create' => 'cctv-cameras.create',
+            'store' => 'cctv-cameras.store',
+            'edit' => 'cctv-cameras.edit',
+            'update' => 'cctv-cameras.update',
+            'destroy' => 'cctv-cameras.destroy',
+        ]);
+
+    Route::resource('security-logs', SecurityLogController::class)
+        ->only(['index', 'store'])
+        ->middleware('permission:security_log.view')
+        ->names([
+            'index' => 'security-logs.index',
+            'store' => 'security-logs.store',
+        ]);
+
+    Route::resource('invoices', InvoiceController::class)
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
+        ->middleware('permission:invoice.view')
+        ->names([
+            'index' => 'invoices.index',
+            'create' => 'invoices.create',
+            'store' => 'invoices.store',
+            'show' => 'invoices.show',
+            'edit' => 'invoices.edit',
+            'update' => 'invoices.update',
+            'destroy' => 'invoices.destroy',
+        ]);
+
+    Route::resource('payments', PaymentController::class)
+        ->only(['index', 'store'])
+        ->middleware('permission:collection.view')
+        ->names([
+            'index' => 'payments.index',
+            'store' => 'payments.store',
         ]);
 
     Route::post('visitors/{visitor_pass}/approve', [VisitorController::class, 'approve'])
@@ -135,10 +243,20 @@ Route::middleware(['auth', 'society'])->group(function () {
         ->name('activity-logs.export');
 });
 
+use App\Http\Controllers\SocietySwitchController;
+
 Route::middleware('auth')->group(function () {
+    Route::post('/society/switch', SocietySwitchController::class)->name('society.switch');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Bell notification center (blueprint §2) — user-scoped, no society tenancy needed
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])
+        ->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])
+        ->name('notifications.read-all');
 });
 
 require __DIR__.'/auth.php';

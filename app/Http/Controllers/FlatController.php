@@ -27,6 +27,9 @@ class FlatController extends Controller
         $search = trim((string) $request->query('search', ''));
         $towerId = $request->query('tower_id');
         $status = $request->query('status');
+        $type = $request->query('type');
+        $sortBy = in_array($request->query('sort_by'), ['flat_no', 'floor_no', 'occupancy_status', 'created_at'], true) ? $request->query('sort_by') : 'id';
+        $sortDir = strtolower((string) $request->query('sort_dir')) === 'asc' ? 'asc' : 'desc';
 
         $flats = Flat::query()
             ->with(['tower', 'resident'])
@@ -41,10 +44,13 @@ class FlatController extends Controller
             ->when($towerId !== null && $towerId !== '', function ($query) use ($towerId) {
                 $query->where('tower_id', (int) $towerId);
             })
-            ->when(in_array($status, ['Occupied', 'Vacant', 'Self-Occupied'], true), function ($query) use ($status) {
+            ->when(in_array($status, ['Occupied', 'Vacant', 'Self-Occupied', 'Owner Occupied', 'Rented'], true), function ($query) use ($status) {
                 $query->where('occupancy_status', $status);
             })
-            ->latest('id')
+            ->when($type !== null && $type !== '', function ($query) use ($type) {
+                $query->where('flat_type', $type);
+            })
+            ->orderBy($sortBy, $sortDir)
             ->paginate(10)
             ->withQueryString();
 
@@ -53,7 +59,10 @@ class FlatController extends Controller
             'filters' => [
                 'search' => $search,
                 'tower_id' => $towerId !== null && $towerId !== '' ? (int) $towerId : null,
-                'status' => in_array($status, ['Occupied', 'Vacant', 'Self-Occupied'], true) ? $status : null,
+                'status' => in_array($status, ['Occupied', 'Vacant', 'Self-Occupied', 'Owner Occupied', 'Rented'], true) ? $status : null,
+                'type' => $type,
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
             ],
             'towers' => $this->moduleQueryService->towerOptions($request->user()),
             'stats' => $this->moduleQueryService->occupancyStats($request->user()),
@@ -142,6 +151,21 @@ class FlatController extends Controller
     }
 
     /**
+     * Restore a soft-deleted flat.
+     */
+    public function restore(Request $request, int $id): RedirectResponse
+    {
+        $flat = Flat::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $flat);
+
+        $flat->restore();
+
+        return redirect()
+            ->route('flats.index')
+            ->with('success', 'Flat restored successfully.');
+    }
+
+    /**
      * Resolve the society for a flat: the user's own society, or the
      * society of the chosen tower for super admins.
      */
@@ -157,5 +181,4 @@ class FlatController extends Controller
             ->whereKey($request->input('tower_id'))
             ->value('society_id');
     }
-
 }

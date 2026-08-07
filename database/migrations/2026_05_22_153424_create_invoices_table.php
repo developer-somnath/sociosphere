@@ -24,11 +24,13 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->string('invoice_no')
-                ->unique();
+                ->nullable();
 
-            $table->tinyInteger('billing_month');
+            $table->tinyInteger('billing_month')
+                ->nullable();
 
-            $table->year('billing_year');
+            $table->year('billing_year')
+                ->nullable();
 
             $table->date('due_date');
 
@@ -50,12 +52,7 @@ return new class extends Migration
                 2
             );
 
-            $table->enum('status', [
-                'Pending',
-                'Paid',
-                'Overdue',
-                'Cancelled'
-            ])->default('Pending');
+            $table->string('status')->default('Unpaid');
 
             $table->foreignId('generated_by')
                 ->nullable()

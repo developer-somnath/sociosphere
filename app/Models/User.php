@@ -45,6 +45,11 @@ class User extends Authenticatable
         return $this->belongsTo(Society::class);
     }
 
+    public function staffProfile()
+    {
+        return $this->hasOne(StaffProfile::class);
+    }
+
     /**
      * Determine whether the user holds the global SuperAdmin role.
      */

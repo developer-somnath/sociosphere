@@ -16,6 +16,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { ExportFormat } from "@/components/ui/export-menu";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { Pagination } from "@/components/ui/pagination";
+import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
 import { toast } from "@/lib/toast";
@@ -38,7 +39,7 @@ type IndexProps = {
 };
 
 const selectClasses =
-    "h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-10 rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer";
 
 const statusStyles: Record<VisitorStatus, string> = {
     pending:
@@ -408,12 +409,12 @@ export default function VisitorsIndex() {
                 icon={<DoorOpen className="size-5" />}
                 actions={
                     can.create && (
-                        <Button asChild>
-                            <Link href={route("visitors.create")}>
-                                <Plus />
-                                New pass
-                            </Link>
-                        </Button>
+                        <QuickActionPill
+                            href={route("visitors.create")}
+                            icon={Plus}
+                            label="Create Visitor Pass"
+                            variant="blue"
+                        />
                     )
                 }
             />

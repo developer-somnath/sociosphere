@@ -240,12 +240,12 @@ export default function InvoiceCreate() {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-4 border-t border-border/60">
-                            <Button variant="outline" type="button" asChild>
+                        <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
+                            <Button variant="outline" type="button" className="rounded-full px-5 text-xs font-semibold hover:bg-muted" asChild>
                                 <Link href={route("invoices.index")}>Cancel</Link>
                             </Button>
-                            <Button type="submit" disabled={form.processing}>
-                                {form.processing ? "Generating…" : "Generate Invoice"}
+                            <Button type="submit" disabled={form.processing} className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all duration-200 text-white">
+                                {form.processing ? "Generating..." : "Generate Invoice"}
                             </Button>
                         </div>
                     </form>

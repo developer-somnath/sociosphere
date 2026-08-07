@@ -15,6 +15,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { ExportFormat } from "@/components/ui/export-menu";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { Pagination } from "@/components/ui/pagination";
+import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
 import { toast } from "@/lib/toast";
@@ -178,7 +179,7 @@ export default function TowersIndex() {
                 description="Track the buildings and structural blocks that make up the society."
                 icon={<Building2 className="size-5" />}
                 breadcrumbs={[{ label: "Management" }, { label: "Towers" }]}
-                actions={can.create && <Button asChild><Link href={route("towers.create")}><Plus />Add tower</Link></Button>}
+                actions={can.create && <QuickActionPill href={route("towers.create")} icon={Plus} label="New Tower" variant="indigo" />}
             />
 
             <FilterBar

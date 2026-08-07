@@ -22,6 +22,8 @@ import type { ExportFormat } from "@/components/ui/export-menu";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { MetricCard } from "@/components/ui/metric-card";
 import { Pagination } from "@/components/ui/pagination";
+import { QuickActionPill } from "@/components/ui/quick-action-pill";
+import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
 import { toast } from "@/lib/toast";
 import type { PageProps } from "@/types";
@@ -289,12 +291,12 @@ export default function ComplaintsIndex() {
                 icon={<MessageSquareWarning className="size-5" />}
                 actions={
                     can.create && (
-                        <Button asChild>
-                            <Link href={route("complaints.create")}>
-                                <Plus className="size-4" />
-                                Raise Complaint
-                            </Link>
-                        </Button>
+                        <QuickActionPill
+                            href={route("complaints.create")}
+                            icon={Plus}
+                            label="Raise Complaint"
+                            variant="amber"
+                        />
                     )
                 }
             />
@@ -343,7 +345,7 @@ export default function ComplaintsIndex() {
                 <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="h-10 rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer"
                 >
                     <option value="">All Statuses</option>
                     <option value="Open">Open</option>
@@ -356,7 +358,7 @@ export default function ComplaintsIndex() {
                 <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
-                    className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="h-10 rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer"
                 >
                     <option value="">All Priorities</option>
                     <option value="Low">Low</option>

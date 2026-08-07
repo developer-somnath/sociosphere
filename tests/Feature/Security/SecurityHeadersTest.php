@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\Security;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SecurityHeadersTest extends TestCase
 {
+    use RefreshDatabase;
     public function test_security_headers_are_present_on_responses(): void
     {
         $response = $this->get('/login');

@@ -98,6 +98,7 @@ export function ConfirmDialog({
                     <div className="mt-6 flex justify-end gap-2">
                         <Button
                             variant="outline"
+                            className="rounded-full px-4 text-xs font-semibold hover:bg-muted"
                             disabled={loading}
                             onClick={() => onOpenChange(false)}
                         >
@@ -105,6 +106,7 @@ export function ConfirmDialog({
                         </Button>
                         <Button
                             variant={destructive ? "destructive-solid" : "default"}
+                            className="rounded-full px-4 text-xs font-semibold"
                             loading={loading}
                             disabled={disabled}
                             onClick={onConfirm}

@@ -202,13 +202,21 @@ export default function FlatForm({
                 </div>
             </div>
 
-            <div className="flex justify-end border-t border-border/60 pt-4">
+            <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => window.history.back()}
+                    className="rounded-full px-5 text-xs font-semibold hover:bg-muted"
+                >
+                    Cancel
+                </Button>
                 <Button
                     type="submit"
                     disabled={processing}
-                    className="rounded-xl bg-emerald-600 px-5 shadow-sm hover:bg-emerald-700"
+                    className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all duration-200 text-white"
                 >
-                    {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {processing && <Loader2 className="mr-2 size-3.5 animate-spin" />}
                     {submitLabel}
                 </Button>
             </div>

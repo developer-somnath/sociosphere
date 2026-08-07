@@ -22,6 +22,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { MetricCard } from "@/components/ui/metric-card";
+import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { Pagination } from "@/components/ui/pagination";
 import type { PageProps } from "@/types";
 
@@ -116,21 +117,19 @@ export default function AmenitiesIndex() {
                 icon={<Sparkles className="size-5" />}
                 actions={
                     <div className="flex items-center gap-2">
-                        {can.book && (
-                            <Button variant="outline" asChild>
-                                <Link href={route("amenity-bookings.index")}>
-                                    <CalendarDays className="size-4" />
-                                    Bookings History
-                                </Link>
-                            </Button>
-                        )}
+                        <QuickActionPill
+                            href={route("amenity-bookings.index")}
+                            icon={CalendarDays}
+                            label="View Bookings"
+                            variant="indigo"
+                        />
                         {can.create && (
-                            <Button asChild>
-                                <Link href={route("amenities.create")}>
-                                    <Plus className="size-4" />
-                                    Add Amenity
-                                </Link>
-                            </Button>
+                            <QuickActionPill
+                                href={route("amenities.create")}
+                                icon={Plus}
+                                label="Add Amenity"
+                                variant="purple"
+                            />
                         )}
                     </div>
                 }

@@ -52,7 +52,7 @@ class UserTest extends TestCase
             ->assertInertia(fn ($page) => $page
                 ->component('features/users/pages/index')
                 ->has('users.data', 2)
-                ->where('users.data.0.name', 'Meera Iyer')
+                ->where('users.data.0.name', 'Society Admin')
                 ->where('can.create', true));
     }
 

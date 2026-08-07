@@ -45,7 +45,7 @@ class ParkingTest extends TestCase
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('features/parking/pages/index')
-                ->has('slots.data', 1)
+                ->has('slots', 1)
             );
     }
 

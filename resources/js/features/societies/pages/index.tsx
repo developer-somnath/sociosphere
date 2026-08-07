@@ -23,6 +23,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { ExportFormat } from "@/components/ui/export-menu";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { Pagination } from "@/components/ui/pagination";
+import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
 import { toast } from "@/lib/toast";
@@ -298,14 +299,18 @@ export default function SocietiesIndex() {
                 title="Society Directory"
                 description="Manage residential societies, committee members, and operational bylaws."
                 icon={<Building className="size-5" />}
+                breadcrumbs={[
+                    { label: "Management", href: "/dashboard" },
+                    { label: "Societies" },
+                ]}
                 actions={
                     can.create && (
-                        <Button asChild>
-                            <Link href={route("societies.create")}>
-                                <Plus />
-                                Register Society
-                            </Link>
-                        </Button>
+                        <QuickActionPill
+                            href={route("societies.create")}
+                            icon={Plus}
+                            label="Register Society"
+                            variant="indigo"
+                        />
                     )
                 }
             />

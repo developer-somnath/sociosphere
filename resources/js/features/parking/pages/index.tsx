@@ -32,6 +32,7 @@ import { Label } from "@/components/ui/label";
 import { FormDrawer } from "@/components/ui/form-drawer";
 import { MetricCard } from "@/components/ui/metric-card";
 import { Pagination } from "@/components/ui/pagination";
+import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
@@ -463,14 +464,18 @@ export default function ParkingIndex() {
                 title="Parking Management"
                 description="Allocate Four Wheeler, Two Wheeler, and Visitor parking slots across basement & surface bays."
                 icon={<ParkingMeter className="size-5" />}
+                breadcrumbs={[
+                    { label: "Management", href: "/dashboard" },
+                    { label: "Parking" },
+                ]}
                 actions={
                     can.create && (
-                        <Button asChild>
-                            <Link href={route("parking-slots.create")}>
-                                <Plus />
-                                Add Parking Slot
-                            </Link>
-                        </Button>
+                        <QuickActionPill
+                            href={route("parking-slots.create")}
+                            icon={Plus}
+                            label="Add Parking Slot"
+                            variant="indigo"
+                        />
                     )
                 }
             />
@@ -554,7 +559,7 @@ export default function ParkingIndex() {
                                 setStatus(e.target.value as "" | SlotStatus);
                                 resetPagination();
                             }}
-                            className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
+                            className="h-10 rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer"
                         >
                             <option value="">All Statuses</option>
                             <option value="Available">Available</option>
@@ -739,11 +744,11 @@ export default function ParkingIndex() {
                 icon={<KeyRound className="size-5" />}
                 footer={
                     <>
-                        <Button variant="outline" onClick={() => setAllocating(null)} disabled={allocSubmitting}>
+                        <Button variant="outline" type="button" onClick={() => setAllocating(null)} disabled={allocSubmitting} className="rounded-full px-5 text-xs font-semibold hover:bg-muted">
                             Cancel
                         </Button>
-                        <Button onClick={submitAllocation} loading={allocSubmitting} disabled={allocForm.flat_id === ""}>
-                            <KeyRound />
+                        <Button type="button" onClick={submitAllocation} loading={allocSubmitting} disabled={allocForm.flat_id === ""} className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all text-white">
+                            <KeyRound className="size-3.5" />
                             Allocate slot
                         </Button>
                     </>

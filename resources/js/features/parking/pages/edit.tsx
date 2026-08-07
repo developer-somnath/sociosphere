@@ -1,8 +1,9 @@
 import { Head, Link, useForm, usePage } from "@inertiajs/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ParkingMeter } from "lucide-react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
+import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormSection } from "@/components/ui/form-section";
@@ -52,17 +53,24 @@ export default function ParkingEdit() {
         <AppLayout>
             <Head title={`Edit Slot ${slot.slot_number}`} />
 
-            <div className="flex items-center gap-3">
-                <Button variant="outline" size="icon" asChild className="rounded-xl">
-                    <Link href={route("parking-slots.index")}>
-                        <ArrowLeft className="size-4" />
-                    </Link>
-                </Button>
-                <div>
-                    <h1 className="text-xl font-bold tracking-tight">Edit Parking Slot {slot.slot_number}</h1>
-                    <p className="text-xs text-muted-foreground">Update slot configuration and vehicle allocation details.</p>
-                </div>
-            </div>
+            <PageHeader
+                title="Edit Parking Slot"
+                description={`Update details and allocation for Slot ${slot.slot_number}.`}
+                icon={<ParkingMeter className="size-5" />}
+                breadcrumbs={[
+                    { label: "Management", href: "/dashboard" },
+                    { label: "Parking", href: route("parking-slots.index") },
+                    { label: `Slot ${slot.slot_number}` },
+                ]}
+                actions={
+                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
+                        <Link href={route("parking-slots.index")}>
+                            <ArrowLeft className="size-3.5" />
+                            Back
+                        </Link>
+                    </Button>
+                }
+            />
 
             <Card className="border-border/70 bg-card/80 shadow-xs">
                 <CardHeader>
@@ -168,12 +176,12 @@ export default function ParkingEdit() {
                             </div>
                         </FormSection>
 
-                        <div className="flex justify-end gap-3 pt-4 border-t border-border/60">
-                            <Button variant="outline" type="button" asChild>
+                        <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
+                            <Button variant="outline" type="button" className="rounded-full px-5 text-xs font-semibold hover:bg-muted" asChild>
                                 <Link href={route("parking-slots.index")}>Cancel</Link>
                             </Button>
-                            <Button type="submit" disabled={form.processing}>
-                                {form.processing ? "Saving…" : "Update Slot"}
+                            <Button type="submit" disabled={form.processing} className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all duration-200 text-white">
+                                {form.processing ? "Saving..." : "Save Changes"}
                             </Button>
                         </div>
                     </form>

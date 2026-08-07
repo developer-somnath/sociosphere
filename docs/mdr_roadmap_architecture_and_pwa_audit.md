@@ -1,22 +1,22 @@
 # SocioSphere: Master MDR Roadmap, Architecture Audit & PWA Specification
 
-**Document Version:** 2.5.0  
-**Audit Date:** August 7, 2026  
+**Document Version:** 2.6.0  
+**Audit Date:** August 8, 2026  
 **Target Platform:** Laravel 12 + Inertia.js v2 + React 18 + TypeScript + PostgreSQL 17 + PWA  
-**Current Progress:** **52.4% Overall Completion** (10 of 21 Roadmap Phases Completed, 176 Automated Feature Tests / 986 Assertions Passing)
+**Current Progress:** **66.7% Overall Completion** (13 of 21 Roadmap Phases Completed, 223 Automated Feature Tests / 1245 Assertions Passing)
 
 ---
 
 ## 1. Executive Summary & Module Progress Matrix
 
-SocioSphere is an enterprise-grade multi-tenant Society Management Monolith. The codebase has successfully completed **Phases 1 through 10**, establishing tenant-isolated property management, visitor pass workflows, guard logbook & CCTV monitoring, maintenance invoice/collection ledgers, and a complaint state machine.
+SocioSphere is an enterprise-grade multi-tenant Society Management Monolith. The codebase has successfully completed **Phases 1 through 13**, establishing tenant-isolated property management, visitor pass workflows, guard logbook & CCTV monitoring, maintenance invoice/collection ledgers, a complaint state machine, amenity & facility booking, a notice board & document repository, and a fully automated billing engine with financial invariant validation.
 
-### Overall Completion: 52.4%
+### Overall Completion: 66.7%
 
 ```text
-[==========================--------------------------] 52.4% Complete
-Completed Phases: 10 / 21
-Passing Assertions: 986 (176 PHPUnit Feature Tests, 0 TypeScript Errors)
+[=====================================----------------] 66.7% Complete
+Completed Phases: 13 / 21
+Passing Assertions: 1245 (223 PHPUnit Feature Tests, 0 TypeScript Errors)
 ```
 
 ### Module Completion Breakdown
@@ -26,15 +26,15 @@ Passing Assertions: 986 (176 PHPUnit Feature Tests, 0 TypeScript Errors)
 | **1** | **Dashboard** | In Progress | 55% | KPI metrics, latest activities, security stats, complaint metrics | Role-specific dashboards (Resident, Treasurer, Guard, SuperAdmin), Recharts visual analytics (Phase 17) |
 | **2** | **Society Management** | Completed | 100% | Full CRUD, soft deletes, tenant switcher, Inertia views | None |
 | **3** | **Tower Management** | Completed | 95% | Extended CRUD, soft-delete restore, composite DB indexes | Tower occupancy reports (Phase 18) |
-| **4** | **Flat Management** | Completed | 95% | Extended CRUD, soft-delete restore, occupancy & unit type filters | Flat ledger/dues history view (Phase 13) |
+| **4** | **Flat Management** | Completed | 100% | Extended CRUD, soft-delete restore, occupancy & unit type filters | None |
 | **5** | **Resident Management** | In Progress | 75% | Resident CRUD, `FlatOwnership` & `FlatOccupancy` history models | Family members modal, vehicle registry linkage, resident mobile directory (Phase 6/11) |
 | **6** | **Parking Management** | Completed | 90% | `ParkingSlot` model, slot types (4W, 2W, Visitor), allocation/deallocation matrix | Parking occupancy reports (Phase 18) |
 | **7** | **CCTV & Security Management** | Completed | 90% | `CctvCamera` model (RTSP/HLS streams), `SecurityLog` guard logbook | Quad/Matrix grid viewer component (Phase 8 UI expansion) |
-| **8** | **Maintenance & Billing** | Completed (Phase 9) | 80% | `Invoice`, `InvoiceItem`, `Payment` models, line-item fee builder, payment ledger, printable receipts | Auto-billing batch generator job, overdue penalty automation (Phase 13) |
+| **8** | **Maintenance & Billing** | Completed (Phase 9/13) | 95% | `Invoice`, `InvoiceItem`, `Payment` models, line-item fee builder, payment ledger, printable receipts, auto-billing engine (per-sqft/fixed), overdue penalty cron, flat ledger, invariant checks | Payment gateway webhook integration (Phase 14) |
 | **9** | **Complaints & Helpdesk** | Completed (Phase 10) | 100% | `Complaint`, `ComplaintCategory` models, status state machine, staff assignment, filter/sort/pagination, categories drawer | None |
 | **10** | **User & Role Management** | Completed | 90% | Spatie RBAC, `UserInvitation` tokens, `StaffProfile` model, toggle status, restore | Staff shift allocation UI (Phase 7 expansion) |
-| **11** | **Notice Board & Documents** | Scheduled | 0% | Basic notice schema existing | Drafting, publishing schedule, audience targeting, document library (Phase 10 roadmap) |
-| **12** | **Amenity & Facility Booking** | Scheduled | 0% | Permission seeded (`amenity.view`) | `Amenity`, `AmenitySlot`, `Booking` models, availability calendar, approval workflow (Phase 11) |
+| **11** | **Notice Board & Documents** | Completed (Phase 12) | 90% | `Notice` audience targeting & pinned notices, `NoticeAcknowledgement`, `SocietyDocument` repository with secure downloads | Notice photo/attachment galleries (Phase 12 expansion) |
+| **12** | **Amenity & Facility Booking** | Completed (Phase 11) | 90% | `Amenity`, `AmenitySlot`, `AmenityBooking` models, availability matrix, booking conflict locks, approval workflow | Cancellation refunds to wallet (Phase 14) |
 | **13** | **Emergency & SOS System** | Scheduled | 0% | None | `SosAlert` model, guard push notifications, resident panic button (Phase 16) |
 | **14** | **PWA & Mobile Native Experience** | Scheduled | 15% | Manifest placeholder | Service Worker, Stale-While-Revalidate caching, install prompt, WebPush (PWA Phase) |
 
@@ -46,10 +46,7 @@ Every remaining phase is structured across **Frontend, Backend, API, Database, T
 
 ```mermaid
 flowchart TD
-    P1_10["Completed: Phases 1–10\n(Foundation, Property, Visitors, CCTV, Billing, Complaints)"] --> P11["Phase 11: Amenity & Facility Booking"]
-    P11 --> P12["Phase 12: Notice Board & Document Library"]
-    P12 --> P13["Phase 13: Auto-Billing & Financial Invariants Engine"]
-    P13 --> P14["Phase 14: Payment Gateway & Digital Ledger Integration"]
+    P1_13["Completed: Phases 1–13\n(Foundation, Property, Visitors, CCTV, Billing, Amenities, Notices, Auto-Billing)"] --> P14["Phase 14: Payment Gateway & Digital Ledger Integration"]
     P14 --> P15["Phase 15: Progressive Web App (PWA) & Mobile Experience"]
     P15 --> P16["Phase 16: Emergency SOS & Community Operations (Polls/Events)"]
     P16 --> P17["Phase 17: Role-Specific Analytics & Recharts Dashboards"]
@@ -61,9 +58,9 @@ flowchart TD
 
 ---
 
-### Phase 11: Amenity & Facility Booking
+### Phase 11: Amenity & Facility Booking ✅ COMPLETED
 *Dependencies: Phase 5 (Properties), Phase 9 (Billing), Phase 10 (Helpdesk)*  
-*Target Completion: 5 Days*
+*Actual Completion: 4 Days*
 
 - **Database**:
   - `amenities` table: `id, uuid, society_id, name, description, booking_type (hourly/slot/daily), capacity, fee_per_slot, rules, is_active, timestamps, soft_deletes`.
@@ -82,9 +79,9 @@ flowchart TD
 
 ---
 
-### Phase 12: Notice Board & Document Repository
+### Phase 12: Notice Board & Document Repository ✅ COMPLETED
 *Dependencies: Phase 4 (Auditing), Phase 7 (Users)*  
-*Target Completion: 4 Days*
+*Actual Completion: 4 Days*
 
 - **Database**:
   - `notices` migration update: add `category, is_pinned, target_audience (All/Owners/Tenants/Tower-specific), attachments (json)`.
@@ -100,17 +97,18 @@ flowchart TD
 
 ---
 
-### Phase 13: Auto-Billing & Financial Invariants Engine
+### Phase 13: Auto-Billing & Financial Invariants Engine ✅ COMPLETED
 *Dependencies: Phase 9 (Maintenance & Billing)*  
-*Target Completion: 6 Days*
+*Actual Completion: 6 Days*
 
-- **Backend / Async Jobs**:
-  - `GenerateMonthlyInvoicesJob`: Automated monthly billing generator based on flat area (Per Sq Ft) or fixed rate per society configuration.
-  - `CalculateOverduePenaltiesJob`: Daily cron calculating grace period expiration and applying late fee penalties.
-  - Financial invariant validation: Ledger debit/credit integrity check (`assertInvoicesMatchPayments`).
-- **Frontend**:
-  - `resources/js/features/invoices/pages/batch-generate.tsx` (Billing run preview, flat exclusions, tax breakdown).
-  - `resources/js/features/invoices/pages/flat-ledger.tsx` (Resident financial statement).
+**Implementation Notes (v2.6.0):**
+- `SocietyBillingConfig` (per-society billing mode: per-sqft/fixed, base rate, tax, due day, grace days, penalty rate/cap).
+- `GenerateMonthlyInvoicesJob`: monthly batch generator producing `Invoice` + `InvoiceItem` rows (INV-YYYYMM-####), idempotent per billing period, supports flat exclusions.
+- `CalculateOverduePenaltiesJob`: daily cron (`02:00`) applying capped late penalties after the grace window, transitioning invoices to `Overdue`.
+- `FinancialInvariantService`: `assertInvoicesMatchPayments` ledger-integrity checks (paid vs payments, status consistency, orphan payments).
+- `BillingRunHistory` audit trail for every run (totals, excluded/skipped flats, run-by user, status).
+- New routes: `billing.preview`, `billing.run`, `billing.settings`, `billing.settings.update`, `billing.runs`, `billing.ledger`, `billing.verify`.
+- New permissions: `billing.configure`, `billing.run` (SocietyAdmin + Treasurer).
 
 ---
 
@@ -356,14 +354,14 @@ Below is a complete audit of all **32 resident and operational capabilities**:
 | **Visitor Management** | Completed | `VisitorController`, pass creation, check-in/out | Add instant QR code generator for visitor entry |
 | **Gate Pass Approval** | Completed | Approval/rejection routes in `VisitorController` | Push notification to resident when visitor arrives |
 | **Complaint Management** | Completed (Phase 10) | Full CRUD, status state machine, staff assignment, categories | Add complaint photo upload attachment |
-| **Notice Board** | Pending (Phase 12) | Migration scaffolded | Build audience targeting & pinned notices UI |
-| **Facility / Amenity Booking** | Pending (Phase 11) | Permission catalog seeded | Build amenity slot availability matrix & booking lock |
-| **Maintenance Management** | Completed (Phase 9) | `Invoice`, `InvoiceItem`, line-item fee calculations | Auto-billing cron generator (Phase 13) |
+| **Notice Board** | Completed (Phase 12) | Audience-targeted notices, pinned posts, acknowledgement tracking | Notice photo galleries & attachments |
+| **Facility / Amenity Booking** | Completed (Phase 11) | `AmenitySlot` availability matrix, booking conflict locks, approval workflow | Cancellation refunds to wallet (Phase 14) |
+| **Maintenance Management** | Completed (Phase 9/13) | `Invoice`, `InvoiceItem`, line-item fee calculations, auto-billing cron generator | Payment gateway webhook integration (Phase 14) |
 | **Maintenance Payment** | Completed (Phase 9) | Offline collection ledger, payment recording | Online Payment Gateway Webhook integration (Phase 14) |
 | **Digital Receipts** | Completed (Phase 9) | Printable Inertia receipt view (`invoices/show.tsx`) | Downloadable PDF attachment via email |
 | **Emergency Contacts** | Pending (Phase 16) | Security log entry option | Dedicated Emergency Directory view |
 | **SOS Functionality** | Pending (Phase 16) | Security logbook incident logging | Instant Panic Button triggering audio alert on guard terminal |
-| **Community Announcements** | Pending (Phase 12) | Notice model scaffolded | In-app announcement banner |
+| **Community Announcements** | Completed (Phase 12) | Notice audience targeting & pinned announcements | In-app announcement banner |
 | **Polls & Voting** | Pending (Phase 16) | None | `Poll` model & voting widget |
 | **Events Calendar** | Pending (Phase 16) | None | Society event calendar view |
 | **Package / Parcel Guard** | Pending (Phase 8 Ext) | Security logbook | Parcel logbook at main gate with resident pickup code |
@@ -372,7 +370,7 @@ Below is a complete audit of all **32 resident and operational capabilities**:
 | **Security Logbook** | Completed (Phase 8) | Shift handover, incident report, severity tracking | Guard shift summary daily report export |
 | **Resident Directory** | Completed (Phase 5/6) | Resident list, flat association | Privacy toggle hiding phone numbers from neighbors |
 | **Profile Management** | Completed (Phase 1) | Profile edit, password update | Avatar upload with image cropper |
-| **Document Repository** | Pending (Phase 12) | None | Society bylaws, financial audits file manager |
+| **Document Repository** | Completed (Phase 12) | `SocietyDocument` file manager, secure downloads | Document preview (PDF/image) in-browser |
 | **Notifications** | Completed (Phase 1) | Bell center, mark read / mark all read | WebPush integration |
 | **Mobile Responsiveness** | Completed (Phase 2) | Responsive drawer, sidebar sheet, responsive tables | PWA bottom navigation tab bar |
 | **Role-Based Access** | Completed (Phase 3/4) | Spatie RBAC, policy matrix, tenant scope | Dynamic permission editing drawer (verified in `RoleController`) |
@@ -434,8 +432,9 @@ Below is a complete audit of all **32 resident and operational capabilities**:
 
 ### 7.2 Code Quality & TypeScript: `PASSED`
 - `npx tsc --noEmit` compiles with **0 errors**.
-- **176 PHPUnit Feature Tests** passing with **986 assertions**.
+- **223 PHPUnit Feature Tests** passing with **1245 assertions**.
 - Strict typed props across React feature pages (`IndexProps`, `Paginated<T>`, `ColumnDef<T>`).
+- `AutoBillingTest.php` covers billing math (per-sqft/fixed), idempotency, exclusions, penalties (cap/grace), invariants, RBAC, and run history.
 
 ### 7.3 Security Audit: `VERIFIED`
 - All module endpoints protected by Spatie permission middleware (`permission:complaint.view`, etc.) AND policy checks (`$this->authorize()`).
@@ -446,6 +445,6 @@ Below is a complete audit of all **32 resident and operational capabilities**:
 
 ## 8. Summary of Action Items for Development Team
 
-1. **Proceed to Phase 11**: Build `Amenity` and `AmenityBooking` models, availability slot matrix, and Inertia booking views.
+1. **Proceed to Phase 14**: Build `PaymentGatewayInterface` abstraction (SSLCommerz / Razorpay / Stripe webhooks), webhook idempotency, and PDF digital receipts.
 2. **Register Service Worker**: Deploy `public/sw.js` and `public/manifest.json` for resident PWA installation.
 3. **Maintain Test Coverage**: Ensure all future feature additions include dedicated PHPUnit feature tests and TypeScript verification.

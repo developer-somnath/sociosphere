@@ -95,6 +95,10 @@ class PermissionSeeder extends Seeder
             'collection.view',
             'collection.create',
 
+            // Auto-Billing (Phase 13)
+            'billing.configure',
+            'billing.run',
+
             // Notices
             'notice.view',
             'notice.create',

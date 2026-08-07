@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AmenityBookingController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\AmenityController;
 use App\Http\Controllers\CctvCameraController;
 use App\Http\Controllers\ComplaintCategoryController;
@@ -188,6 +189,35 @@ Route::middleware(['auth', 'society'])->group(function () {
             'index' => 'payments.index',
             'store' => 'payments.store',
         ]);
+
+    // Phase 13: Auto-Billing & Financial Invariants Engine
+    Route::get('billing/preview', [BillingController::class, 'preview'])
+        ->middleware('permission:billing.configure')
+        ->name('billing.preview');
+
+    Route::post('billing/run', [BillingController::class, 'run'])
+        ->middleware('permission:billing.run')
+        ->name('billing.run');
+
+    Route::get('billing/settings', [BillingController::class, 'settings'])
+        ->middleware('permission:billing.configure')
+        ->name('billing.settings');
+
+    Route::put('billing/settings', [BillingController::class, 'updateSettings'])
+        ->middleware('permission:billing.configure')
+        ->name('billing.settings.update');
+
+    Route::get('billing/runs', [BillingController::class, 'runs'])
+        ->middleware('permission:billing.configure')
+        ->name('billing.runs');
+
+    Route::get('billing/ledger', [BillingController::class, 'ledger'])
+        ->middleware('permission:invoice.view')
+        ->name('billing.ledger');
+
+    Route::get('billing/verify', [BillingController::class, 'verify'])
+        ->middleware('permission:billing.configure')
+        ->name('billing.verify');
 
     Route::post('visitors/{visitor_pass}/approve', [VisitorController::class, 'approve'])
         ->middleware('permission:visitor.update')

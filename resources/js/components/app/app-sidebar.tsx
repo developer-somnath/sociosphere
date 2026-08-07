@@ -1,9 +1,12 @@
 import { Link, usePage } from "@inertiajs/react";
 import {
+    BookOpenText,
     Building2,
+    CalendarCog,
     CalendarDays,
     Car,
     ChevronRight,
+    ClipboardCheck,
     CreditCard,
     DoorOpen,
     FolderOpen,
@@ -14,6 +17,7 @@ import {
     LogOut,
     Receipt,
     Settings,
+    Settings2,
     ShieldAlert,
     ShieldCheck,
     Sparkles,
@@ -115,8 +119,13 @@ const NAV_GROUPS: NavGroup[] = [
     {
         label: "Finance",
         items: [
-            { title: "Invoices",  routeName: "invoices.index", icon: Receipt,     permission: "invoice.view"    },
-            { title: "Payments",  routeName: "payments.index", icon: CreditCard,  permission: "collection.view" },
+            { title: "Invoices",       routeName: "invoices.index",     icon: Receipt,       permission: "invoice.view"    },
+            { title: "Payments",       routeName: "payments.index",     icon: CreditCard,    permission: "collection.view" },
+            { title: "Batch Generate", routeName: "billing.preview",    icon: CalendarCog,   permission: "billing.configure" },
+            { title: "Flat Ledger",    routeName: "billing.ledger",     icon: BookOpenText,  permission: "invoice.view"    },
+            { title: "Billing Settings", routeName: "billing.settings", icon: Settings2,    permission: "billing.configure" },
+            { title: "Run History",    routeName: "billing.runs",       icon: History,       permission: "billing.configure" },
+            { title: "Invariant Check", routeName: "billing.verify",    icon: ClipboardCheck, permission: "billing.configure" },
         ],
     },
     {

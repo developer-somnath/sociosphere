@@ -328,12 +328,12 @@ export default function InvoicesIndex() {
                 icon={<Receipt className="size-5" />}
                 actions={
                     can.create && (
-                        <Button asChild>
-                            <Link href={route("invoices.create")}>
-                                <Plus />
-                                Generate Invoice
-                            </Link>
-                        </Button>
+                        <QuickActionPill
+                            href={route("invoices.create")}
+                            icon={Plus}
+                            label="Issue Invoice"
+                            variant="rose"
+                        />
                     )
                 }
             />

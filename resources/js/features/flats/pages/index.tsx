@@ -25,6 +25,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { ExportFormat } from "@/components/ui/export-menu";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { Pagination } from "@/components/ui/pagination";
+import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
 import { toast } from "@/lib/toast";
@@ -392,12 +393,12 @@ export default function FlatsIndex() {
                 icon={<Building2 className="size-5" />}
                 actions={
                     can.create && (
-                        <Button asChild>
-                            <Link href={route("flats.create")}>
-                                <Plus />
-                                Add flat
-                            </Link>
-                        </Button>
+                        <QuickActionPill
+                            href={route("flats.create")}
+                            icon={Plus}
+                            label="Add Flat"
+                            variant="teal"
+                        />
                     )
                 }
             />

@@ -9,11 +9,8 @@ type MetricCardProps = {
     value: string | number;
     hint?: string;
     icon: LucideIcon;
-    /** NEW: Tailwind class for the left accent bar, e.g. "bg-blue-500" */
     accentColor?: string;
-    /** NEW: Tailwind classes for the icon wrapper */
     iconColor?: string;
-    /** LEGACY: old combined accent string (e.g. "bg-blue-50 text-blue-600 ...") */
     accent?: string;
     trend?: string;
     trendDir?: TrendDirection;
@@ -27,7 +24,7 @@ export function MetricCard({
     icon: Icon,
     accentColor,
     iconColor,
-    accent,          // legacy prop — maps to iconColor (old icon wrapper style)
+    accent,
     trend,
     trendDir = "neutral",
     className,
@@ -35,56 +32,54 @@ export function MetricCard({
     const displayValue =
         typeof value === "number" ? value.toLocaleString() : value;
 
-    // Legacy compat: if only the old `accent` prop is passed, use it for the
-    // icon wrapper. The accent bar gets a neutral primary color.
     const resolvedAccentColor = accentColor ?? "bg-primary";
-    const resolvedIconColor   = iconColor ?? accent ?? "bg-primary/10 text-primary";
+    const resolvedIconColor   = iconColor ?? accent ?? "bg-primary/10 text-primary border-primary/20";
 
     const TrendIcon =
         trendDir === "up" ? TrendingUp :
         trendDir === "down" ? TrendingDown : Minus;
 
     const trendClass =
-        trendDir === "up"   ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10" :
-        trendDir === "down" ? "text-rose-600    dark:text-rose-400    bg-rose-50    dark:bg-rose-500/10"    :
-                              "text-muted-foreground bg-muted";
+        trendDir === "up"   ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20" :
+        trendDir === "down" ? "text-rose-600    dark:text-rose-400    bg-rose-500/10    border-rose-500/20"    :
+                              "text-muted-foreground bg-muted border-border/40";
 
     return (
         <div
             className={cn(
-                "relative flex overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow duration-150 hover:shadow-md",
+                "group relative flex overflow-hidden rounded-2xl border border-border/70 bg-card/90 p-5 shadow-[0_4px_20px_-10px_rgba(15,23,42,0.1)] transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg dark:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.4)]",
                 className
             )}
         >
-            {/* Left accent bar */}
-            <div className={cn("w-1 shrink-0 rounded-l-xl", resolvedAccentColor)} />
+            {/* Left accent pill bar */}
+            <div className={cn("absolute left-0 top-3 bottom-3 w-1 rounded-r-full transition-all duration-200 group-hover:w-1.5", resolvedAccentColor)} />
 
-            <div className="flex flex-1 flex-col gap-3 p-5">
+            <div className="flex flex-1 flex-col justify-between gap-4 pl-2">
                 {/* Top row: label + icon */}
                 <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-medium text-muted-foreground">{label}</p>
-                    <div className={cn("flex size-9 shrink-0 items-center justify-center rounded-lg", resolvedIconColor)}>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+                    <div className={cn("flex size-9 shrink-0 items-center justify-center rounded-xl border shadow-2xs transition-transform duration-200 group-hover:scale-105", resolvedIconColor)}>
                         <Icon className="size-4" />
                     </div>
                 </div>
 
-                {/* Value */}
+                {/* Value & Hint */}
                 <div>
-                    <p className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">
+                    <p className="text-3xl font-bold tracking-tight text-foreground tabular-nums">
                         {displayValue}
                     </p>
                     {hint && (
-                        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                        <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
                             {hint}
                         </p>
                     )}
                 </div>
 
-                {/* Trend chip */}
+                {/* Trend badge */}
                 {trend && (
-                    <div className={cn("inline-flex w-fit items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium", trendClass)}>
+                    <div className={cn("inline-flex w-fit items-center gap-1.5 rounded-lg border px-2 py-0.5 text-xs font-semibold transition-colors", trendClass)}>
                         <TrendIcon className="size-3" />
-                        {trend}
+                        <span>{trend}</span>
                     </div>
                 )}
             </div>

@@ -8,6 +8,14 @@
 
 The repository contained substantial uncommitted application changes before this audit. They have been preserved. This document describes the code that is currently present; it does not imply that the uncommitted work is committed or deployment-ready.
 
+### 2.5 Role-Driven Adaptive Enterprise Dashboard Engine
+
+SocioSphere uses a single, unified, adaptive dashboard layout across all 16 supported user roles (`SuperAdmin`, `SocietyAdmin`, `SocietyManager`, `Accountant`, `FacilityManager`, `SecurityManager`, `SecurityGuard`, `Receptionist`, `MaintenanceTeam`, `HelpdeskExecutive`, `Resident`, `CommitteeMember`, `TowerManager`, `Auditor`, `ReadOnlyUser`).
+
+- **Single Layout**: One unified dashboard shell (`dashboard-page.tsx`), header, sidebar, and design system.
+- **Dynamic Widget Registry**: `widget-registry.ts` maps Spatie RBAC permissions (`user.permissions`) and roles (`user.roles`) to visible KPIs, Quick Actions, and Task Queue matrices without code duplication or separate hardcoded pages.
+- **Zero Empty Layout Gaps**: Navbars and action bars automatically strip unauthorized links without leaving visual gaps.
+
 ## 1. Current architecture
 
 ### Backend

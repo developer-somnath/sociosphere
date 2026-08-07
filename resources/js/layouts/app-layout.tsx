@@ -120,22 +120,24 @@ export default function AppLayout({ children }: PropsWithChildren) {
 
             <SidebarInset>
                 {/* ── Topbar ──────────────────────────────────────────────── */}
-                <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b border-border bg-card px-4 lg:px-5">
-                    {/* Left: sidebar trigger */}
-                    <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground" />
-                    <Separator orientation="vertical" className="mx-1 data-[orientation=vertical]:h-4" />
+                <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border/70 bg-card/90 backdrop-blur-md px-4 lg:px-6 transition-colors">
+                    {/* Left: sidebar trigger & breadcrumb / search */}
+                    <div className="flex items-center gap-3">
+                        <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" />
+                        <Separator orientation="vertical" className="h-4 text-border" />
 
-                    {/* Center: search */}
-                    <div className="flex flex-1 items-center">
+                        {/* Search bar */}
                         <button
                             type="button"
                             onClick={openCommandPalette}
-                            className="hidden h-8 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm text-muted-foreground transition-colors hover:border-border-strong hover:bg-muted md:flex"
+                            className="hidden h-8.5 w-64 items-center justify-between gap-2 rounded-xl border border-border/70 bg-background/80 px-3 text-xs text-muted-foreground transition-all hover:border-primary/40 hover:bg-accent/40 sm:flex lg:w-80 shadow-2xs"
                             aria-label="Open command palette"
                         >
-                            <Search className="size-3.5 shrink-0" />
-                            <span className="text-sm">Search…</span>
-                            <kbd className="ml-8 hidden rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground lg:block">
+                            <div className="flex items-center gap-2">
+                                <Search className="size-3.5 shrink-0 text-muted-foreground" />
+                                <span>Search anything...</span>
+                            </div>
+                            <kbd className="rounded-md border border-border/60 bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                                 ⌘K
                             </kbd>
                         </button>

@@ -149,17 +149,17 @@ function NavLink({ item, url }: { item: NavItem & { href: string }; url: string 
                 isActive={active}
                 tooltip={item.title}
                 className={cn(
-                    "group relative h-8 rounded-md px-2.5 text-sidebar-foreground/70 transition-all duration-100",
-                    "hover:bg-white/8 hover:text-sidebar-foreground",
-                    active && "bg-white/12 text-sidebar-foreground font-medium"
+                    "group relative h-9 rounded-lg px-2.5 text-sidebar-foreground/70 transition-all duration-200",
+                    "hover:bg-sidebar-accent/60 hover:text-sidebar-foreground hover:translate-x-0.5",
+                    active && "bg-sidebar-primary/15 text-sidebar-primary font-semibold ring-1 ring-sidebar-primary/20 shadow-xs"
                 )}
             >
                 <Link href={item.href}>
-                    {/* Active left indicator bar */}
+                    {/* Active left indicator bar with glow */}
                     {active && (
-                        <span className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-sidebar-primary" />
+                        <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-sidebar-primary shadow-[0_0_10px_rgba(99,102,241,0.6)]" />
                     )}
-                    <Icon className={cn("size-4 shrink-0", active ? "text-sidebar-primary" : "text-sidebar-foreground/50")} />
+                    <Icon className={cn("size-4 shrink-0 transition-colors duration-200", active ? "text-sidebar-primary" : "text-sidebar-foreground/50 group-hover:text-sidebar-primary/80")} />
                     <span className="truncate text-sm">{item.title}</span>
                 </Link>
             </SidebarMenuButton>

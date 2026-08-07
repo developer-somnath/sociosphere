@@ -17,6 +17,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { ExportFormat } from "@/components/ui/export-menu";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { Pagination } from "@/components/ui/pagination";
+import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
 import { toast } from "@/lib/toast";
@@ -244,16 +245,16 @@ export default function ResidentsIndex() {
 
             <PageHeader
                 title="Residents"
-                description="Keep resident records, contact details, and household relationships organized."
+                description="Manage resident profiles, contact details, and occupancy relationships."
                 icon={<Users className="size-5" />}
                 actions={
                     can.create && (
-                        <Button asChild>
-                            <Link href={route("residents.create")}>
-                                <Plus />
-                                Add resident
-                            </Link>
-                        </Button>
+                        <QuickActionPill
+                            href={route("residents.create")}
+                            icon={Plus}
+                            label="Add Resident"
+                            variant="teal"
+                        />
                     )
                 }
             />

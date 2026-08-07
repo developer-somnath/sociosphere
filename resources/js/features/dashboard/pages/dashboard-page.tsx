@@ -62,16 +62,22 @@ export default function DashboardPage() {
 
                 {/* Quick actions row */}
                 <div className="flex flex-wrap items-center gap-2">
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="emerald" size="sm" asChild>
                         <Link href={safeRoute("residents.create")}>
                             <Plus className="size-3.5" />
-                            Add resident
+                            Add Resident
                         </Link>
                     </Button>
-                    <Button size="sm" asChild>
+                    <Button variant="blue" size="sm" asChild>
                         <Link href={safeRoute("invoices.create")}>
                             <ReceiptText className="size-3.5" />
-                            New invoice
+                            New Invoice
+                        </Link>
+                    </Button>
+                    <Button variant="purple" size="sm" asChild>
+                        <Link href={safeRoute("complaints.create")}>
+                            <AlertCircle className="size-3.5" />
+                            Raise Complaint
                         </Link>
                     </Button>
                 </div>
@@ -224,28 +230,35 @@ export default function DashboardPage() {
             </div>
 
             {/* ── Bottom: quick-create strip ─────────────────────────────── */}
-            <Card className="border-border bg-card shadow-sm">
+            <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardContent className="py-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <p className="mr-2 text-sm font-medium text-muted-foreground">Quick actions:</p>
-                        <Button variant="outline" size="sm" asChild>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Quick Operations:
+                        </span>
+                        <Button variant="blue" size="sm" asChild>
                             <Link href={safeRoute("towers.create")}>
-                                <Plus className="size-3.5" /> New tower
+                                <Building2 className="size-3.5" /> New Tower
                             </Link>
                         </Button>
-                        <Button variant="outline" size="sm" asChild>
+                        <Button variant="purple" size="sm" asChild>
                             <Link href={safeRoute("flats.create")}>
-                                <Plus className="size-3.5" /> New flat
+                                <Plus className="size-3.5" /> New Flat
                             </Link>
                         </Button>
-                        <Button variant="outline" size="sm" asChild>
+                        <Button variant="emerald" size="sm" asChild>
                             <Link href={safeRoute("residents.create")}>
-                                <Plus className="size-3.5" /> New resident
+                                <Users className="size-3.5" /> Add Resident
                             </Link>
                         </Button>
-                        <Button variant="outline" size="sm" asChild>
+                        <Button variant="amber" size="sm" asChild>
                             <Link href={safeRoute("parking-slots.create")}>
-                                <Plus className="size-3.5" /> Allocate parking
+                                <Plus className="size-3.5" /> Allocate Parking
+                            </Link>
+                        </Button>
+                        <Button variant="rose" size="sm" asChild>
+                            <Link href={safeRoute("invoices.create")}>
+                                <ReceiptText className="size-3.5" /> Issue Invoice
                             </Link>
                         </Button>
                     </div>

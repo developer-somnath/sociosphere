@@ -114,9 +114,20 @@ class ComplaintController extends Controller
     {
         $this->authorize('create', Complaint::class);
 
+        $flatId = $request->input('flat_id');
+        $societyId = $request->user()->society_id
+            ?? society_id()
+            ?? ($flatId ? Flat::where('id', $flatId)->value('society_id') : null);
+
+        if (! $societyId) {
+            return redirect()
+                ->back()
+                ->with('error', 'Please select a society before raising a complaint.');
+        }
+
         $complaint = Complaint::create([
             ...$request->validated(),
-            'society_id' => $request->user()->society_id,
+            'society_id' => $societyId,
             'status' => 'Open',
         ]);
 

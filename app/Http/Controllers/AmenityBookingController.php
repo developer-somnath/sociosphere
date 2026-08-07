@@ -118,8 +118,12 @@ class AmenityBookingController extends Controller
             $startTime = \Carbon\Carbon::parse($validated['start_time'])->format('H:i:s');
             $endTime = \Carbon\Carbon::parse($validated['end_time'])->format('H:i:s');
 
+            $targetSocietyId = $user->society_id
+                ?? society_id()
+                ?? $amenity->society_id;
+
             // Check existing overlapping bookings for the exact same date and time slot
-            $overlapCount = AmenityBooking::where('society_id', $user->society_id)
+            $overlapCount = AmenityBooking::where('society_id', $targetSocietyId)
                 ->where('amenity_id', $amenity->id)
                 ->whereDate('booking_date', $validated['booking_date'])
                 ->whereIn('status', ['Pending', 'Approved'])
@@ -139,7 +143,7 @@ class AmenityBookingController extends Controller
             }
 
             $booking = AmenityBooking::create([
-                'society_id' => $user->society_id,
+                'society_id' => $targetSocietyId,
                 'amenity_id' => $amenity->id,
                 'flat_id' => $validated['flat_id'],
                 'resident_id' => $validated['resident_id'],

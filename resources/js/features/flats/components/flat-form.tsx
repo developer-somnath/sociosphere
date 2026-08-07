@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { TowerOption } from "@/features/flats/types";
@@ -51,26 +52,20 @@ export default function FlatForm({
                         <Label htmlFor="tower_id">
                             Tower <span className="text-destructive">*</span>
                         </Label>
-                        <select
+                        <Combobox
                             id="tower_id"
-                            className={selectClasses}
-                            value={data.tower_id}
-                            onChange={(e) =>
-                                setData(
-                                    "tower_id",
-                                    e.target.value === ""
-                                        ? ""
-                                        : Number(e.target.value),
-                                )
+                            items={towers.map((t) => ({
+                                value: String(t.id),
+                                label: t.label,
+                            }))}
+                            value={String(data.tower_id)}
+                            onValueChange={(val) =>
+                                setData("tower_id", val === "" ? "" : Number(val))
                             }
-                        >
-                            <option value="">Select a tower</option>
-                            {towers.map((tower) => (
-                                <option key={tower.id} value={tower.id}>
-                                    {tower.label}
-                                </option>
-                            ))}
-                        </select>
+                            placeholder="Select tower…"
+                            searchPlaceholder="Search towers…"
+                            emptyText="No towers found"
+                        />
                         {errors.tower_id && (
                             <p className="text-sm text-destructive">
                                 {errors.tower_id}

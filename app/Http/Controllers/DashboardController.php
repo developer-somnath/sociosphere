@@ -16,9 +16,7 @@ class DashboardController extends Controller
      */
     public function index(Request $request): Response
     {
-        $societyId = $request->user()->isSuperAdmin()
-            ? null
-            : $request->user()->society_id;
+        $societyId = society_id();
 
         return Inertia::render('features/dashboard/pages/dashboard-page', [
             'stats' => $this->dashboardService->stats($societyId),

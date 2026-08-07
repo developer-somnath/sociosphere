@@ -80,9 +80,17 @@ class SecurityLogController extends Controller
     {
         $this->authorize('create', SecurityLog::class);
 
+        $societyId = $request->user()->society_id ?? society_id();
+
+        if (! $societyId) {
+            return redirect()
+                ->back()
+                ->with('error', 'Please select a society before creating a security log entry.');
+        }
+
         $log = SecurityLog::create([
             ...$request->validated(),
-            'society_id' => $request->user()->society_id,
+            'society_id' => $societyId,
             'guard_id' => $request->user()->id,
         ]);
 

@@ -101,9 +101,20 @@ class CctvCameraController extends Controller
     {
         $this->authorize('create', CctvCamera::class);
 
+        $towerId = $request->input('tower_id');
+        $societyId = $request->user()->society_id
+            ?? society_id()
+            ?? ($towerId ? \App\Models\Tower::where('id', $towerId)->value('society_id') : null);
+
+        if (! $societyId) {
+            return redirect()
+                ->back()
+                ->with('error', 'Please select a society before creating a CCTV camera stream.');
+        }
+
         $camera = CctvCamera::create([
             ...$request->validated(),
-            'society_id' => $request->user()->society_id,
+            'society_id' => $societyId,
         ]);
 
         app(ActivityLogger::class)->log(

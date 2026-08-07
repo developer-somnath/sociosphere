@@ -34,8 +34,12 @@ class HandleInertiaRequests extends Middleware
         $currentSociety = null;
         if ($user) {
             if ($user->isSuperAdmin()) {
-                if (app()->bound('society_id')) {
-                    $societyModel = \App\Models\Society::find(app('society_id'));
+                $societyId = app()->bound('society_id')
+                    ? app('society_id')
+                    : $request->session()->get('current_society_id');
+
+                if ($societyId) {
+                    $societyModel = \App\Models\Society::find($societyId);
                     if ($societyModel) {
                         $currentSociety = [
                             'id' => $societyModel->id,

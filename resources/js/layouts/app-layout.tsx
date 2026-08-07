@@ -1,6 +1,8 @@
 import { Link, router, usePage } from "@inertiajs/react";
 import {
     Building,
+    Check,
+    ChevronDown,
     DoorOpen,
     History,
     Layers,
@@ -15,7 +17,7 @@ import {
     UserCog,
     UserRound,
 } from "lucide-react";
-import type { PropsWithChildren } from "react";
+import { useState, type PropsWithChildren } from "react";
 import { route } from "ziggy-js";
 
 import {
@@ -60,6 +62,7 @@ function initials(name: string): string {
 /* ─── AppLayout ──────────────────────────────────────────────────────────── */
 
 export default function AppLayout({ children }: PropsWithChildren) {
+    const [societySearch, setSocietySearch] = useState("");
     // Build groups inside component — deferred to render so route() is safe
     const commandGroups: CommandGroup[] = [
         {
@@ -140,38 +143,83 @@ export default function AppLayout({ children }: PropsWithChildren) {
                     {/* Right: society switcher (Super Admin) + bell + theme + avatar */}
                     <div className="flex items-center gap-1.5">
                         {/* Society switcher — Super Admin only */}
-                        {user?.is_super_admin && auth.societies && auth.societies.length > 0 && (
+                        {user?.is_super_admin && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs font-medium">
-                                        <Building className="size-3.5 text-muted-foreground" />
-                                        <span className="max-w-[120px] truncate">
-                                            {auth.society?.name ?? "All Societies"}
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 gap-2 border-primary/30 bg-primary/5 px-2.5 text-xs font-semibold text-foreground hover:bg-primary/10 hover:text-primary transition-all"
+                                    >
+                                        <Building className="size-3.5 text-primary" />
+                                        <span className="max-w-[140px] truncate">
+                                            {auth.society?.name ?? "All Societies (Portfolio)"}
                                         </span>
+                                        <ChevronDown className="size-3 text-muted-foreground opacity-70" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56 rounded-xl">
-                                    <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
-                                        Switch society
+                                <DropdownMenuContent align="end" className="w-72 rounded-2xl p-2 shadow-xl">
+                                    <DropdownMenuLabel className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                        Select Target Society
                                     </DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem
-                                        onClick={() => router.post(safeRoute("society.switch"), { society_id: null })}
-                                        className={!auth.society ? "bg-accent" : ""}
-                                    >
-                                        All Societies
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    {auth.societies.map((soc) => (
+
+                                    <div className="relative my-1 px-1">
+                                        <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                                        <input
+                                            type="text"
+                                            value={societySearch}
+                                            onChange={(e) => setSocietySearch(e.target.value)}
+                                            placeholder="Search society..."
+                                            className="h-8 w-full rounded-lg border border-border bg-background pl-8 pr-2 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                                        />
+                                    </div>
+
+                                    <DropdownMenuSeparator className="my-1" />
+                                    <div className="max-h-60 overflow-y-auto space-y-0.5">
                                         <DropdownMenuItem
-                                            key={soc.id}
-                                            onClick={() => router.post(safeRoute("society.switch"), { society_id: soc.id })}
-                                            className={auth.society?.id === soc.id ? "bg-accent" : ""}
+                                            onClick={() => router.post(safeRoute("society.switch"), { society_id: null })}
+                                            className={`flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium cursor-pointer ${
+                                                !auth.society ? "bg-primary/10 text-primary font-semibold" : ""
+                                            }`}
                                         >
-                                            <Building className="size-3.5" />
-                                            <span className="truncate">{soc.name}</span>
+                                            <div className="flex items-center gap-2">
+                                                <Building className="size-4 text-muted-foreground" />
+                                                <span>All Societies (Global)</span>
+                                            </div>
+                                            {!auth.society && <Check className="size-4 text-primary" />}
                                         </DropdownMenuItem>
-                                    ))}
+
+                                        {auth.societies && auth.societies.length > 0 ? (
+                                            auth.societies
+                                                .filter((soc) =>
+                                                    soc.name.toLowerCase().includes(societySearch.toLowerCase())
+                                                )
+                                                .map((soc) => {
+                                                    const isSelected = auth.society?.id === soc.id;
+                                                    return (
+                                                        <DropdownMenuItem
+                                                            key={soc.id}
+                                                            onClick={() =>
+                                                                router.post(safeRoute("society.switch"), { society_id: soc.id })
+                                                            }
+                                                            className={`flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium cursor-pointer ${
+                                                                isSelected ? "bg-primary/10 text-primary font-semibold" : ""
+                                                            }`}
+                                                        >
+                                                            <div className="flex items-center gap-2 truncate">
+                                                                <Building className="size-4 text-muted-foreground shrink-0" />
+                                                                <span className="truncate">{soc.name}</span>
+                                                            </div>
+                                                            {isSelected && <Check className="size-4 text-primary shrink-0" />}
+                                                        </DropdownMenuItem>
+                                                    );
+                                                })
+                                        ) : (
+                                            <div className="px-3 py-2 text-xs text-muted-foreground">
+                                                No societies found.
+                                            </div>
+                                        )}
+                                    </div>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         )}

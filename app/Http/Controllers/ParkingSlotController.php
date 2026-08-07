@@ -83,9 +83,17 @@ class ParkingSlotController extends Controller
     {
         $this->authorize('create', ParkingSlot::class);
 
+        $societyId = $request->user()->society_id ?? society_id();
+
+        if (! $societyId) {
+            return redirect()
+                ->back()
+                ->with('error', 'Please select a society before creating a parking slot.');
+        }
+
         ParkingSlot::create([
             ...$request->validated(),
-            'society_id' => $request->user()->society_id,
+            'society_id' => $societyId,
         ]);
 
         return redirect()

@@ -41,9 +41,17 @@ class ComplaintCategoryController extends Controller
     {
         $this->authorize('create', ComplaintCategory::class);
 
+        $societyId = $request->user()->society_id ?? society_id();
+
+        if (! $societyId) {
+            return redirect()
+                ->back()
+                ->with('error', 'Please select a society before creating a category.');
+        }
+
         $category = ComplaintCategory::create([
             ...$request->validated(),
-            'society_id' => $request->user()->society_id,
+            'society_id' => $societyId,
         ]);
 
         app(ActivityLogger::class)->log(

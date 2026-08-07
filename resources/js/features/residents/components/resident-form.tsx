@@ -2,6 +2,7 @@ import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { FlatOption } from "@/features/residents/types";
@@ -70,26 +71,20 @@ export default function ResidentForm({
                         <Label htmlFor="flat_id">
                             Flat <span className="text-destructive">*</span>
                         </Label>
-                        <select
+                        <Combobox
                             id="flat_id"
-                            className={selectClasses}
-                            value={data.flat_id}
-                            onChange={(e) =>
-                                setData(
-                                    "flat_id",
-                                    e.target.value === ""
-                                        ? ""
-                                        : Number(e.target.value),
-                                )
+                            items={flats.map((f) => ({
+                                value: String(f.id),
+                                label: f.label,
+                            }))}
+                            value={String(data.flat_id)}
+                            onValueChange={(val) =>
+                                setData("flat_id", val === "" ? "" : Number(val))
                             }
-                        >
-                            <option value="">Select a flat</option>
-                            {flats.map((flat) => (
-                                <option key={flat.id} value={flat.id}>
-                                    {flat.label}
-                                </option>
-                            ))}
-                        </select>
+                            placeholder="Select flat…"
+                            searchPlaceholder="Search flats…"
+                            emptyText="No flats found"
+                        />
                         {errors.flat_id && (
                             <p className="text-sm text-destructive">
                                 {errors.flat_id}

@@ -90,9 +90,17 @@ class AmenityController extends Controller
     {
         $this->authorize('create', Amenity::class);
 
+        $societyId = $request->user()->society_id ?? society_id();
+
+        if (! $societyId) {
+            return redirect()
+                ->back()
+                ->with('error', 'Please select a society before creating an amenity.');
+        }
+
         $amenity = Amenity::create([
             ...$request->validated(),
-            'society_id' => $request->user()->society_id,
+            'society_id' => $societyId,
             'is_active' => $request->boolean('is_active', true),
         ]);
 

@@ -24,6 +24,18 @@ const buttonVariants = cva(
         "destructive-ghost":
           "text-destructive hover:bg-destructive/10 focus-visible:ring-destructive/20 dark:hover:bg-destructive/20",
         link: "text-primary underline-offset-4 hover:underline",
+        emerald:
+          "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-600 hover:text-white dark:bg-emerald-500/20 dark:text-emerald-400 dark:hover:bg-emerald-600 dark:hover:text-white transition-all shadow-xs",
+        blue:
+          "border-blue-500/30 bg-blue-500/10 text-blue-600 hover:bg-blue-600 hover:text-white dark:bg-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-600 dark:hover:text-white transition-all shadow-xs",
+        purple:
+          "border-purple-500/30 bg-purple-500/10 text-purple-600 hover:bg-purple-600 hover:text-white dark:bg-purple-500/20 dark:text-purple-400 dark:hover:bg-purple-600 dark:hover:text-white transition-all shadow-xs",
+        amber:
+          "border-amber-500/30 bg-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white dark:bg-amber-500/20 dark:text-amber-400 dark:hover:bg-amber-500 dark:hover:text-white transition-all shadow-xs",
+        rose:
+          "border-rose-500/30 bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white dark:bg-rose-500/20 dark:text-rose-400 dark:hover:bg-rose-600 dark:hover:text-white transition-all shadow-xs",
+        gradient:
+          "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white border-transparent hover:opacity-95 shadow-md shadow-indigo-500/20 active:scale-[0.98] transition-all font-semibold",
       },
       size: {
         default:

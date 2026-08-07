@@ -56,7 +56,9 @@ class RolePermissionSeeder extends Seeder
                 'notice.delete',
 
                 'complaint.view',
+                'complaint.create',
                 'complaint.update',
+                'complaint.delete',
 
                 'visitor.view',
                 'visitor.create',
@@ -74,6 +76,13 @@ class RolePermissionSeeder extends Seeder
                 'cctv.delete',
                 'security_log.view',
                 'security_log.create',
+
+                'amenity.view',
+                'amenity.create',
+                'amenity.update',
+                'amenity.delete',
+                'amenity.book',
+                'amenity.approve',
 
                 // Audit trail: society admins can browse their own society's logs.
                 'activity-log.view',
@@ -128,6 +137,9 @@ class RolePermissionSeeder extends Seeder
 
                 'complaint.create',
                 'complaint.view',
+
+                'amenity.view',
+                'amenity.book',
             ]);
     }
 }

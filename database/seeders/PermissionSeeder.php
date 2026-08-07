@@ -112,6 +112,8 @@ class PermissionSeeder extends Seeder
             'amenity.create',
             'amenity.update',
             'amenity.delete',
+            'amenity.book',
+            'amenity.approve',
 
             // Documents
             'document.view',

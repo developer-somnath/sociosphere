@@ -1,17 +1,21 @@
 import { Link, usePage } from "@inertiajs/react";
 import {
     Building2,
+    CalendarDays,
     Car,
     ChevronRight,
     CreditCard,
     DoorOpen,
+    FolderOpen,
     History,
     LayoutDashboard,
+    MessageSquareWarning,
     LogOut,
     Receipt,
     Settings,
     ShieldAlert,
     ShieldCheck,
+    Sparkles,
     User as UserIcon,
     UserCog,
     Users,
@@ -86,9 +90,18 @@ const NAV_GROUPS: NavGroup[] = [
     {
         label: "Operations",
         items: [
-            { title: "Visitors",    routeName: "visitors.index",       icon: DoorOpen,   permission: "visitor.view"      },
-            { title: "CCTV Feeds",  routeName: "cctv-cameras.index",   icon: Video,      permission: "cctv.view"         },
-            { title: "Security Log",routeName: "security-logs.index",  icon: ShieldAlert,permission: "security_log.view" },
+            { title: "Visitors",       routeName: "visitors.index",         icon: DoorOpen,         permission: "visitor.view"      },
+            { title: "Amenities",      routeName: "amenities.index",        icon: Sparkles,         permission: "amenity.view"      },
+            { title: "Bookings",       routeName: "amenity-bookings.index", icon: CalendarDays,     permission: "amenity.view"      },
+            { title: "CCTV Feeds",     routeName: "cctv-cameras.index",     icon: Video,            permission: "cctv.view"         },
+            { title: "Security Log",   routeName: "security-logs.index",    icon: ShieldAlert,      permission: "security_log.view" },
+        ],
+    },
+    {
+        label: "Helpdesk",
+        items: [
+            { title: "Complaints",  routeName: "complaints.index",           icon: MessageSquareWarning, permission: "complaint.view" },
+            { title: "Categories",  routeName: "complaint-categories.index", icon: FolderOpen,            permission: "complaint.view" },
         ],
     },
     {

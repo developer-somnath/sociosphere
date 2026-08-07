@@ -1,7 +1,11 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AmenityBookingController;
+use App\Http\Controllers\AmenityController;
 use App\Http\Controllers\CctvCameraController;
+use App\Http\Controllers\ComplaintCategoryController;
+use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FlatController;
 use App\Http\Controllers\InvoiceController;
@@ -232,6 +236,69 @@ Route::middleware(['auth', 'society'])->group(function () {
             'edit' => 'residents.edit',
             'update' => 'residents.update',
             'destroy' => 'residents.destroy',
+        ]);
+
+    Route::post('complaints/{complaint}/assign', [ComplaintController::class, 'assign'])
+        ->middleware('permission:complaint.update')
+        ->name('complaints.assign');
+
+    Route::post('complaints/{complaint}/transition', [ComplaintController::class, 'transition'])
+        ->middleware('permission:complaint.update')
+        ->name('complaints.transition');
+
+    Route::resource('complaints', ComplaintController::class)
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
+        ->middleware('permission:complaint.view')
+        ->names([
+            'index' => 'complaints.index',
+            'create' => 'complaints.create',
+            'store' => 'complaints.store',
+            'show' => 'complaints.show',
+            'edit' => 'complaints.edit',
+            'update' => 'complaints.update',
+            'destroy' => 'complaints.destroy',
+        ]);
+
+    Route::resource('complaint-categories', ComplaintCategoryController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->middleware('permission:complaint.view')
+        ->names([
+            'index' => 'complaint-categories.index',
+            'store' => 'complaint-categories.store',
+            'update' => 'complaint-categories.update',
+            'destroy' => 'complaint-categories.destroy',
+        ]);
+
+    Route::post('amenity-bookings/{booking}/approve', [AmenityBookingController::class, 'approve'])
+        ->middleware('permission:amenity.approve')
+        ->name('amenity-bookings.approve');
+
+    Route::post('amenity-bookings/{booking}/reject', [AmenityBookingController::class, 'reject'])
+        ->middleware('permission:amenity.approve')
+        ->name('amenity-bookings.reject');
+
+    Route::post('amenity-bookings/{booking}/cancel', [AmenityBookingController::class, 'cancel'])
+        ->middleware('permission:amenity.book')
+        ->name('amenity-bookings.cancel');
+
+    Route::resource('amenity-bookings', AmenityBookingController::class)
+        ->only(['index', 'store'])
+        ->middleware('permission:amenity.view')
+        ->names([
+            'index' => 'amenity-bookings.index',
+            'store' => 'amenity-bookings.store',
+        ]);
+
+    Route::resource('amenities', AmenityController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+        ->middleware('permission:amenity.view')
+        ->names([
+            'index' => 'amenities.index',
+            'create' => 'amenities.create',
+            'store' => 'amenities.store',
+            'edit' => 'amenities.edit',
+            'update' => 'amenities.update',
+            'destroy' => 'amenities.destroy',
         ]);
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])

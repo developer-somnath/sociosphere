@@ -308,4 +308,40 @@ Completed Maintenance & Billing Module:
 
 Verification after implementation: **165 PHPUnit tests / 879 assertions** pass, TypeScript passes `tsc --noEmit`.
 
-The next approved unit of work is **Phase 10: Complaints & Helpdesk System**.
+The next approved unit of work was **Phase 10: Complaints & Helpdesk System**.
+
+## Phase 10 implementation record (2026-08-07)
+
+Completed Complaints & Helpdesk System:
+
+- Updated `Complaint` and `ComplaintCategory` models with Eloquent relationships, `BelongsToSociety` tenant scope, and date casting.
+- Implemented full `ComplaintController` CRUD (`index`, `create`, `store`, `show`, `edit`, `update`, `destroy`), `assign` to staff, and `transition` status state machine (`Open` → `Assigned` → `In Progress` → `Resolved` → `Closed`).
+- Implemented `ComplaintCategoryController` CRUD with deletion safeguards against in-use categories.
+- Created `ComplaintRequest`, `ComplaintCategoryRequest`, `ComplaintPolicy`, and `ComplaintCategoryPolicy`.
+- Added DB composite index migration `2026_08_07_000000_add_complaint_composite_indexes.php` on `complaints(society_id, status, assigned_to)`, `complaints(society_id, priority)`, and `complaints(society_id, category_id)`.
+- Built Inertia pages: `features/complaints/pages/index.tsx`, `create.tsx`, `show.tsx`, `edit.tsx`, `categories.tsx`, and added `Complaints` and `Categories` under a new `Helpdesk` section in `app-sidebar.tsx`.
+- Added feature test suite `ComplaintTest.php` (**13 tests / 110 assertions** pass).
+- Updated `RolePermissionSeeder` granting `complaint.create` and `complaint.delete` permissions to `SocietyAdmin`.
+
+Verification after implementation: **176 PHPUnit tests / 986 assertions** pass, TypeScript passes `tsc --noEmit`.
+
+The next approved unit of work was **Phase 11: Amenity & Facility Booking**.
+
+## Phase 11 implementation record (2026-08-07)
+
+Completed Amenity & Facility Booking:
+
+- Created `Amenity`, `AmenitySlot`, and `AmenityBooking` models with Eloquent relationships, `BelongsToSociety` tenant scope, `HasPublicUuid`, `LogsActivity`, and `SoftDeletes`.
+- Created database migration `2026_08_07_180000_create_amenities_and_bookings_tables.php` with composite index `amenity_bookings(society_id, amenity_id, booking_date, status)`.
+- Implemented `AmenityController` CRUD (`index`, `create`, `store`, `edit`, `update`, `destroy`) with active booking deletion safeguards.
+- Implemented `AmenityBookingController` (`index`, `store`, `approve`, `reject`, `cancel`) featuring pessimistic database transaction locks (`lockForUpdate()`) and `whereDate()` capacity overlap checks to strictly prevent double bookings.
+- Created `AmenityRequest`, `AmenityBookingRequest`, `AmenityPolicy`, and `AmenityBookingPolicy`.
+- Added permissions `amenity.book` and `amenity.approve` in `PermissionSeeder`, mapped permissions across `SocietyAdmin` and `Resident` roles in `RolePermissionSeeder`, and updated `PermissionCatalog`.
+- Built Inertia frontend pages: `features/amenities/pages/index.tsx`, `create.tsx`, `edit.tsx`, `bookings.tsx`, and added `Amenities` and `Bookings` links under the `Operations` section in `app-sidebar.tsx`.
+- Added feature test suite `AmenityBookingTest.php` (**8 tests / 32 assertions** pass).
+
+Verification after implementation: **184 PHPUnit tests / 1018 assertions** pass, TypeScript passes `tsc --noEmit`.
+
+The next approved unit of work is **Phase 12: Notice Board & Document Repository**.
+
+

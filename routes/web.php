@@ -7,10 +7,12 @@ use App\Http\Controllers\CctvCameraController;
 use App\Http\Controllers\ComplaintCategoryController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentRepositoryController;
 use App\Http\Controllers\FlatController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LanguageSwitchController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\ParkingSlotController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
@@ -300,6 +302,40 @@ Route::middleware(['auth', 'society'])->group(function () {
             'edit' => 'amenities.edit',
             'update' => 'amenities.update',
             'destroy' => 'amenities.destroy',
+        ]);
+
+    Route::post('notices/{notice}/toggle-pin', [NoticeController::class, 'togglePin'])
+        ->middleware('permission:notice.update')
+        ->name('notices.toggle-pin');
+
+    Route::post('notices/{notice}/acknowledge', [NoticeController::class, 'acknowledge'])
+        ->middleware('permission:notice.view')
+        ->name('notices.acknowledge');
+
+    Route::resource('notices', NoticeController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+        ->middleware('permission:notice.view')
+        ->names([
+            'index' => 'notices.index',
+            'create' => 'notices.create',
+            'store' => 'notices.store',
+            'edit' => 'notices.edit',
+            'update' => 'notices.update',
+            'destroy' => 'notices.destroy',
+        ]);
+
+    Route::get('documents/{document}/download', [DocumentRepositoryController::class, 'download'])
+        ->middleware('permission:document.view')
+        ->name('documents.download');
+
+    Route::resource('documents', DocumentRepositoryController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->middleware('permission:document.view')
+        ->names([
+            'index' => 'documents.index',
+            'store' => 'documents.store',
+            'update' => 'documents.update',
+            'destroy' => 'documents.destroy',
         ]);
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])

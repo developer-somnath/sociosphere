@@ -55,6 +55,11 @@ class RolePermissionSeeder extends Seeder
                 'notice.update',
                 'notice.delete',
 
+                'document.view',
+                'document.create',
+                'document.update',
+                'document.delete',
+
                 'complaint.view',
                 'complaint.create',
                 'complaint.update',
@@ -132,6 +137,8 @@ class RolePermissionSeeder extends Seeder
                 'dashboard.view',
 
                 'notice.view',
+
+                'document.view',
 
                 'invoice.view',
 

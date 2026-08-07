@@ -9,6 +9,7 @@ import {
     FolderOpen,
     History,
     LayoutDashboard,
+    Megaphone,
     MessageSquareWarning,
     LogOut,
     Receipt,
@@ -95,6 +96,13 @@ const NAV_GROUPS: NavGroup[] = [
             { title: "Bookings",       routeName: "amenity-bookings.index", icon: CalendarDays,     permission: "amenity.view"      },
             { title: "CCTV Feeds",     routeName: "cctv-cameras.index",     icon: Video,            permission: "cctv.view"         },
             { title: "Security Log",   routeName: "security-logs.index",    icon: ShieldAlert,      permission: "security_log.view" },
+        ],
+    },
+    {
+        label: "Communications",
+        items: [
+            { title: "Notice Board", routeName: "notices.index",   icon: Megaphone,  permission: "notice.view"   },
+            { title: "Documents",    routeName: "documents.index", icon: FolderOpen, permission: "document.view" },
         ],
     },
     {

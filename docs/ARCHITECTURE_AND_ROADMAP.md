@@ -340,8 +340,23 @@ Completed Amenity & Facility Booking:
 - Built Inertia frontend pages: `features/amenities/pages/index.tsx`, `create.tsx`, `edit.tsx`, `bookings.tsx`, and added `Amenities` and `Bookings` links under the `Operations` section in `app-sidebar.tsx`.
 - Added feature test suite `AmenityBookingTest.php` (**8 tests / 32 assertions** pass).
 
-Verification after implementation: **184 PHPUnit tests / 1018 assertions** pass, TypeScript passes `tsc --noEmit`.
+The next approved unit of work was **Phase 12: Enterprise Internationalization (i18n) & Localization (l10n)**.
 
-The next approved unit of work is **Phase 12: Notice Board & Document Repository**.
+## Phase 12 implementation record (2026-08-08)
+
+Completed Enterprise Internationalization & Localization:
+
+- Created database migration `2026_08_08_000000_create_languages_and_user_locales_tables.php` creating `languages` catalog table, `translations` table, and `users.locale` + `users.timezone` preference columns.
+- Implemented Eloquent `Language` model and `LanguageSeeder` populating **42 global locales** (English, Arabic, Bengali, Hindi, Urdu, Spanish, French, German, Portuguese, Italian, Dutch, Turkish, Russian, Chinese, Japanese, Korean, Thai, Vietnamese, Indonesian, Malay, Persian, Hebrew, Polish, Czech, Romanian, Greek, Swedish, Norwegian, Danish, Finnish, Hungarian, Ukrainian, Tamil, Telugu, Kannada, Malayalam, Marathi, Gujarati, Punjabi, Sinhala, Nepali) with native names and script directions (`ltr`/`rtl`).
+- Implemented `SetLocaleMiddleware` to dynamically resolve active locale from user preference → session → `Accept-Language` header → system fallback.
+- Implemented `LanguageSwitchController` (`POST /language/switch`) to handle instant client-side language switching without re-authentication.
+- Built frontend `LanguageSwitcher` dropdown component ([language-switcher.tsx](file:///d:/Laravel/sociosphere/resources/js/components/app/language-switcher.tsx)) with native script labels, searchable filter, RTL badge indicators, and dynamic `document.documentElement.dir` layout switching (`ltr`/`rtl`).
+- Built i18n helper library ([i18n.ts](file:///d:/Laravel/sociosphere/resources/js/lib/i18n.ts)) featuring parameter interpolation (`t(key, params)`), `formatDate`, `formatCurrency`, and `formatNumber` using native `Intl` formatters.
+- Added feature test suite `InternationalizationTest.php` (**3 tests / 11 assertions** pass).
+
+Verification after implementation: **187 PHPUnit tests / 1029 assertions** pass, TypeScript passes `tsc --noEmit`.
+
+The next approved unit of work is **Phase 13: Notice Board & Document Repository**.
+
 
 

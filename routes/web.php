@@ -9,6 +9,7 @@ use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FlatController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LanguageSwitchController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ParkingSlotController;
 use App\Http\Controllers\PaymentController;
@@ -313,7 +314,12 @@ Route::middleware(['auth', 'society'])->group(function () {
 use App\Http\Controllers\SocietySwitchController;
 
 Route::middleware('auth')->group(function () {
-    Route::post('/society/switch', SocietySwitchController::class)->name('society.switch');
+    Route::post('/society/switch', SocietySwitchController::class)
+    ->middleware(['auth', 'role:SuperAdmin'])
+    ->name('society.switch');
+
+    Route::post('/language/switch', LanguageSwitchController::class)
+    ->name('language.switch');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

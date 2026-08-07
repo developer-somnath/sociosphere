@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -68,6 +69,28 @@ class HandleInertiaRequests extends Middleware
                 ->toArray();
         }
 
+        $activeLocale = App::getLocale();
+        $rtlCodes = ['ar', 'ur', 'fa', 'he'];
+        $isRtl = in_array($activeLocale, $rtlCodes, true);
+
+        $languagesList = \App\Models\Language::where('is_active', true)
+            ->orderBy('name')
+            ->get(['code', 'name', 'native_name', 'script_dir'])
+            ->toArray();
+
+        if (empty($languagesList)) {
+            $languagesList = [
+                ['code' => 'en', 'name' => 'English', 'native_name' => 'English', 'script_dir' => 'ltr'],
+                ['code' => 'ar', 'name' => 'Arabic', 'native_name' => 'العربية', 'script_dir' => 'rtl'],
+                ['code' => 'bn', 'name' => 'Bengali', 'native_name' => 'বাংলা', 'script_dir' => 'ltr'],
+                ['code' => 'hi', 'name' => 'Hindi', 'native_name' => 'हिन्दी', 'script_dir' => 'ltr'],
+                ['code' => 'ur', 'name' => 'Urdu', 'native_name' => 'اردو', 'script_dir' => 'rtl'],
+                ['code' => 'es', 'name' => 'Spanish', 'native_name' => 'Español', 'script_dir' => 'ltr'],
+                ['code' => 'fr', 'name' => 'French', 'native_name' => 'Français', 'script_dir' => 'ltr'],
+                ['code' => 'de', 'name' => 'German', 'native_name' => 'Deutsch', 'script_dir' => 'ltr'],
+            ];
+        }
+
         return array_merge(parent::share($request), [
 
             'auth' => [
@@ -82,11 +105,15 @@ class HandleInertiaRequests extends Middleware
                         'permissions' => $user->permissionNames(),
                         'society_id' => $user->society_id,
                         'is_super_admin' => $user->isSuperAdmin(),
+                        'locale' => $user->locale ?? $activeLocale,
                     ]
                     : null,
 
                 'society' => $currentSociety,
                 'societies' => $availableSocieties,
+                'locale' => $activeLocale,
+                'is_rtl' => $isRtl,
+                'languages' => $languagesList,
             ],
 
             'flash' => [

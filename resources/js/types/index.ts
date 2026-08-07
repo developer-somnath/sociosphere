@@ -33,6 +33,14 @@ export type SharedProps = {
         user: AuthUser | null;
         society: AuthSociety | null;
         societies?: AuthSociety[];
+        locale?: string;
+        is_rtl?: boolean;
+        languages?: {
+            code: string;
+            name: string;
+            native_name: string;
+            script_dir: "ltr" | "rtl";
+        }[];
     };
     flash: {
         success: string | null;

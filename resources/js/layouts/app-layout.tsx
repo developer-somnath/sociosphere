@@ -27,6 +27,7 @@ import {
 } from "@/components/app/command-palette";
 import { AppSidebar } from "@/components/app/app-sidebar";
 import { FlashToaster } from "@/components/app/flash-toaster";
+import { LanguageSwitcher } from "@/components/app/language-switcher";
 import { NotificationCenter } from "@/components/app/notification-center";
 import { PageLoadingIndicator } from "@/components/app/page-loading-indicator";
 import { ThemeSwitcher } from "@/components/theme/theme-switcher";
@@ -232,6 +233,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                             </div>
                         )}
 
+                        <LanguageSwitcher />
                         <NotificationCenter notifications={notifications} />
                         <ThemeSwitcher />
 

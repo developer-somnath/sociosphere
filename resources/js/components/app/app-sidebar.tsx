@@ -118,6 +118,7 @@ export function AppSidebar() {
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
     const permissions = user?.permissions ?? [];
+    const roleLabel = user?.roles?.[0] ?? "Member";
 
     return (
         <Sidebar collapsible="icon">
@@ -126,7 +127,7 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <Link href={route("overview")}>
-                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                                <div className="flex aspect-square size-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-sm">
                                     <Building2 className="size-4" />
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -172,15 +173,16 @@ export function AppSidebar() {
                                                     asChild
                                                     isActive={active}
                                                     tooltip={item.title}
+                                                    className={active ? "bg-sidebar-accent/80 text-sidebar-accent-foreground" : undefined}
                                                 >
-                                                <Link href={item.href}>
-                                                    <item.icon />
-                                                    <span>{item.title}</span>
-                                                </Link>
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    );
-                                })}
+                                                    <Link href={item.href}>
+                                                        <item.icon />
+                                                        <span>{item.title}</span>
+                                                    </Link>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                        );
+                                    })}
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
@@ -206,7 +208,7 @@ export function AppSidebar() {
                                             {user?.name}
                                         </span>
                                         <span className="truncate text-xs text-muted-foreground">
-                                            {user?.roles[0] ?? "Member"}
+                                            {roleLabel}
                                         </span>
                                     </div>
                                 </SidebarMenuButton>

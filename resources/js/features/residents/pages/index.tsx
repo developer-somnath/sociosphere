@@ -86,18 +86,29 @@ export default function ResidentsIndex() {
         <AppLayout>
             <Head title="Residents" />
 
-            <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-bold tracking-tight">Residents</h1>
-                <p className="text-sm text-muted-foreground">
-                    Manage the people living in your society.
-                </p>
+            <div className="rounded-3xl border border-border/70 bg-card/80 p-5 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.4)] backdrop-blur">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <h1 className="text-2xl font-semibold tracking-tight">Residents</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Keep resident records, contact details, and household relationships organized.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {can.create && (
+                            <Button asChild>
+                                <Link href={route("residents.create")}>
+                                    <Plus />
+                                    Add resident
+                                </Link>
+                            </Button>
+                        )}
+                    </div>
+                </div>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <form
-                    onSubmit={submitSearch}
-                    className="relative w-full max-w-sm"
-                >
+            <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)] lg:flex-row lg:items-center lg:justify-between">
+                <form onSubmit={submitSearch} className="relative w-full max-w-sm">
                     <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         value={search}
@@ -117,17 +128,13 @@ export default function ResidentsIndex() {
                     )}
                 </form>
 
-                {can.create && (
-                    <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
-                        <Link href={route("residents.create")}>
-                            <Plus />
-                            Add Resident
-                        </Link>
-                    </Button>
-                )}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="size-4" />
+                    {residents.total} resident{residents.total === 1 ? "" : "s"} registered
+                </div>
             </div>
 
-            <Card className="border-border/60 shadow-sm">
+            <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardContent className="p-0">
                     {residents.data.length === 0 ? (
                         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
@@ -361,11 +368,6 @@ export default function ResidentsIndex() {
                 </div>
             )}
 
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Users className="size-3.5" />
-                {residents.total} resident
-                {residents.total === 1 ? "" : "s"} registered
-            </div>
         </AppLayout>
     );
 }

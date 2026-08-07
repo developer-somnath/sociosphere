@@ -50,7 +50,7 @@ class User extends Authenticatable
      */
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole('SuperAdmin');
+        return $this->exists && $this->hasRole('SuperAdmin');
     }
 
     /**

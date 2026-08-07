@@ -16,7 +16,7 @@ class RegistrationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_new_users_can_register(): void
+    public function test_registration_submission_returns_to_login_without_creating_an_account(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -25,7 +25,10 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('overview', absolute: false));
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', [
+            'email' => 'test@example.com',
+        ]);
+        $response->assertRedirect(route('login'));
     }
 }

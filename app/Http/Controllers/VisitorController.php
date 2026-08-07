@@ -6,6 +6,7 @@ use App\Http\Requests\VisitorRequest;
 use App\Models\Flat;
 use App\Models\Visitor;
 use App\Models\VisitorPass;
+use App\Services\ModuleQueryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,6 +14,9 @@ use Inertia\Response;
 
 class VisitorController extends Controller
 {
+    public function __construct(private readonly ModuleQueryService $moduleQueryService)
+    {
+    }
     /**
      * Display a paginated, searchable, filterable list of visitor passes
      * (the gate register).
@@ -67,7 +71,7 @@ class VisitorController extends Controller
         $this->authorize('create', VisitorPass::class);
 
         return Inertia::render('features/visitors/pages/create', [
-            'flats' => $this->flatOptions($request),
+            'flats' => $this->moduleQueryService->flatOptions($request->user()),
         ]);
     }
 
@@ -113,7 +117,7 @@ class VisitorController extends Controller
 
         return Inertia::render('features/visitors/pages/edit', [
             'pass' => $visitorPass,
-            'flats' => $this->flatOptions($request),
+            'flats' => $this->moduleQueryService->flatOptions($request->user()),
         ]);
     }
 
@@ -253,35 +257,4 @@ class VisitorController extends Controller
             ->value('society_id');
     }
 
-    /**
-     * Flat options for create/edit forms.
-     *
-     * Society-bound users only see their own flats; super admins see all
-     * flats with the society and tower names in the label.
-     *
-     * @return array<int, array{id: int, label: string}>
-     */
-    private function flatOptions(Request $request): array
-    {
-        $isSuperAdmin = $request->user()->isSuperAdmin();
-
-        return Flat::query()
-            ->with(['tower', 'society'])
-            ->when(! $isSuperAdmin, function ($query) use ($request) {
-                $query->where('society_id', $request->user()->society_id);
-            })
-            ->orderBy('flat_no')
-            ->get()
-            ->map(function (Flat $flat) use ($isSuperAdmin) {
-                $label = $isSuperAdmin
-                    ? trim(($flat->society?->name ?? '').' · '.($flat->tower?->name ?? '').' · '.$flat->flat_no)
-                    : trim(($flat->tower?->name ?? '').' · '.$flat->flat_no);
-
-                return [
-                    'id' => $flat->id,
-                    'label' => $label,
-                ];
-            })
-            ->all();
-    }
 }

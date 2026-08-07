@@ -1,388 +1,212 @@
-# SocioSphere — Architecture Analysis & Execution Roadmap
+# SocioSphere: Verified Architecture Analysis and Execution Roadmap
 
-> **Date:** 2026-08-01
-> **Author:** Principal Architect review (verified against the actual codebase)
-> **Stack:** Laravel 12 · PHP 8.2 · MySQL · React 18 · TypeScript · Inertia.js v2 · Tailwind v4 · Shadcn UI
+**Audit date:** 2026-08-02
+**Evidence reviewed:** application, configuration, routes, migrations, seeders, frontend, and tests.
+**Baseline verification:** `php artisan test --do-not-cache-result` passed **137 tests / 746 assertions**; `npx tsc --noEmit` passed.
 
----
+## Scope and audit constraints
 
-## Table of Contents
+The repository contained substantial uncommitted application changes before this audit. They have been preserved. This document describes the code that is currently present; it does not imply that the uncommitted work is committed or deployment-ready.
 
-1. [Current Architecture](#1-current-architecture)
-2. [Existing Modules](#2-existing-modules)
-3. [Gap Analysis](#3-gap-analysis)
-4. [Phase-Wise Execution Plan](#4-phase-wise-execution-plan)
+## 1. Current architecture
 
----
+### Backend
 
-# 1. Current Architecture
+SocioSphere is a Laravel 12 monolith using Inertia server-driven pages, not a separate REST API. Controllers return Inertia responses or redirects. Eloquent owns persistence, with a small service layer for dashboard aggregates, reusable selector/filter queries, and centralized activity logging.
 
-## 1.1 Backend Architecture
+| Area | Current implementation |
+|---|---|
+| HTTP | Resource-style controllers for towers, flats, residents, users, roles, and visitor passes. `ComplaintController`, `InvoiceController`, and `PaymentController` are scaffolded but empty; `NoticeController` and `InvoiceItemController` are empty. |
+| Validation | Dedicated Form Requests cover flats, residents, roles, towers, users, visitors, authentication, and profile updates. Unimplemented business modules have no requests. |
+| Authorization | Spatie roles/permissions plus policies for activity logs, flats, residents, roles, towers, users, and visitor passes. Controllers authorize individual actions. Route groups additionally require a module `*.view` permission. |
+| Tenancy | A society is the tenant. `SocietyMiddleware` sets a request-local `society_id`; `BelongsToSociety` applies a global scope and auto-populates the key on create. SuperAdmins intentionally have no bound society and controllers resolve a tenant from the selected related record where needed. |
+| Auditing | `LogsActivity` logs model create/update/delete/restore through `ActivityLogger`; auth events log login, logout, failed login, password reset, and registration. Logging can write synchronously or through the database queue. |
+| Persistence | MySQL is the stated target; Laravel migrations also contain PostgreSQL/SQLite-oriented partial-index syntax, which is not portable to MySQL and is a release blocker. |
 
-**Framework:** Laravel 12 (PHP 8.2), MySQL, Redis/Predis available for cache & queues, `spatie/laravel-permission` for RBAC, `inertiajs/inertia-laravel` v2, Sanctum (installed, not yet used), Ziggy for route typing.
+### Frontend
 
-### Layer breakdown (as found)
+React 18 + TypeScript is mounted by Inertia in `resources/js/app.tsx`. The Vite resolver dynamically loads `resources/js/**/*.tsx`, so Laravel page names such as `features/flats/pages/index` resolve to the feature-first folder structure.
 
-| Layer | What exists | What is missing |
-|---|---|---|
-| **HTTP layer** | `App\Http\Controllers` (17 controllers), `App\Http\Middleware` (2), `App\Http\Requests` (1: `LoginRequest`) | Form Request validation classes for business modules; Policies; Resource classes |
-| **Domain layer** | 12 Eloquent models in `App\Models` | Services layer (except new `ActivityLogger`), Observers, Actions, DTOs, Repositories (not required for this scale) |
-| **Cross-cutting** | `Traits/HasPublicUuid`, `Traits/BelongsToSociety`, `Scopes/SocietyScope`, `app/helpers.php` | Activity logging (now added), Notifications, Audit trail, Global error handling |
+The current design system consists of Tailwind v4 semantic tokens, Shadcn/Radix primitives, Geist typography, `next-themes`, Lucide icons, and shared `AppLayout`, sidebar, theme switcher, metric card, forms, and tables. Light and dark color tokens are defined; both TypeScript compilation and existing component imports work.
 
-### Multi-tenancy model (existing)
+### Request/data flow
 
-- `SocietyScope` (global scope) filters every `BelongsToSociety` model by `society_id`.
-- `SocietyMiddleware` binds the current tenant: `app()->instance('society_id', $user->society_id)` for non-SuperAdmin users.
-- `BelongsToSociety` auto-fills `society_id` on create via the `society_id()` helper.
-- `User` belongs to a `Society`; `isSuperAdmin()` is a **broken check** — it reads `$this->role` (a string property that does not exist on the model; roles live in spatie's `roles` tables). It always returns `false`. This must be fixed.
-
-### Dependency wiring
-
-- `AppServiceProvider` — only `Vite::prefetch`.
-- `ActivityLogServiceProvider` — **newly added** (singleton `ActivityLogger`).
-- `bootstrap/providers.php` — now registers both providers.
-
-## 1.2 Frontend Architecture
-
-**Framework:** React 18 + TypeScript + Inertia.js v2 (CSR SPA rendered through the Laravel blade shell), Tailwind CSS v4, Shadcn UI (Radix primitives), `react-hook-form` + `zod` (installed, unused so far), `recharts` (installed, unused), `ziggy-js` (installed).
-
-### Entry chain
-
-```
-public/index.php → app.blade.php (@routes, @vite) → resources/js/app.tsx → createInertiaApp
+```text
+Browser -> Inertia request -> Laravel route/middleware -> controller
+        -> policy + FormRequest -> Eloquent/service -> MySQL
+Browser <- Inertia page props or redirect + validation/flash response <-
 ```
 
-- `app.tsx` resolves pages from `resources/js/**/*.tsx` by component name (e.g. `Features/Dashboard/Pages/Dashboard`).
-- `HandleInertiaRequests::share()` shares `auth.user` (id, uuid, name, email, role, society_id) and `auth.society` (id, uuid, name, registration_no).
+The frontend uses Ziggy route generation and Inertia navigation/form submissions. Index pages presently implement server-side search/filter/pagination in their controllers. There is no general table abstraction, client-side global search, shared toast system, or loading-boundary system.
 
-### Existing components
+### Routing and authentication
 
-- `components/ui/*` — shadcn primitives: button, card, input, badge, avatar, checkbox, dropdown-menu, label, separator, sheet, sidebar, skeleton, tooltip.
-- `components/theme/*` — `theme-provider` (next-themes), `theme-switcher`.
-- `features/auth/*` — `login-page`, `login-form`, `auth-layout`, `auth-branding`.
-- `lib/utils.ts` — `cn()` helper.
+- `/` redirects authenticated users to `overview`, otherwise to `login`.
+- Guest auth routes include registration, login, password reset, email verification, and password confirmation.
+- `auth` + `society` protects module routes. The society middleware rejects non-SuperAdmin users without a society.
+- `permission:*` middleware protects each implemented module route; policies provide action/entity checks.
+- The profile route is only `auth`-protected and its Inertia components are referenced as `Profile/Edit`; these matching frontend pages are absent from the repository. Several Breeze routes likewise point to missing `Auth/*` pages, except the custom login page. This is a runtime completeness gap despite passing request-render tests.
 
-### Known frontend build blockers (verified via `npm run build`)
+### Layout/component hierarchy
 
-1. `import.meta.env` is untyped → missing `resources/js/vite-env.d.ts`.
-2. `window.axios` is untyped → missing global type declaration.
-3. `@/hooks/use-mobile` is imported by `components/ui/sidebar.tsx` but **does not exist** → TS2307.
-4. `app.blade.php` has a stale `@vite([... "resources/js/Pages/{$page['component']}.tsx"])` reference (pages live under `resources/js/features/...`, and the `Pages/` directory does not exist).
-
-## 1.3 Data Flow
-
-```
-Browser (React) ── Inertia request ──► Laravel route ──► Controller ──► Eloquent (MySQL)
-      ▲                                              │
-      └───────── Inertia JSON page (props) ◄──────────┘
-```
-
-- No REST API: every interaction is a full Inertia request (server-rendered initial page, then JSON swaps).
-- Validation errors, flash messages and pagination metadata flow back as props.
-- Tenant filtering happens at the Eloquent layer via the global `SocietyScope`.
-
-## 1.4 Routing Flow
-
-- `routes/web.php` — guest redirect at `/`; authenticated group (`auth` + `society`): `/overview` (named `overview`), partial `property-units` resource (buggy — see issues), `/residents`.
-- `routes/auth.php` — full Breeze auth (login, register, password reset, email verification, confirm password, logout).
-- **Bug found & fixed:** all post-auth redirects referenced a non-existent `dashboard` route; now use `overview`. Logout controller method was commented out; restored.
-
-## 1.5 Authentication Flow
-
-- Breeze standard: `AuthenticatedSessionController::store` → `LoginRequest::authenticate()` (rate-limited, 5 attempts, lockout) → session regenerate → redirect `overview`.
-- `RegisteredUserController` creates users, fires `Registered` event, logs in, redirects `overview`.
-- Email verification & password reset endpoints present (Breeze), now redirecting correctly.
-
-## 1.6 Authorization Flow
-
-- **Current:** only `auth` and `society` middleware. `spatie/laravel-permission` is installed and seeded (`RoleSeeder`, `PermissionSeeder`, `RolePermissionSeeder`) and `User` uses `HasRoles`, but **no middleware, gates, or policies enforce permissions anywhere**.
-- `User::isSuperAdmin()` is broken (reads non-existent `role` attribute).
-- `HandleInertiaRequests` shares `auth.user.role` — but `role` is not an attribute; must come from spatie roles.
-
-## 1.7 Component & Layout Hierarchy
-
-```
+```text
 app.tsx
-└── ThemeProvider
-    └── App (Inertia page)
-        ├── Auth pages ── AuthLayout ── AuthBranding / LoginForm
-        └── (Authenticated shell — DOES NOT EXIST YET — no AppLayout/SidebarLayout)
+└─ ThemeProvider
+   └─ Inertia page
+      ├─ AuthLayout -> AuthBranding + LoginForm
+      └─ AppLayout
+         ├─ AppSidebar (permission-filtered navigation)
+         ├─ authenticated header (search placeholder, notifications placeholder,
+         │  theme control, account menu)
+         └─ feature page (dashboard / flats / residents / towers / users /
+            roles / visitors / activity logs)
 ```
 
-- No authenticated layout: `Sidebar` primitives exist but no app shell, no topbar, no navigation.
+### Reusable assets
 
-## 1.8 Database Relationship Diagram (textual)
+`components/ui` includes avatar, badge, button, card, checkbox, dropdown, input, label, separator, sheet, sidebar, skeleton, tooltip, and `MetricCard`. Features currently duplicate table, filter-select, destructive-confirmation, pagination, form-section, and error/flash patterns. Reuse should be formalized before building the larger workflow modules.
 
+### Database relationship diagram
+
+```text
+Society 1--* User
+Society 1--* Tower 1--* Flat 1--* Resident
+Society 1--* Visitor 1--* VisitorPass *--1 Flat
+Society 1--* InvoiceHead
+Society 1--* Invoice *--1 Flat; Invoice 1--* InvoiceItem *--1 InvoiceHead
+Invoice 1--* Payment
+Society 1--* ComplaintCategory; Complaint *--1 Flat, Resident, Category,
+                                     and optionally User (assigned_to)
+Society 1--* Notice
+Society 1--* ActivityLog *--0..1 User (causer)
+User *--* Role *--* Permission (Spatie pivot tables)
 ```
-societies 1 ── * users
-societies 1 ── * towers 1 ── * flats 1 ── 1 residents
-societies 1 ── * flats (via society_id, redundant w/ scope)
-flats      1 ── * invoices 1 ── * invoice_items * ── 1 invoice_heads
-invoices   1 ── * payments
-flats      1 ── * complaints * ── 1 complaint_categories
-residents  1 ── * complaints
-users      1 ── * complaints (assigned_to)
-users      1 ── * notices (created_by)
-users      1 ── * invoices (generated_by)
-societies 1 ── * activity_logs  * ── 1 users (causer)          [NEW]
-```
 
-All tables: `id` PK, `uuid` unique public key (route key via `HasPublicUuid`), `timestamps`; `societies`, `towers`, `flats`, `residents` have `softDeletes`.
+Important model gaps: most finance/complaint/notice models declare fillable fields but omit relationship methods and tenant scope usage. `Society` has soft deletes in the schema but its model does not use `SoftDeletes`. Activity logs do not use the tenant trait; they are deliberately scoped in their controller.
 
----
+## 2. Existing modules
 
-# 2. Existing Modules
+| Module | Status | Completion | Key issues/dependencies |
+|---|---:|---:|---|
+| Authentication and profile | Partially functional | 65% | Login works; inactive accounts are not blocked or updated with last-login time; registration can create an unassigned user who is then denied by society middleware; non-login Breeze page components are absent. Depends on mail/session. |
+| Tenancy | Implemented foundation | 70% | Global scope works for selected models; inconsistent adoption across finance, complaints, notices, and societies; SuperAdmin tenant selection needs explicit UX and regression tests. |
+| Dashboard | Basic KPI view | 35% | Six cards and static “snapshot” copy; dashboard service has status-case mismatches (`open` versus schema `Open`, `pending` versus `Pending`) and fails for SuperAdmin with null society. No role dashboards, charts, recent activity, or caching. |
+| Towers | CRUD | 75% | Search/pagination, policies, validation, soft delete safeguards implemented. MySQL-incompatible partial unique index blocks production migration. No restore/export/sort/shared table. |
+| Flats | CRUD | 75% | Search/filter/pagination, policies, occupancy metrics and deletion safeguards implemented. No restore, sorting, bulk/export, ownership entity, or MySQL-safe soft-delete uniqueness strategy. |
+| Residents | CRUD | 70% | Search/pagination, primary-contact behavior, policies implemented. No owner/tenant lifecycle, flat/status filters, restore, self-service scope, or contact uniqueness/normalization. |
+| Users/staff | CRUD and role assignment | 70% | Tenant-aware management, soft delete, role options, policies implemented. No invitations, reactivation/restore, active-login enforcement, staff profile model, or role-change audit event. |
+| Roles/permissions | CRUD for roles | 70% | Feature-group permission editor and safeguards implemented. Roles are global, not tenant-scoped; no permission administration; role sync lacks an explicit semantic audit record; policy/route behavior has an apparent contradiction: `RolePolicy` lets users with `role.view` list roles, but the existing test expects SocietyAdmin to be forbidden. |
+| Visitors | Gate-pass workflow | 75% | Create/edit/delete pending passes and approval/check-in/check-out implemented. Visitor records are duplicated on each pass; no visitor reuse, gate dashboard, QR/pass ID, photo, SLA, or notification. |
+| Activity logging | Strong foundation + list/export | 75% | Search/filter/pagination/CSV and authorization exist. No structured detail route, UI drawer, retention/pruning, redaction configuration, activity events for role permission sync, or guaranteed post-commit dispatch. |
+| Complaints/categories | Schema only | 15% | Controller empty, no routes/UI/requests/policies/workflow/relationships. |
+| Notices | Schema only | 10% | No routes/UI/controller/validation/policy/delivery; active notice query exists only in dashboard. |
+| Invoices/heads/items | Schema and factories | 10% | No billing workflow, generation, routes/UI, relationships, idempotency or financial integrity controls. |
+| Payments/finance | Schema and factories | 10% | Controller empty; no collection/reconciliation/refund/receipt/ledger/expense/budget domain. |
+| Amenities/bookings | Not started | 0% | No schema, routes, domain logic, UI, or permissions beyond seed placeholders. |
+| Notifications | Not started | 0% | Bell is non-functional; no notifications table/channels/preferences/reminders. |
+| Reports | Not started | 0% | No report routes/services/pages. |
+| Tests/operations | Good initial suite | 45% | 137 green tests cover implemented core flows; no CI, browser tests, accessibility tests, MySQL migration test, or coverage for empty modules. |
 
-| # | Module | Current Status | Completion % | Issues | Dependencies |
-|---|--------|---------------|--------------|--------|--------------|
-| 1 | **Auth** (Breeze) | Working after stabilization fixes | 90% | Was broken (dashboard route, disabled logout); no activity logging of login/logout; no 2FA | spatie permission, mail |
-| 2 | **Multi-tenant scoping** | Global scope + middleware | 60% | No `withoutGlobalScope` escape hatches documented; `society_id` missing on `activity_logs` for guests | — |
-| 3 | **Dashboard** | Route only | 5% | **Page component `Features/Dashboard/Pages/Dashboard` does not exist** → renders nothing/404 | App shell |
-| 4 | **Flats** | Backend partial; no UI pages | 30% | Validation keys mismatch model (`flat_number` vs `flat_no`, `floor` vs `floor_no`, `type` vs `flat_type`); route definition `"{flat}/edit"` inside `only([...])` is invalid; no policy; ILIKE (Postgres) on MySQL; global counts not tenant-scoped? (Flat::count uses scope, OK); no soft-delete restore | Tower |
-| 5 | **Towers** | Model + migration only | 10% | No controller, no UI, no seeder | Society |
-| 6 | **Residents** | Index only | 20% | Read-only list; no create/edit/delete/UI; `is_primary_contact` unmanaged | Flat |
-| 7 | **Complaints** | Stub controller | 10% | All methods empty; no UI; no status workflow; no assignment | Flat, Resident, Category |
-| 8 | **Complaint Categories** | Model + migration + seeder | 15% | No CRUD/UI | Society |
-| 9 | **Notices** | Model + migration only | 10% | No controller/UI; publish window unenforced | Society |
-| 10 | **Invoices** | Stub controller | 10% | No generation engine, no UI, no recurring logic | Flat, Heads |
-| 11 | **Invoice Heads** | Model + migration only | 10% | No CRUD/UI | Society |
-| 12 | **Invoice Items** | Model only | 5% | No controller | Invoice, Head |
-| 13 | **Payments** | Stub controller | 10% | No capture flow, no reconciliation, no UI | Invoice |
-| 14 | **Society** | Model + migration + seeder + stub controller | 20% | Stub CRUD, no UI | — |
-| 15 | **Users / Staff** | Model + factory + seeders | 15% | No management UI, no invitations, no status toggle UI | Roles |
-| 16 | **Roles & Permissions** | Tables + seeders + `HasRoles` | 20% | No UI, no middleware enforcement, `isSuperAdmin()` broken | spatie |
-| 17 | **Activity Logs** | **Foundation implemented** (model, migration, service, trait, provider, test) | 15% | No UI, no auth filter, no export, no queueing yet | — |
-| 18 | **UI Shell** | shadcn primitives present | 20% | No AppLayout, no nav, missing `hooks/use-mobile`, TS build broken | — |
-| 19 | **Testing** | Breeze tests + 1 activity test | 15% | No business-module tests; ExampleTest was wrong (fixed) | — |
+## 3. Gap analysis and priority findings
 
----
+### Release-blocking defects
 
-# 3. Gap Analysis
+1. **Database mismatch:** the tower/flat/user migrations use `whereNull()` partial unique indexes, and users use raw `CREATE UNIQUE INDEX ... WHERE`. MySQL does not support partial indexes. Choose MySQL-compatible generated columns/composite unique keys, or formally change the platform to PostgreSQL; do not ship without a migration test against the selected engine.
+2. **Diagnostic endpoint exposed:** `GET /__opcache` is publicly reachable and writes a temporary file. Remove it before any shared/staging/production deployment.
+3. **Missing auth/profile frontend pages:** routes render page components not present in `resources/js`; exercise those browser paths and either build the pages or remove/redirect unsupported flows.
+4. **Registration tenant dead-end:** self-registration creates a user with no society, immediately producing a 403 when redirected to overview. Registration must become an invitation/onboarding workflow or be disabled.
+5. **Status case mismatch:** dashboard uses lowercase complaint/payment states while schema uses title-case enums; headline counts will be wrong on MySQL.
 
-## 3.1 Missing CRUD / Business Logic
-- [ ] Towers: full CRUD (controller, requests, UI, routes)
-- [ ] Residents: create / edit / delete / restore / primary-contact toggle
-- [ ] Complaints: full lifecycle (create, assign, status transitions, resolve, close, priority)
-- [ ] Complaint Categories: CRUD
-- [ ] Notices: CRUD + publish window enforcement + visibility rules
-- [ ] Invoice Heads: CRUD
-- [ ] Invoices: generation engine (per flat × month), recurring, penalties, due-date logic
-- [ ] Payments: capture (UPI/card/cash/cheque), reference fields, reconciliation, invoice status auto-update
-- [ ] Society: complete admin CRUD (name, registration, address, status)
-- [ ] Users/Staff: management CRUD, invite flow, activate/deactivate, role assignment
-- [ ] Owner vs Tenant management (flats have `ownership_type`; no owner entity)
-- [ ] Visitor management (gate pass, check-in/out) — **no table exists**
-- [ ] Amenity booking (clubhouse, gym, slots) — **no tables exist**
-- [ ] Staff management (security guard, maintenance) — exists as roles only
-- [ ] Reports (collection status, occupancy, complaints, notices) — none
-- [ ] Dashboard (KPIs, charts) — page missing
+### Functional gaps
 
-## 3.2 Missing Validation
-- [ ] Form Request classes for every module (currently `$request->validate` inline in `FlatController`, stubs elsewhere)
-- [ ] Unique-within-society rules (e.g. tower name per society, flat no per tower — schema has unique index but no validation)
-- [ ] Enum whitelist validation for status/priority/payment_method fields
-- [ ] Date-range validation (notice publish window), due dates vs billing month
-- [ ] Phone/email format normalization
+- Full CRUD/workflows are missing for society setup, owners/tenants, staff, complaints, categories, notices, invoice heads, invoices, invoice items, payments, amenities, bookings, income, expense, budget, and reports.
+- Invoice, payment, and finance requirements need an accounting design before coding: invoice-numbering, immutable financial records, adjustments/credit notes, partial payments, refunds, penalty policy, receipt/ledger generation, and gateway webhooks are not represented.
+- No routes or navigation exist for the requested finance, complaint, notice, amenity, report, and notification modules.
+- There is no implemented owner entity. `Flat.ownership_type` conflates a flat’s relationship with a person and cannot retain ownership/tenancy history.
 
-## 3.3 Missing Permissions & Policies
-- [ ] Spatie middleware (`role:` / `permission:`) applied to route groups
-- [ ] Policy classes per model (viewAny/view/create/update/delete/restore)
-- [ ] Owner-scoped access (resident sees own flat's invoices, complaints)
-- [ ] Fix `User::isSuperAdmin()` (uses non-existent `role` attribute)
-- [ ] Share real roles/permissions to frontend; gate UI by permission
-- [ ] `ActivityLog` view authorization (admin-only)
+### Validation, permissions, and security gaps
 
-## 3.4 Missing UI
-- [ ] Authenticated app layout (sidebar nav, topbar, user menu, mobile)
-- [ ] Dashboard page
-- [ ] All index/create/edit/show pages for every module above
-- [ ] Role/permission management screens
-- [ ] Activity Log UI (list, filters, detail, export)
-- [ ] Settings (society profile, billing heads)
+- Unimplemented modules have no Form Requests, policies, or permission-enforced routes.
+- All request `authorize()` methods return true; controller policy calls are currently the real boundary. Keep both aligned when adding request-specific authorization.
+- Add tenant-scoped relationship validation consistently, including SuperAdmin-selected tenant context.
+- Enforce `is_active` during authentication and update `last_login_at` only after a successful authenticated event.
+- Require email verification only if the product commits to it, then add `verified` to appropriate routes and provide working pages.
+- Add rate limiting to sensitive administrative actions and exports; set cookie/HTTPS/security headers for production.
+- Activity logs can capture sensitive field values beyond passwords/tokens. Define an explicit allowlist/redaction map per model and log asynchronously only after transaction commit.
 
-## 3.5 Missing Cross-Cutting UX
-- [ ] Search, filters, pagination for every list (only Flats has partial; residents none)
-- [ ] Sorting (multi-column)
-- [ ] Empty states, loading skeletons (only `Skeleton` primitive exists, unused)
-- [ ] Error handling (flash messages partially used; no error boundary, no form error display in most pages)
-- [ ] Confirmation dialogs for destructive actions
-- [ ] Toast notifications
-- [ ] Responsive polish on all new pages (sidebar has mobile sheet already)
+### UI/UX gaps
 
-## 3.6 Missing Security
-- [ ] `is_active` enforcement on login (field exists, unused)
-- [ ] Login/logout activity logging (infrastructure ready)
-- [ ] Password reset + failed-login logging
-- [ ] Rate limiting beyond login (e.g. API-ish forms)
-- [ ] Mass-assignment audit (fillable reviewed — OK)
-- [ ] XSS hardening review of rendered user content (Inertia escapes by default; ok)
-- [ ] `verified` middleware on sensitive routes (email verification wired, not enforced)
-- [ ] Session security hardening (cookie flags)
-- [ ] CSRF is handled by Inertia automatically — verify on all forms
+- No shared data table supports sticky headers, server sorting, columns, row selection, bulk actions, export, responsive card view, skeletons, or consistent pagination.
+- Forms are full pages rather than the requested premium drawers/sheets, lack unsaved-change protection, sticky action footers, reusable sections, and a universal validation summary.
+- The app has no breadcrumb, command/global search, functional notification center, toasts, error boundary, 403/404/500 UX, or page-level loading strategy.
+- Dark tokens exist, but no automated visual/accessibility verification guards against hard-coded colors or contrast regressions.
+- Dashboard text contains static assertions (“healthy”, “high activity”) rather than calculated real data.
 
-## 3.7 Missing Performance
-- [ ] Missing DB indexes: `flats.occupancy_status`, `residents.flat_id`, `invoices(flat_id, billing_month, billing_year)`, `complaints(status)`, `notices(publish_from, publish_to)`, `payments(invoice_id)`
-- [ ] N+1 audit in all controllers (Flats uses `with()`; Resident index uses `with()` — OK; stubs unknown)
-- [ ] Pagination everywhere (only Flats/Residents)
-- [ ] Dashboard aggregation queries (avoid per-request heavy counts; cache)
-- [ ] Queue for activity logging (infra ready: `predis`, jobs table, `queue:listen` in composer dev script)
-- [ ] Vite chunk splitting / code splitting of feature pages
+### Performance/data integrity gaps
 
-## 3.8 Missing Code Structure / Refactoring
-- [ ] Service layer for business logic (billing generation, complaint workflow, visitor passes)
-- [ ] Form Request classes (single source of validation)
-- [ ] Observers for cross-cutting model events (or keep `LogsActivity` trait)
-- [ ] Resource/Data objects for Inertia props (avoid leaking raw models)
-- [ ] `FlatController` validation-key mismatch fix; invalid `Route::resource('property-units')->only(['create','index','{flat}/edit'])`
-- [ ] `routes/web.php` cleanup: consistent naming (`flats.*` vs `property-units.*`)
-- [ ] `app.blade.php` stale `@vite` Pages path
-- [ ] Frontend: add `vite-env.d.ts`, global `window.axios` types, `hooks/use-mobile`
-- [ ] Consistent Inertia page directory casing (`Features/...` vs `features/...` mixed)
+- Add workload-driven composite indexes for common list filters: `residents(society_id, flat_id)`, `complaints(society_id,status,assigned_to)`, `notices(society_id,publish_from,publish_to)`, `invoices(society_id,flat_id,billing_year,billing_month)`, `payments(society_id,invoice_id,status,paid_at)`, and activity-log causer/date filters.
+- Make every index page sort whitelist-driven and paginate. Avoid unbounded selector lists as tenant data grows (current tower/flat options load all records).
+- Add query budgets and caching for dashboard/report aggregates; queue notifications/exports/billing batches.
+- Establish explicit DB transactions and locking/idempotency for visitor transitions and all financial mutations.
 
-## 3.9 Missing Testing
-- [ ] Unit: services (ActivityLogger, future BillingService, ComplaintWorkflow)
-- [ ] Feature: CRUD + authorization per module (policy tests)
-- [ ] Feature: tenant isolation (society A cannot see society B data)
-- [ ] Feature: auth events logging (login/logout/password reset)
-- [ ] Test factories are already present for all core models — leverage them
-- [ ] CI wiring (GitHub Actions) for `pint` + `test` + `npm run build`
+### Architecture/testing gaps
 
-## 3.10 Missing Infrastructure / Ops
-- [ ] `.env.example` sync (already restored local `.env`)
-- [ ] Seeders completeness (societies, roles, permissions validated)
-- [ ] Laravel Pint config + run
-- [ ] Horizon/pail config optional; queue worker docs
-- [ ] Deployment readiness (Docker compose exists — verify prod service config)
+- Repositories are **not required** now: Eloquent + focused services/actions is the simpler appropriate architecture. Introduce repositories only if multiple data sources or complex persistence contracts emerge.
+- Add domain actions/services for billing, payments, complaint transitions, notification delivery, exports, and visitor operations; controllers should remain orchestration-only.
+- Add Inertia prop transformers/DTOs where raw models currently leak schema fields.
+- Add CI for Pint, PHP tests, TypeScript, Vite build, and a real MySQL migration smoke test; expand tenant-isolation, authorization, financial, accessibility, and browser coverage.
 
----
+## 4. Phase-wise execution plan
 
-# 4. Phase-Wise Execution Plan
+Each phase is independently deployable, must preserve existing behavior, and concludes with Pint, PHP tests, TypeScript checking, production Vite build, and targeted browser/accessibility verification.
 
-> Rules: one phase at a time; each phase ends with green tests + `npm run build` + Pint. Backward compatible; no breaking changes.
+| Phase | Objective and main work | Files / DB / frontend / backend | Dependencies, risk, effort |
+|---|---|---|---|
+| 1. Stabilization | Remove release blockers and establish an accurate baseline. Remove `/__opcache`; fix MySQL-compatible uniqueness; repair missing auth/profile pages or routes; correct dashboard enum queries and SuperAdmin behavior. | Routes, migrations, dashboard service/controller, auth/profile pages, tests. DB: additive/replacement compatibility migrations, validated on MySQL. | Depends on chosen DB engine. High risk because migrations/auth affect every tenant. **3–4 days.** |
+| 2. Platform foundations | Standardize errors, flash/toasts, page loading, shared forms, responsive table primitives, sorting/filter contracts, drawers/sheets, breadcrumb, and semantic design tokens. | New shared React components/hooks; app layout/CSS; shared Inertia props; no required DB change. | Depends on Phase 1. Medium UI regression risk. **4 days.** |
+| 3. Tenancy and authorization hardening | Define SuperAdmin society-switch/select behavior; make tenant rules consistent; audit all policies and permissions; protect registration/inactive accounts; add security headers/rate limits. | Middleware, policies, auth listener/controller, permission catalog/seeders, tests; optional tenant context/session table. | Depends on Phase 1. High authorization risk. **3 days.** |
+| 4. Activity log completion | Add detail drawer/route, redaction policy, role/permission business events, retention, post-commit queue behavior, date/user/module export controls. | Activity service/job/model/controller/page, config, pruning command, indexes, tests. DB: activity indexes/retention strategy. | Depends on Phase 3. Medium privacy/performance risk. **3 days.** |
+| 5. Society, tower, and flat foundation | Build society administration and settings; finish property hierarchy with restore/archive, table features, tenant-safe selectors, property history basis. | Society controller/request/policy/pages; extend current tower/flat code/pages; migrations for constraints/indexes. | Depends on Phases 1–3. Medium migration risk. **4 days.** |
+| 6. Resident, owner, and tenant lifecycle | Separate people/occupancy from flat ownership; add owner/tenant history, move-in/out, contacts, resident self-service policy, and complete filters. | New ownership/tenancy models/migrations; resident services/requests/pages; data migration plan. | Depends on Phase 5. High data-model risk. **5–6 days.** |
+| 7. User and staff operations | Add invitations, activate/deactivate, restore, staff profiles/assignments, role-change audit events, and role-aware staff views. | User flows, mail notifications, staff tables if needed, pages/tests. | Depends on Phases 3–4. Medium auth risk. **4 days.** |
+| 8. Visitor/security operations | Refactor visitor creation/reuse; enforce transition action service/transactions; gate register dashboard, QR/pass lookup, security events, notifications. | Visitor service/controller/pages; optional pass-code/attachments tables; indexes/tests. | Depends on Phases 2–4 and 5. Medium workflow risk. **4 days.** |
+| 9. Complaint management | Implement categories and complaint CRUD, assignment, SLA/status state machine, comments/attachments, resident and staff queues, resolution/closure audit. | Controllers/requests/policies/services/pages; complaint comments/attachments/history tables and indexes. | Depends on Phases 2–6. Medium workflow/privacy risk. **5 days.** |
+| 10. Notice and document management | Add notice drafting/publishing, targeting/audience, attachments, acknowledgement, document library, and delivery events. | Notice/document models/controllers/pages; target pivots, attachments, acknowledgement tables. | Depends on Phases 2–4 and 6. Medium delivery risk. **4 days.** |
+| 11. Amenity booking | Design amenities, availability/slots, booking/approval/cancel/refund rules, conflict prevention and operational calendar. | New models/controllers/services/policies/pages; amenity/slot/booking tables with conflict constraints. | Depends on Phases 2–6. High concurrent-booking risk. **5 days.** |
+| 12. Billing domain design | Agree financial invariants before implementation: billing heads, cycles, numbering, penalty policy, tax, approval, immutable adjustments, partial payments and refunds. | ADRs, schemas, seeders, service contracts, focused tests; invoice sequence/ledger/adjustment tables. | Requires product/finance approval. High correctness/compliance risk. **4–5 days.** |
+| 13. Maintenance invoices | Implement invoice-head CRUD, batch preview/generation, idempotent monthly invoices, line items, due/overdue/penalty jobs, PDF invoice/receipt architecture. | Invoice/head/item controllers/services/jobs/pages; unique cycle constraints and indexes. | Depends on Phase 12 and queue setup. High financial risk. **6 days.** |
+| 14. Payments and ledger | Offline collection, online gateway abstraction/webhooks, reconciliation, refunds, receipts, resident statement, outstanding/collection views, double-entry-or-defined ledger approach. | Payment/ledger/refund services/controllers/pages; transaction/idempotency/webhook tables and indexes. | Depends on Phase 13 and gateway decision. Very high financial/security risk. **7–10 days.** |
+| 15. Finance management | Add income, expenses, budget, cash-flow, approval workflows and monthly statements; bind all to the agreed ledger model. | Finance models/services/controllers/pages; income/expense/budget tables, reports indexes. | Depends on Phase 14. High reporting/compliance risk. **6 days.** |
+| 16. Notifications and reminders | Deliver in-app/email notifications, preferences, templates, scheduled reminders, payment/maintenance/activity alerts and a functional bell center. | Laravel Notifications, jobs/listeners, pages/components; `notifications` and preferences tables. | Depends on events from prior modules and queue/mail configuration. Medium delivery risk. **4 days.** |
+| 17. Role-specific analytics dashboards | Build Executive, Management, Society, Resident, Finance, Operations, Security, and Maintenance dashboards using real aggregates and date filters. | Dashboard/report query services, Recharts components, cache keys; aggregate indexes/materialized strategy if needed. | Depends on underlying module data. Medium performance risk. **6 days.** |
+| 18. Reports and exports | Implement occupancy, dues, collections, expenses, complaints SLA, visitor, amenities and tower/flat reports; safe queued CSV/Excel/PDF exports. | Report services/controllers/pages/jobs; export audit records and indexes. | Depends on Phases 8–17. Medium data-volume risk. **5 days.** |
+| 19. Performance and observability | Query/index audit, dashboard caching, queue monitoring, log/metric/error instrumentation, rate limits, background export/billing throughput tests. | Index migrations, cache/job config, health/monitoring docs, performance tests. | Depends on complete workflows. Medium operations risk. **4 days.** |
+| 20. Quality and security test expansion | Add policy/tenant matrix tests, financial invariants, browser journeys, accessibility/contrast, load tests, restore/archive tests, CI and dependency/security scans. | Tests, GitHub Actions, quality config; no required DB schema change. | Depends on all preceding features. Medium scope risk. **6–8 days.** |
+| 21. Production readiness | Run migration rehearsal/backups/rollback plan, data import validation, env/secret/runbook review, error pages, backup/retention/DR plan, release checklist and UAT. | Docker/deploy docs, health checks, README/runbooks, migrations/seed verification. | Requires infrastructure and stakeholder sign-off. High release risk. **4–5 days.** |
 
-### Phase 1 — Project Stabilization ✅ *(partially completed during analysis)*
-- **Objective:** Green baseline: tests pass, frontend compiles, env restored.
-- **Completed:** `.env` + APP_KEY restored; `UserFactory::unverified()`; auth redirects `dashboard→overview`; logout restored; boilerplate tests aligned; **26/26 tests green**.
-- **Remaining files:** `resources/js/vite-env.d.ts` (new), `resources/js/types/global.d.ts` (new), `resources/js/hooks/use-mobile.ts` (new), `app.blade.php` (`@vite` line), `tsconfig.json` (include d.ts).
-- **Database changes:** none.
-- **Risk:** Low. **Effort:** 0.5 day.
+## Phase 1 implementation record (2026-08-02)
 
-### Phase 2 — Architecture Improvements
-- **Objective:** Service layer, Form Requests, Policy scaffolding, permission enforcement, app shell layout.
-- **Files:** new `app/Services/*`, `app/Http/Requests/*`, `app/Policies/*`, `resources/js/layouts/AppLayout.tsx`, `resources/js/components/app/*`, `routes/web.php`.
-- **Database changes:** none.
-- **Risk:** Medium (routing/refactor). **Effort:** 3 days.
+**Database decision:** PostgreSQL is the deployment platform. Docker Compose already provisions PostgreSQL 17, the local deployment configuration uses `pgsql`, and `php artisan migrate:status` confirms every migration has run successfully against that database. SQLite remains test-only through `phpunit.xml`.
 
-### Phase 3 — Residents (Owners & Tenants)
-- **Objective:** Full resident CRUD + primary-contact logic + list UX (search/filter/pagination).
-- **Files:** `ResidentController`, new `ResidentRequest`, `ResidentPolicy`, `resources/js/features/residents/*`.
-- **Database changes:** index on `residents.flat_id`; optional `resident_type` enum (Owner/Tenant) — currently derivable via flat.
-- **Risk:** Low–Medium. **Effort:** 2 days.
+Completed without changing the pre-existing feature work:
 
-### Phase 4 — Tower Management
-- **Objective:** Tower CRUD + per-society uniqueness + delete safeguards (flats exist).
-- **Files:** `TowerController` (new), `TowerRequest`, `resources/js/features/towers/*`.
-- **Database changes:** unique index `(society_id, name)`.
-- **Risk:** Low. **Effort:** 1 day.
+- Removed the publicly exposed `/__opcache` diagnostic endpoint.
+- Made PostgreSQL the fallback database and queue database configuration, and aligned `.env.example` with PostgreSQL connection variables.
+- Corrected dashboard status matching to the title-cased database enum values and added an intentional portfolio dashboard scope for SuperAdmins.
+- Prevented inactive accounts from logging in and now records `last_login_at` after successful authentication.
+- Replaced public account creation with invitation-only access so no tenantless accounts can be created; the registration route now communicates the supported administrator-created workflow.
+- Added functional Inertia pages for registration access messaging, password reset/request/confirmation, email verification, and profile management.
 
-### Phase 5 — Flat Management (repair + complete)
-- **Objective:** Fix validation/route bugs; complete CRUD; occupancy stats; restore.
-- **Files:** `FlatController` refactor, `FlatRequest`, `FlatPolicy`, `resources/js/features/flats/*` (Index/Create/Edit).
-- **Database changes:** indexes (`occupancy_status`, `tower_id`), remove broken unique if conflicting with soft-delete reuse.
-- **Risk:** Medium (existing partial code). **Effort:** 2 days.
+Verification after implementation: **140 tests / 775 assertions** pass, TypeScript passes `tsc --noEmit`, and PostgreSQL migration status is fully applied.
 
-### Phase 6 — Staff & User Management
-- **Objective:** User CRUD, invitations, activate/deactivate, role assignment UI; fix `isSuperAdmin()`.
-- **Files:** `UserController` (new), `UserRequest`, `UserPolicy`, `resources/js/features/users/*`.
-- **Database changes:** none.
-- **Risk:** Medium (auth impact). **Effort:** 2.5 days.
+## Phase 2 implementation record (2026-08-02)
 
-### Phase 7 — Visitor Management *(new tables)*
-- **Objective:** Gate passes, check-in/out, purpose, vehicle, approval flow.
-- **Files:** new `Visitor`, `VisitorPass` models + migrations + controllers + pages.
-- **Database changes:** `visitors`, `visitor_passes` tables + indexes.
-- **Risk:** Low. **Effort:** 3 days.
+Completed the reusable UI and interaction foundation without changing business-module controller contracts:
 
-### Phase 8 — Complaint Management
-- **Objective:** Full lifecycle: create (resident), assign (admin), status workflow, priority, resolution timestamps, my-complaints.
-- **Files:** `ComplaintController` (implement), `ComplaintRequest`, `ComplaintPolicy`, `ComplaintCategoryController`, `resources/js/features/complaints/*`.
-- **Database changes:** indexes (`status`, `assigned_to`); `resolved_by` FK.
-- **Risk:** Medium. **Effort:** 3 days.
+- Added shared Inertia flash props and a global accessible toast viewport for success/error redirects.
+- Added a global navigation loading indicator.
+- Added reusable `PageHeader`/breadcrumb, empty-state, data-table, table-skeleton, pagination, form-section, and form-drawer components.
+- Form drawers include an unsaved-changes guard and sticky action footer.
+- Migrated Towers as the reference module for the shared page header, breadcrumb, sticky data-table header, and form section.
 
-### Phase 9 — Notice Management
-- **Objective:** CRUD + publish window + targeted audience (all/block/floor/flat) + priority.
-- **Files:** `NoticeController`, `NoticeRequest`, `NoticePolicy`, `resources/js/features/notices/*`.
-- **Database changes:** `target_type/target_ids` (or pivot), index `(publish_from, publish_to)`.
-- **Risk:** Low. **Effort:** 1.5 days.
-
-### Phase 10 — Amenity Booking *(new tables)*
-- **Objective:** Amenities, slots, bookings, cancellation, conflict prevention, admin approval.
-- **Files:** new `Amenity`, `AmenitySlot`, `AmenityBooking` models/controllers/pages.
-- **Database changes:** `amenities`, `amenity_slots`, `amenity_bookings` + unique constraints.
-- **Risk:** Medium (conflict logic). **Effort:** 4 days.
-
-### Phase 11 — Maintenance Billing (Invoices + Payments)
-- **Objective:** Billing engine (heads × flats × month), invoice generation, due dates, penalties, payment capture, auto status updates, outstanding reports.
-- **Files:** `BillingService` (new), `InvoiceController` (implement), `PaymentController` (implement), requests/policies, `resources/js/features/billing/*`.
-- **Database changes:** indexes `(flat_id, billing_month, billing_year)`, `payments(invoice_id)`; partial unique for generation idempotency.
-- **Risk:** High (financial correctness). **Effort:** 5 days.
-
-### Phase 12 — Reports
-- **Objective:** Occupancy, collection/outstanding, complaints SLA, notices; CSV export.
-- **Files:** `ReportController`, export service, `resources/js/features/reports/*`.
-- **Database changes:** none (aggregations).
-- **Risk:** Medium. **Effort:** 3 days.
-
-### Phase 13 — Dashboard Improvements
-- **Objective:** KPI cards, charts (recharts installed), recent activity, quick actions, role-aware views.
-- **Files:** `DashboardController` (new), `resources/js/features/dashboard/*`.
-- **Database changes:** none.
-- **Risk:** Low. **Effort:** 2 days.
-
-### Phase 14 — Notification System
-- **Objective:** In-app + email notifications (notice published, complaint update, invoice due, visitor approved); notification center UI.
-- **Files:** new `AppNotification` (or use Laravel Notifications + DB channel), listeners, `resources/js/components/notifications/*`.
-- **Database changes:** `notifications` table (Laravel standard).
-- **Risk:** Medium. **Effort:** 3 days.
-
-### Phase 15 — Activity Logging (full UI + enforcement) *(backend foundation already built)*
-- **Objective:** Wire `LogsActivity` into all models; log auth events; queue dispatch; Activity Log UI (search/filters/pagination/detail/export CSV); admin-only authorization.
-- **Files:** extend `ActivityLogger` (queue), `ActivityLogController` (new), `ActivityLogPolicy`, `resources/js/features/activity-logs/*`; auth controller hooks.
-- **Database changes:** none (table exists); add `log_name` if categorization needed.
-- **Risk:** Low. **Effort:** 3 days.
-
-### Phase 16 — Security Hardening
-- **Objective:** `is_active` enforcement; verified middleware; rate limiting; session cookie flags; role middleware on all groups; mass-assignment audit; failed-login logging.
-- **Files:** `AuthServiceProvider`/middleware, auth controllers, config.
-- **Database changes:** none.
-- **Risk:** Medium. **Effort:** 2 days.
-
-### Phase 17 — Performance Optimization
-- **Objective:** Indexes everywhere; eager-loading audit; dashboard caching; activity log pruning strategy; Vite code splitting; N+1 killer pass.
-- **Files:** migrations (indexes), controllers, `vite.config.ts`.
-- **Database changes:** additive indexes.
-- **Risk:** Low. **Effort:** 2 days.
-
-### Phase 18 — Testing Expansion
-- **Objective:** Unit + feature tests for all services, policies, tenant isolation, auth logging; CI pipeline (Pint + PHPUnit + build).
-- **Files:** `tests/**`, `.github/workflows/*`.
-- **Database changes:** none.
-- **Risk:** Low. **Effort:** 4 days.
-
-### Phase 19 — Production Readiness
-- **Objective:** Seed/verify prod seeders, env docs, Docker prod check, error pages (403/404/500), logging channels, backups note, README update.
-- **Files:** `docker/*`, `README.md`, error blade/Inertia pages.
-- **Database changes:** none.
-- **Risk:** Low. **Effort:** 2 days.
-
-### Sequencing rationale
-Foundations first (stabilization → architecture shell → core entities → workflow modules → billing → reporting → cross-cutting quality), each phase keeping tests green and the build passing.
-
-**Total estimated effort:** ~45–50 developer-days across 19 phases (single developer, with testing baked in).
-
----
-
-## What was already delivered in this session (Phase 1 partial + Activity Log foundation)
-
-1. **Activity logging foundation** — `ActivityLogger` service, `ActivityLog` model, `create_activity_logs_table` migration, `LogsActivity` trait, provider registration. Verified by `tests/Feature/ActivityLogsTest` (passing).
-2. **Stabilization fixes** — `.env`/APP_KEY restored, `UserFactory::unverified()`, auth `dashboard→overview` redirects, logout restored, boilerplate tests aligned. **Full suite: 26 passed (63 assertions).**
+The next approved unit of work is **Phase 3: tenancy and authorization hardening**.

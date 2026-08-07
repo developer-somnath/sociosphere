@@ -20,6 +20,10 @@ export type SharedProps = {
         user: AuthUser | null;
         society: AuthSociety | null;
     };
+    flash: {
+        success: string | null;
+        error: string | null;
+    };
 };
 
 export type PageProps<T = Record<string, unknown>> = T & SharedProps;

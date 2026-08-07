@@ -13,6 +13,24 @@ class Resident extends Model
 {
     use HasFactory, HasPublicUuid, BelongsToSociety, SoftDeletes, LogsActivity;
 
+    protected static function booted(): void
+    {
+        static::saved(function (self $resident): void {
+            if (! $resident->is_primary_contact || empty($resident->flat_id)) {
+                return;
+            }
+
+            $resident->newQuery()
+                ->where('flat_id', $resident->flat_id)
+                ->where('id', '!=', $resident->id)
+                ->update(['is_primary_contact' => false]);
+        });
+    }
+
+    protected $casts = [
+        'is_primary_contact' => 'boolean',
+    ];
+
     protected $fillable = [
         'society_id',
         'flat_id',

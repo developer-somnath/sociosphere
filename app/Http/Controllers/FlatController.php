@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FlatRequest;
 use App\Models\Flat;
 use App\Models\Tower;
+use App\Services\ModuleQueryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,6 +13,9 @@ use Inertia\Response;
 
 class FlatController extends Controller
 {
+    public function __construct(private readonly ModuleQueryService $moduleQueryService)
+    {
+    }
     /**
      * Display a paginated, searchable, filterable list of flats with
      * occupancy stats.
@@ -51,8 +55,8 @@ class FlatController extends Controller
                 'tower_id' => $towerId !== null && $towerId !== '' ? (int) $towerId : null,
                 'status' => in_array($status, ['Occupied', 'Vacant', 'Self-Occupied'], true) ? $status : null,
             ],
-            'towers' => $this->towerOptions($request),
-            'stats' => $this->occupancyStats(),
+            'towers' => $this->moduleQueryService->towerOptions($request->user()),
+            'stats' => $this->moduleQueryService->occupancyStats($request->user()),
             'can' => [
                 'create' => $request->user()->hasPermissionTo('flat.create'),
                 'delete' => $request->user()->hasPermissionTo('flat.delete'),
@@ -68,7 +72,7 @@ class FlatController extends Controller
         $this->authorize('create', Flat::class);
 
         return Inertia::render('features/flats/pages/create', [
-            'towers' => $this->towerOptions($request),
+            'towers' => $this->moduleQueryService->towerOptions($request->user()),
         ]);
     }
 
@@ -100,7 +104,7 @@ class FlatController extends Controller
 
         return Inertia::render('features/flats/pages/edit', [
             'flat' => $flat,
-            'towers' => $this->towerOptions($request),
+            'towers' => $this->moduleQueryService->towerOptions($request->user()),
         ]);
     }
 
@@ -154,56 +158,4 @@ class FlatController extends Controller
             ->value('society_id');
     }
 
-    /**
-     * Tower options for create/edit forms and the index filter.
-     *
-     * Society-bound users only see their own towers; super admins see all
-     * towers with the society name in the label.
-     *
-     * @return array<int, array{id: int, label: string}>
-     */
-    private function towerOptions(Request $request): array
-    {
-        $isSuperAdmin = $request->user()->isSuperAdmin();
-
-        return Tower::query()
-            ->with('society')
-            ->when(! $isSuperAdmin, function ($query) use ($request) {
-                $query->where('society_id', $request->user()->society_id);
-            })
-            ->orderBy('name')
-            ->get()
-            ->map(function (Tower $tower) use ($isSuperAdmin) {
-                return [
-                    'id' => $tower->id,
-                    'label' => $isSuperAdmin
-                        ? trim(($tower->society?->name ?? '').' · '.$tower->name)
-                        : $tower->name,
-                ];
-            })
-            ->all();
-    }
-
-    /**
-     * Tenant-scoped occupancy stats (the global society scope applies).
-     *
-     * @return array{total_units: int, occupied_units: int, vacant_units: int, occupancy_rate: float}
-     */
-    private function occupancyStats(): array
-    {
-        $totalUnits = Flat::count();
-
-        $occupiedUnits = Flat::whereIn('occupancy_status', ['Occupied', 'Self-Occupied'])->count();
-
-        $vacantUnits = Flat::where('occupancy_status', 'Vacant')->count();
-
-        return [
-            'total_units' => $totalUnits,
-            'occupied_units' => $occupiedUnits,
-            'vacant_units' => $vacantUnits,
-            'occupancy_rate' => $totalUnits > 0
-                ? round(($occupiedUnits / $totalUnits) * 100, 1)
-                : 0.0,
-        ];
-    }
 }

@@ -8,8 +8,8 @@ export default function LoginPage() {
     return (
         <AuthLayout branding={<AuthBranding />}>
             <div className="relative">
-                <div className="absolute -top-24 right-0">
-                    {/* <ThemeSwitcher /> */}
+                <div className="absolute -top-8 right-0 sm:-top-6">
+                    <ThemeSwitcher />
                 </div>
 
                 <LoginForm />

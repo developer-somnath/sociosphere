@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ResidentRequest;
 use App\Models\Flat;
 use App\Models\Resident;
+use App\Services\ModuleQueryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,6 +13,9 @@ use Inertia\Response;
 
 class ResidentController extends Controller
 {
+    public function __construct(private readonly ModuleQueryService $moduleQueryService)
+    {
+    }
     /**
      * Display a paginated, searchable list of residents.
      */
@@ -55,7 +59,7 @@ class ResidentController extends Controller
         $this->authorize('create', Resident::class);
 
         return Inertia::render('features/residents/pages/create', [
-            'flats' => $this->selectableFlats($request->user()),
+            'flats' => $this->moduleQueryService->flatOptions($request->user()),
         ]);
     }
 
@@ -88,7 +92,7 @@ class ResidentController extends Controller
 
         return Inertia::render('features/residents/pages/edit', [
             'resident' => $resident->load('flat', 'flat.tower'),
-            'flats' => $this->selectableFlats($request->user()),
+            'flats' => $this->moduleQueryService->flatOptions($request->user()),
         ]);
     }
 
@@ -123,20 +127,4 @@ class ResidentController extends Controller
             ->with('success', 'Resident removed successfully.');
     }
 
-    /**
-     * Flats of the user's society, labelled for a select dropdown.
-     */
-    private function selectableFlats($user): array
-    {
-        return Flat::query()
-            ->when(! $user->isSuperAdmin(), fn ($query) => $query->where('society_id', $user->society_id))
-            ->with('tower')
-            ->orderBy('flat_no')
-            ->get()
-            ->map(fn (Flat $flat) => [
-                'id' => $flat->id,
-                'label' => trim("{$flat->tower?->name} — {$flat->flat_no}"),
-            ])
-            ->all();
-    }
 }

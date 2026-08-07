@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { SocietyOption } from "@/features/towers/types";
@@ -23,8 +24,11 @@ type Props = {
     submitLabel: string;
 };
 
+const inputClasses =
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
+
 const selectClasses =
-    "h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 export default function TowerForm({
     societies,
@@ -37,62 +41,68 @@ export default function TowerForm({
 }: Props) {
     return (
         <form onSubmit={onSubmit} className="space-y-6">
-            <div className="space-y-2">
-                <Label htmlFor="name">
-                    Tower Name <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                    id="name"
-                    value={data.name}
-                    onChange={(e) => setData("name", e.target.value)}
-                    placeholder="e.g. Tower A"
-                    autoFocus
-                />
-                {errors.name && (
-                    <p className="text-sm text-destructive">{errors.name}</p>
-                )}
-            </div>
-
-            {societies.length > 0 && (
+            <FormSection
+                title="Tower details"
+                description="Fields marked with an asterisk are required."
+            >
                 <div className="space-y-2">
-                    <Label htmlFor="society_id">
-                        Society <span className="text-destructive">*</span>
+                    <Label htmlFor="name">
+                        Tower Name <span className="text-destructive">*</span>
                     </Label>
-                    <select
-                        id="society_id"
-                        className={selectClasses}
-                        value={data.society_id}
-                        onChange={(e) =>
-                            setData(
-                                "society_id",
-                                e.target.value === ""
-                                    ? ""
-                                    : Number(e.target.value),
-                            )
-                        }
-                    >
-                        <option value="">Select a society</option>
-                        {societies.map((society) => (
-                            <option key={society.id} value={society.id}>
-                                {society.label}
-                            </option>
-                        ))}
-                    </select>
-                    {errors.society_id && (
-                        <p className="text-sm text-destructive">
-                            {errors.society_id}
-                        </p>
+                    <Input
+                        id="name"
+                        className={inputClasses}
+                        value={data.name}
+                        onChange={(e) => setData("name", e.target.value)}
+                        placeholder="e.g. Tower A"
+                        autoFocus
+                    />
+                    {errors.name && (
+                        <p className="text-sm text-destructive">{errors.name}</p>
                     )}
                 </div>
-            )}
 
-            <div className="flex justify-end">
+                {societies.length > 0 && (
+                    <div className="mt-5 space-y-2">
+                        <Label htmlFor="society_id">
+                            Society <span className="text-destructive">*</span>
+                        </Label>
+                        <select
+                            id="society_id"
+                            className={selectClasses}
+                            value={data.society_id}
+                            onChange={(e) =>
+                                setData(
+                                    "society_id",
+                                    e.target.value === ""
+                                        ? ""
+                                        : Number(e.target.value),
+                                )
+                            }
+                        >
+                            <option value="">Select a society</option>
+                            {societies.map((society) => (
+                                <option key={society.id} value={society.id}>
+                                    {society.label}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.society_id && (
+                            <p className="text-sm text-destructive">
+                                {errors.society_id}
+                            </p>
+                        )}
+                    </div>
+                )}
+            </FormSection>
+
+            <div className="flex justify-end border-t border-border/60 pt-4">
                 <Button
                     type="submit"
                     disabled={processing}
-                    className="bg-emerald-600 hover:bg-emerald-700"
+                    className="rounded-xl bg-emerald-600 px-5 shadow-sm hover:bg-emerald-700"
                 >
-                    {processing && <Loader2 className="animate-spin" />}
+                    {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {submitLabel}
                 </Button>
             </div>

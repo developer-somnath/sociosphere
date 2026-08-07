@@ -1,0 +1,51 @@
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
+import { Loader2, Mail, Send } from "lucide-react";
+import type { FormEvent } from "react";
+import { route } from "ziggy-js";
+
+import AuthPageShell from "@/features/auth/components/auth-page-shell";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+export default function ForgotPassword() {
+    const { status } = usePage<{ status?: string }>().props;
+    const { data, setData, post, processing, errors } = useForm({ email: "" });
+
+    const submit = (event: FormEvent) => {
+        event.preventDefault();
+        post(route("password.email"));
+    };
+
+    return (
+        <AuthPageShell>
+            <Head title="Reset password" />
+            <Card>
+                <CardContent className="p-7 sm:p-8 lg:p-10">
+                    <h1 className="text-2xl font-semibold tracking-tight">Reset your password</h1>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                        Enter the email address associated with your account and
+                        we will send a password reset link.
+                    </p>
+                    {status && <p className="mt-5 rounded-xl bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-400">{status}</p>}
+                    <form onSubmit={submit} className="mt-6 space-y-5">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email address</Label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input id="email" type="email" value={data.email} onChange={(event) => setData("email", event.target.value)} className="h-11 pl-9" autoComplete="email" required />
+                            </div>
+                            {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                        </div>
+                        <Button className="h-11 w-full" disabled={processing}>
+                            {processing ? <Loader2 className="animate-spin" /> : <Send />}
+                            Send reset link
+                        </Button>
+                    </form>
+                    <Link className="mt-5 inline-block text-sm font-medium text-primary hover:underline" href={route("login")}>Back to sign in</Link>
+                </CardContent>
+            </Card>
+        </AuthPageShell>
+    );
+}

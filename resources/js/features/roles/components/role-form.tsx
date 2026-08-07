@@ -22,6 +22,9 @@ type Props = {
     disabled?: boolean;
 };
 
+const inputClasses =
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
+
 export default function RoleForm({
     groups,
     data,
@@ -67,51 +70,55 @@ export default function RoleForm({
 
     return (
         <form onSubmit={onSubmit} className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                    <Label htmlFor="name">
-                        Role Name <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                        id="name"
-                        value={data.name}
-                        onChange={(e) => setData("name", e.target.value)}
-                        placeholder="e.g. Gate Manager"
-                        disabled={disabled}
-                        autoFocus
-                    />
-                    {errors.name && (
-                        <p className="text-sm text-destructive">
-                            {errors.name}
-                        </p>
-                    )}
-                </div>
+            <div className="rounded-2xl border border-border/60 bg-muted/25 p-4 sm:p-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">
+                            Role Name <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                            id="name"
+                            className={inputClasses}
+                            value={data.name}
+                            onChange={(e) => setData("name", e.target.value)}
+                            placeholder="e.g. Gate Manager"
+                            disabled={disabled}
+                            autoFocus
+                        />
+                        {errors.name && (
+                            <p className="text-sm text-destructive">
+                                {errors.name}
+                            </p>
+                        )}
+                    </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Input
-                        id="description"
-                        value={data.description}
-                        onChange={(e) =>
-                            setData("description", e.target.value)
-                        }
-                        placeholder="What is this role responsible for?"
-                        disabled={disabled}
-                    />
-                    {errors.description && (
-                        <p className="text-sm text-destructive">
-                            {errors.description}
-                        </p>
-                    )}
+                    <div className="space-y-2">
+                        <Label htmlFor="description">Description</Label>
+                        <Input
+                            id="description"
+                            className={inputClasses}
+                            value={data.description}
+                            onChange={(e) =>
+                                setData("description", e.target.value)
+                            }
+                            placeholder="What is this role responsible for?"
+                            disabled={disabled}
+                        />
+                        {errors.description && (
+                            <p className="text-sm text-destructive">
+                                {errors.description}
+                            </p>
+                        )}
+                    </div>
                 </div>
             </div>
 
             <div className="space-y-3">
-                <div>
+                <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
                     <h2 className="text-sm font-semibold">
                         Feature Permissions
                     </h2>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="mt-1 text-sm text-muted-foreground">
                         Grant feature-wise access. Select the permissions this
                         role should have.
                     </p>
@@ -123,13 +130,13 @@ export default function RoleForm({
                     return (
                         <div
                             key={group.feature}
-                            className="rounded-lg border border-border/60"
+                            className="overflow-hidden rounded-2xl border border-border/60 bg-background/70"
                         >
                             <button
                                 type="button"
                                 onClick={() => toggleGroup(group)}
                                 disabled={disabled}
-                                className="flex w-full items-center justify-between gap-3 rounded-t-lg bg-muted/40 px-4 py-3 text-left disabled:cursor-not-allowed disabled:opacity-50"
+                                className="flex w-full items-center justify-between gap-3 bg-muted/40 px-4 py-3 text-left disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <div className="flex items-center gap-2">
                                     {state === "all" ? (
@@ -160,7 +167,7 @@ export default function RoleForm({
                                     return (
                                         <label
                                             key={permission.id}
-                                            className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors ${
+                                            className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition-colors ${
                                                 checked
                                                     ? "border-emerald-600/40 bg-emerald-600/5"
                                                     : "border-border/60 hover:bg-muted/40"
@@ -198,11 +205,11 @@ export default function RoleForm({
                 )}
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end border-t border-border/60 pt-4">
                 <Button
                     type="submit"
                     disabled={processing || disabled}
-                    className="bg-emerald-600 hover:bg-emerald-700"
+                    className="rounded-xl bg-emerald-600 px-5 shadow-sm hover:bg-emerald-700"
                 >
                     {processing ? "Saving…" : submitLabel}
                 </Button>

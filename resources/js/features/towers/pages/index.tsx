@@ -12,8 +12,10 @@ import { FormEvent, useState } from "react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
+import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { DataTable, DataTableHeader } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import type { PageProps } from "@/types";
 import type { Paginated, Tower } from "@/features/towers/types";
@@ -61,18 +63,16 @@ export default function TowersIndex() {
         <AppLayout>
             <Head title="Towers" />
 
-            <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-bold tracking-tight">Towers</h1>
-                <p className="text-sm text-muted-foreground">
-                    Manage the towers in your society.
-                </p>
-            </div>
+            <PageHeader
+                title="Towers"
+                description="Track the buildings and structural blocks that make up the society."
+                icon={<Building2 className="size-5" />}
+                breadcrumbs={[{ label: "Management" }, { label: "Towers" }]}
+                actions={can.create && <Button asChild><Link href={route("towers.create")}><Plus />Add tower</Link></Button>}
+            />
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <form
-                    onSubmit={submitSearch}
-                    className="relative w-full max-w-sm"
-                >
+            <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)] lg:flex-row lg:items-center lg:justify-between">
+                <form onSubmit={submitSearch} className="relative w-full max-w-sm">
                     <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         value={search}
@@ -92,17 +92,13 @@ export default function TowersIndex() {
                     )}
                 </form>
 
-                {can.create && (
-                    <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
-                        <Link href={route("towers.create")}>
-                            <Plus />
-                            Add Tower
-                        </Link>
-                    </Button>
-                )}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Building2 className="size-4" />
+                    {towers.total} tower{towers.total === 1 ? "" : "s"} managed
+                </div>
             </div>
 
-            <Card className="border-border/60 shadow-sm">
+            <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardContent className="p-0">
                     {towers.data.length === 0 ? (
                         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
@@ -123,9 +119,8 @@ export default function TowersIndex() {
                             </p>
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
+                        <DataTable>
+                                <DataTableHeader>
                                     <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
                                         <th className="px-5 py-3 font-medium">
                                             Tower
@@ -137,7 +132,7 @@ export default function TowersIndex() {
                                             Actions
                                         </th>
                                     </tr>
-                                </thead>
+                                </DataTableHeader>
                                 <tbody>
                                     {towers.data.map((tower) => (
                                         <tr
@@ -245,8 +240,7 @@ export default function TowersIndex() {
                                         </tr>
                                     ))}
                                 </tbody>
-                            </table>
-                        </div>
+                        </DataTable>
                     )}
                 </CardContent>
             </Card>

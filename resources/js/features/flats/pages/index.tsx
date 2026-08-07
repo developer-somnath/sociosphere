@@ -156,19 +156,33 @@ export default function FlatsIndex() {
         <AppLayout>
             <Head title="Flats" />
 
-            <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-bold tracking-tight">Flats</h1>
-                <p className="text-sm text-muted-foreground">
-                    Manage the property units in your society.
-                </p>
+            <div className="rounded-3xl border border-border/70 bg-card/80 p-5 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.4)] backdrop-blur">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <h1 className="text-2xl font-semibold tracking-tight">Flats</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Manage the property units, occupancy states, and resident assignments.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {can.create && (
+                            <Button asChild>
+                                <Link href={route("flats.create")}>
+                                    <Plus />
+                                    Add flat
+                                </Link>
+                            </Button>
+                        )}
+                    </div>
+                </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {statCards.map((card) => (
-                    <Card key={card.label} className="border-border/60 shadow-sm">
+                    <Card key={card.label} className="border-border/60 bg-background/70 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                         <CardContent className="flex items-center gap-3 p-4">
                             <div
-                                className={`flex size-10 items-center justify-center rounded-md ${card.accent}`}
+                                className={`flex size-10 items-center justify-center rounded-xl ${card.accent}`}
                             >
                                 <card.icon className="size-5" />
                             </div>
@@ -176,7 +190,7 @@ export default function FlatsIndex() {
                                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                                     {card.label}
                                 </p>
-                                <p className="text-xl font-bold">
+                                <p className="text-xl font-semibold text-foreground">
                                     {card.value}
                                 </p>
                             </div>
@@ -185,7 +199,7 @@ export default function FlatsIndex() {
                 ))}
             </div>
 
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)] lg:flex-row lg:items-center lg:justify-between">
                 <form
                     onSubmit={submitSearch}
                     className="relative w-full max-w-sm"
@@ -263,7 +277,7 @@ export default function FlatsIndex() {
                 </div>
             </div>
 
-            <Card className="border-border/60 shadow-sm">
+            <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardContent className="p-0">
                     {flats.data.length === 0 ? (
                         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">

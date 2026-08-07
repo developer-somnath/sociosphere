@@ -69,18 +69,29 @@ export default function RolesIndex() {
         <AppLayout>
             <Head title="Roles" />
 
-            <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-bold tracking-tight">Roles</h1>
-                <p className="text-sm text-muted-foreground">
-                    Create custom roles and assign feature-wise permissions.
-                </p>
+            <div className="rounded-3xl border border-border/70 bg-card/80 p-5 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.4)] backdrop-blur">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <h1 className="text-2xl font-semibold tracking-tight">Roles</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Create custom roles and assign feature-wise permissions.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {can.create && (
+                            <Button asChild>
+                                <Link href={route("roles.create")}>
+                                    <Plus />
+                                    New role
+                                </Link>
+                            </Button>
+                        )}
+                    </div>
+                </div>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <form
-                    onSubmit={submitSearch}
-                    className="relative w-full max-w-sm"
-                >
+            <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)] lg:flex-row lg:items-center lg:justify-between">
+                <form onSubmit={submitSearch} className="relative w-full max-w-sm">
                     <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         value={search}
@@ -100,17 +111,13 @@ export default function RolesIndex() {
                     )}
                 </form>
 
-                {can.create && (
-                    <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
-                        <Link href={route("roles.create")}>
-                            <Plus />
-                            New Role
-                        </Link>
-                    </Button>
-                )}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <ShieldCheck className="size-4" />
+                    {roles.total} role{roles.total === 1 ? "" : "s"}
+                </div>
             </div>
 
-            <Card className="border-border/60 shadow-sm">
+            <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardContent className="p-0">
                     {roles.data.length === 0 ? (
                         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">

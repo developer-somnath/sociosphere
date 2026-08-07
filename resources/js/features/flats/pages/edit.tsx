@@ -46,24 +46,31 @@ export default function FlatsEdit() {
             <Head title={`Edit ${flat.flat_no}`} />
 
             <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex flex-col gap-1">
-                        <h1 className="text-2xl font-bold tracking-tight">
-                            Edit Flat
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Update the details of flat {flat.flat_no}.
-                        </p>
+                <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-emerald-500/10 via-background to-background p-4 sm:p-5">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="flex items-start gap-3">
+                            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600/10 text-emerald-600">
+                                <DoorOpen className="size-5" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-semibold tracking-tight">
+                                    Edit Flat
+                                </h1>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Update the details of flat {flat.flat_no}.
+                                </p>
+                            </div>
+                        </div>
+                        <Button variant="outline" size="sm" asChild className="w-fit rounded-xl">
+                            <Link href={route("flats.index")}>
+                                <ArrowLeft className="size-4" />
+                                Back
+                            </Link>
+                        </Button>
                     </div>
-                    <Button variant="outline" size="sm" asChild>
-                        <Link href={route("flats.index")}>
-                            <ArrowLeft />
-                            Back
-                        </Link>
-                    </Button>
                 </div>
 
-                <Card className="border-border/60 shadow-sm">
+                <Card className="max-w-4xl border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <div className="flex items-center gap-2">
                             <div className="flex size-8 items-center justify-center rounded-md bg-emerald-600/10 text-emerald-600">

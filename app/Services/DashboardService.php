@@ -7,7 +7,9 @@ use App\Models\Flat;
 use App\Models\Notice;
 use App\Models\Payment;
 use App\Models\Resident;
+use App\Models\Scopes\SocietyScope;
 use App\Models\Tower;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
 class DashboardService
@@ -15,33 +17,42 @@ class DashboardService
     /**
      * Aggregate the headline statistics for a society's dashboard.
      *
-     * All queries are explicitly scoped by society id so the service remains
-     * deterministic regardless of the request context (e.g. super-admin).
+     * Society-bound users see their tenant. SuperAdmins receive an explicit
+     * portfolio view across all societies.
      *
-     * @param  int  $societyId
      * @return array<string, int>
      */
-    public function stats(int $societyId): array
+    public function stats(?int $societyId): array
     {
         $now = Carbon::now();
 
         return [
-            'residents' => Resident::where('society_id', $societyId)->count(),
-            'flats' => Flat::where('society_id', $societyId)->count(),
-            'occupied_flats' => Flat::where('society_id', $societyId)
+            'residents' => $this->forSociety(Resident::query(), $societyId)->count(),
+            'flats' => $this->forSociety(Flat::query(), $societyId)->count(),
+            'occupied_flats' => $this->forSociety(Flat::query(), $societyId)
                 ->whereRaw('LOWER(occupancy_status) = ?', ['occupied'])
                 ->count(),
-            'towers' => Tower::where('society_id', $societyId)->count(),
-            'open_complaints' => Complaint::where('society_id', $societyId)
-                ->whereIn('status', ['open', 'in_progress'])
+            'towers' => $this->forSociety(Tower::query(), $societyId)->count(),
+            'open_complaints' => $this->forSociety(Complaint::query(), $societyId)
+                ->whereIn('status', ['Open', 'Assigned', 'In Progress'])
                 ->count(),
-            'active_notices' => Notice::where('society_id', $societyId)
+            'active_notices' => $this->forSociety(Notice::query(), $societyId)
                 ->where(fn ($query) => $query->whereNull('publish_from')->orWhere('publish_from', '<=', $now))
                 ->where(fn ($query) => $query->whereNull('publish_to')->orWhere('publish_to', '>=', $now))
                 ->count(),
-            'pending_payments' => Payment::where('society_id', $societyId)
-                ->where('status', 'pending')
+            'pending_payments' => $this->forSociety(Payment::query(), $societyId)
+                ->whereIn('status', ['Pending', 'Failed'])
                 ->count(),
         ];
+    }
+
+    private function forSociety(Builder $query, ?int $societyId): Builder
+    {
+        return $query
+            ->withoutGlobalScope(SocietyScope::class)
+            ->when(
+                $societyId !== null,
+                fn (Builder $query) => $query->where('society_id', $societyId),
+            );
     }
 }

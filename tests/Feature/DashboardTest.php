@@ -2,7 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Complaint;
+use App\Models\ComplaintCategory;
 use App\Models\Flat;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Resident;
 use App\Models\Society;
 use App\Models\Tower;
@@ -108,5 +112,50 @@ class DashboardTest extends TestCase
         $this->assertFalse($user->isSocietyAdmin());
         $this->assertContains('SuperAdmin', $user->roleNames());
         $this->assertNotContains('SocietyAdmin', $user->roleNames());
+    }
+
+    public function test_dashboard_counts_title_case_complaint_and_payment_statuses(): void
+    {
+        $society = Society::factory()->create();
+        $user = User::factory()->societyAdmin($society->id)->create();
+        $tower = Tower::factory()->create(['society_id' => $society->id]);
+        $flat = Flat::factory()->create(['society_id' => $society->id, 'tower_id' => $tower->id]);
+        $resident = Resident::factory()->create(['society_id' => $society->id, 'flat_id' => $flat->id]);
+        $category = ComplaintCategory::factory()->create(['society_id' => $society->id]);
+        Complaint::factory()->create([
+            'society_id' => $society->id,
+            'flat_id' => $flat->id,
+            'resident_id' => $resident->id,
+            'category_id' => $category->id,
+            'status' => 'In Progress',
+        ]);
+        $invoice = Invoice::factory()->create([
+            'society_id' => $society->id,
+            'flat_id' => $flat->id,
+        ]);
+        Payment::factory()->create([
+            'society_id' => $society->id,
+            'invoice_id' => $invoice->id,
+            'status' => 'Pending',
+        ]);
+
+        $this->actingAs($user)->get(route('overview'))
+            ->assertInertia(fn ($page) => $page
+                ->where('stats.open_complaints', 1)
+                ->where('stats.pending_payments', 1));
+    }
+
+    public function test_super_admin_dashboard_shows_the_portfolio_across_societies(): void
+    {
+        $firstSociety = Society::factory()->create();
+        $secondSociety = Society::factory()->create();
+        $superAdmin = User::factory()->superAdmin()->create();
+
+        Tower::factory()->create(['society_id' => $firstSociety->id]);
+        Tower::factory()->create(['society_id' => $secondSociety->id]);
+
+        $this->actingAs($superAdmin)->get(route('overview'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->where('stats.towers', 2));
     }
 }

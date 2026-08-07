@@ -178,6 +178,34 @@ class ResidentTest extends TestCase
         $this->assertSoftDeleted('residents', ['id' => $resident->id]);
     }
 
+    public function test_primary_contact_is_reassigned_when_a_new_resident_is_marked_primary(): void
+    {
+        [$society, $flat] = $this->makeSocietyWithFlat();
+        $user = User::factory()->societyAdmin($society->id)->create();
+
+        $existingPrimary = Resident::factory()->create([
+            'society_id' => $society->id,
+            'flat_id' => $flat->id,
+            'name' => 'Existing Primary',
+            'is_primary_contact' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('residents.store'), [
+                'flat_id' => $flat->id,
+                'name' => 'New Primary',
+                'phone' => '9876543210',
+                'is_primary_contact' => true,
+            ])
+            ->assertRedirect(route('residents.index'));
+
+        $existingPrimary->refresh();
+        $newResident = Resident::query()->where('name', 'New Primary')->firstOrFail();
+
+        $this->assertFalse($existingPrimary->is_primary_contact);
+        $this->assertTrue($newResident->is_primary_contact);
+    }
+
     public function test_treasurer_can_view_but_not_create_residents(): void
     {
         [$society, $flat] = $this->makeSocietyWithFlat();

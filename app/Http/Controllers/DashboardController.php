@@ -9,16 +9,16 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __construct(private readonly DashboardService $dashboardService)
-    {
-    }
+    public function __construct(private readonly DashboardService $dashboardService) {}
 
     /**
      * Render the authenticated society overview.
      */
     public function index(Request $request): Response
     {
-        $societyId = (int) $request->user()->society_id;
+        $societyId = $request->user()->isSuperAdmin()
+            ? null
+            : $request->user()->society_id;
 
         return Inertia::render('features/dashboard/pages/dashboard-page', [
             'stats' => $this->dashboardService->stats($societyId),

@@ -128,6 +128,15 @@ class PermissionSeeder extends Seeder
             // Activity Logs (audit trail)
             'activity-log.view',
 
+            // Subscription & Entitlement (Phase 14 — Eagle)
+            'plan.view',
+            'plan.create',
+            'plan.update',
+            'plan.delete',
+            'subscription.view',
+            'subscription.assign',
+            'usage.view',
+
             // Roles & Permissions
             'role.view',
             'role.create',

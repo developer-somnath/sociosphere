@@ -281,5 +281,20 @@
   "dashboard.priorityHigh": "Hoog",
   "dashboard.priorityUrgent": "Urgent",
   "dashboard.priorityNormal": "Normaal",
-  "dashboard.momTrend": "+4,2% maand-op-maand"
+  "dashboard.momTrend": "+4,2% maand-op-maand",
+  "nav.subscription": "Subscription",
+  "nav.subscriptionOverview": "My Subscription",
+  "nav.subscriptionUsage": "Resource Usage",
+  "nav.subscriptionsAdmin": "Subscriptions",
+  "nav.plans": "Plans",
+  "feature.towers": "Towers",
+  "feature.flats": "Flats",
+  "feature.residents": "Residents",
+  "feature.users": "Users",
+  "feature.amenities": "Amenities",
+  "feature.documents": "Documents",
+  "feature.notices": "Notices",
+  "feature.cctvCameras": "CCTV Cameras",
+  "feature.parkingSlots": "Parking Slots",
+  "feature.complaints": "Complaints"
 }

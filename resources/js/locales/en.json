@@ -2,7 +2,6 @@
   "app.name": "SocioSphere",
   "app.tagline": "Enterprise Society Management",
   "app.portal": "Society Portal",
-
   "nav.overview": "Overview",
   "nav.properties": "Properties",
   "nav.operations": "Operations",
@@ -10,7 +9,6 @@
   "nav.helpdesk": "Helpdesk",
   "nav.finance": "Finance",
   "nav.admin": "Admin",
-
   "nav.dashboard": "Dashboard",
   "nav.societies": "Societies",
   "nav.towers": "Towers",
@@ -36,7 +34,6 @@
   "nav.users": "Users",
   "nav.roles": "Roles",
   "nav.activityLog": "Activity Log",
-
   "common.search": "Search",
   "common.filter": "Filter",
   "common.create": "Create",
@@ -107,7 +104,6 @@
   "common.none": "None",
   "common.home": "Home",
   "common.continue": "Continue",
-
   "auth.login": "Log in",
   "auth.logout": "Log out",
   "auth.signOut": "Sign out",
@@ -163,7 +159,6 @@
   "auth.isoAligned": "ISO Aligned",
   "auth.roleBasedAccess": "Role Based Access",
   "auth.resetPasswordBtn": "Reset Password",
-
   "menu.profileSettings": "Profile settings",
   "menu.settings": "Settings",
   "menu.language": "Language",
@@ -196,7 +191,6 @@
   "menu.hoursAgo": "{count}h ago",
   "menu.daysAgo": "{count}d ago",
   "menu.unreadCount": "{count} unread",
-
   "dashboard.overview": "Overview",
   "dashboard.goodMorning": "Good morning",
   "dashboard.goodAfternoon": "Good afternoon",
@@ -267,7 +261,6 @@
   "dashboard.priorityUrgent": "Urgent",
   "dashboard.priorityNormal": "Normal",
   "dashboard.momTrend": "+4.2% MoM",
-
   "quickActions.addTower": "New Tower",
   "quickActions.addFlat": "New Flat",
   "quickActions.addResident": "Add Resident",
@@ -277,7 +270,6 @@
   "quickActions.bookFacility": "Book Facility",
   "quickActions.logVisitor": "Create Visitor Pass",
   "quickActions.emergency": "Emergency Alert",
-
   "roles.superAdmin": "Super Admin",
   "roles.societyAdmin": "Society Admin",
   "roles.societyManager": "Society Manager",
@@ -288,7 +280,21 @@
   "roles.accountant": "Accountant",
   "roles.helpdesk": "Helpdesk Executive",
   "roles.member": "Member",
-
   "locale.switched": "Language switched to :language",
-  "locale.invalid": "The selected language is not available."
+  "locale.invalid": "The selected language is not available.",
+  "nav.subscription": "Subscription",
+  "nav.subscriptionOverview": "My Subscription",
+  "nav.subscriptionUsage": "Resource Usage",
+  "nav.subscriptionsAdmin": "Subscriptions",
+  "nav.plans": "Plans",
+  "feature.towers": "Towers",
+  "feature.flats": "Flats",
+  "feature.residents": "Residents",
+  "feature.users": "Users",
+  "feature.amenities": "Amenities",
+  "feature.documents": "Documents",
+  "feature.notices": "Notices",
+  "feature.cctvCameras": "CCTV Cameras",
+  "feature.parkingSlots": "Parking Slots",
+  "feature.complaints": "Complaints"
 }

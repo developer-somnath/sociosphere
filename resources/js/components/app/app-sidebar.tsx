@@ -10,6 +10,7 @@ import {
     CreditCard,
     DoorOpen,
     FolderOpen,
+    Gauge,
     History,
     LayoutDashboard,
     Megaphone,
@@ -127,6 +128,15 @@ const NAV_GROUPS: NavGroup[] = [
             { title: "nav.billingSettings", routeName: "billing.settings", icon: Settings2,    permission: "billing.configure" },
             { title: "nav.runHistory",    routeName: "billing.runs",       icon: History,       permission: "billing.configure" },
             { title: "nav.invariantCheck", routeName: "billing.verify",    icon: ClipboardCheck, permission: "billing.configure" },
+        ],
+    },
+    {
+        label: "nav.subscription",
+        items: [
+            { title: "nav.subscriptionOverview", routeName: "subscription.show", icon: Sparkles, permission: "subscription.view" },
+            { title: "nav.subscriptionUsage",    routeName: "subscription.usage", icon: Gauge,    permission: "usage.view"       },
+            { title: "nav.subscriptionsAdmin",   routeName: "subscriptions.index", icon: Settings2, permission: "subscription.assign" },
+            { title: "nav.plans",                routeName: "plans.index",        icon: Receipt,    permission: "plan.view"        },
         ],
     },
     {

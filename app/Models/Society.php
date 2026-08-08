@@ -34,4 +34,12 @@ class Society extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    /**
+     * Subscription records for this society (Phase 14 — Eagle).
+     */
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
 }

@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             UserSeeder::class,
 
+            SubscriptionPlanSeeder::class,
+
             TowerSeeder::class,
             FlatSeeder::class,
             ResidentSeeder::class,

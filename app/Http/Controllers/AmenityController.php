@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\AmenityRequest;
 use App\Models\Amenity;
 use App\Services\ActivityLogger;
@@ -12,6 +13,8 @@ use Inertia\Response;
 
 class AmenityController extends Controller
 {
+    use EnforcesEntitlements;
+
     /**
      * Display a listing of amenities.
      */
@@ -89,6 +92,8 @@ class AmenityController extends Controller
     public function store(AmenityRequest $request): RedirectResponse
     {
         $this->authorize('create', Amenity::class);
+
+        $this->enforceEntitlement('amenities');
 
         $societyId = $request->user()->society_id ?? society_id();
 

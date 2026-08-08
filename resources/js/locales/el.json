@@ -281,5 +281,20 @@
   "dashboard.priorityHigh": "Υψηλή",
   "dashboard.priorityUrgent": "Επείγουσα",
   "dashboard.priorityNormal": "Κανονική",
-  "dashboard.momTrend": "+4,2% από μήνα σε μήνα"
+  "dashboard.momTrend": "+4,2% από μήνα σε μήνα",
+  "nav.subscription": "Subscription",
+  "nav.subscriptionOverview": "My Subscription",
+  "nav.subscriptionUsage": "Resource Usage",
+  "nav.subscriptionsAdmin": "Subscriptions",
+  "nav.plans": "Plans",
+  "feature.towers": "Towers",
+  "feature.flats": "Flats",
+  "feature.residents": "Residents",
+  "feature.users": "Users",
+  "feature.amenities": "Amenities",
+  "feature.documents": "Documents",
+  "feature.notices": "Notices",
+  "feature.cctvCameras": "CCTV Cameras",
+  "feature.parkingSlots": "Parking Slots",
+  "feature.complaints": "Complaints"
 }

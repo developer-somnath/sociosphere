@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\CctvCameraRequest;
 use App\Models\CctvCamera;
 use App\Models\Tower;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class CctvCameraController extends Controller
 {
+    use EnforcesEntitlements;
+
     /**
      * Display a paginated, filterable grid of CCTV cameras.
      */
@@ -100,6 +103,8 @@ class CctvCameraController extends Controller
     public function store(CctvCameraRequest $request): RedirectResponse
     {
         $this->authorize('create', CctvCamera::class);
+
+        $this->enforceEntitlement('cctv_cameras');
 
         $towerId = $request->input('tower_id');
         $societyId = $request->user()->society_id

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\ResidentRequest;
 use App\Models\Flat;
 use App\Models\Resident;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class ResidentController extends Controller
 {
+    use EnforcesEntitlements;
+
     public function __construct(private readonly ModuleQueryService $moduleQueryService)
     {
     }
@@ -76,6 +79,8 @@ class ResidentController extends Controller
     public function store(ResidentRequest $request): RedirectResponse
     {
         $this->authorize('create', Resident::class);
+
+        $this->enforceEntitlement('residents');
 
         $flat = Flat::findOrFail($request->integer('flat_id'));
 

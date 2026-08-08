@@ -281,5 +281,20 @@
   "dashboard.priorityHigh": "高",
   "dashboard.priorityUrgent": "紧急",
   "dashboard.priorityNormal": "普通",
-  "dashboard.momTrend": "环比 +4.2%"
+  "dashboard.momTrend": "环比 +4.2%",
+  "nav.subscription": "Subscription",
+  "nav.subscriptionOverview": "My Subscription",
+  "nav.subscriptionUsage": "Resource Usage",
+  "nav.subscriptionsAdmin": "Subscriptions",
+  "nav.plans": "Plans",
+  "feature.towers": "Towers",
+  "feature.flats": "Flats",
+  "feature.residents": "Residents",
+  "feature.users": "Users",
+  "feature.amenities": "Amenities",
+  "feature.documents": "Documents",
+  "feature.notices": "Notices",
+  "feature.cctvCameras": "CCTV Cameras",
+  "feature.parkingSlots": "Parking Slots",
+  "feature.complaints": "Complaints"
 }

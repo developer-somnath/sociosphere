@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\ComplaintRequest;
 use App\Models\Complaint;
 use App\Models\ComplaintCategory;
@@ -16,6 +17,8 @@ use Inertia\Response;
 
 class ComplaintController extends Controller
 {
+    use EnforcesEntitlements;
+
     /**
      * Display a paginated, filterable list of complaints.
      */
@@ -113,6 +116,8 @@ class ComplaintController extends Controller
     public function store(ComplaintRequest $request): RedirectResponse
     {
         $this->authorize('create', Complaint::class);
+
+        $this->enforceEntitlement('complaints');
 
         $flatId = $request->input('flat_id');
         $societyId = $request->user()->society_id

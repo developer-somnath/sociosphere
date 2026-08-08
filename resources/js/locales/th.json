@@ -281,5 +281,20 @@
   "dashboard.priorityHigh": "สูง",
   "dashboard.priorityUrgent": "เร่งด่วน",
   "dashboard.priorityNormal": "ปกติ",
-  "dashboard.momTrend": "+4.2% รายเดือน"
+  "dashboard.momTrend": "+4.2% รายเดือน",
+  "nav.subscription": "Subscription",
+  "nav.subscriptionOverview": "My Subscription",
+  "nav.subscriptionUsage": "Resource Usage",
+  "nav.subscriptionsAdmin": "Subscriptions",
+  "nav.plans": "Plans",
+  "feature.towers": "Towers",
+  "feature.flats": "Flats",
+  "feature.residents": "Residents",
+  "feature.users": "Users",
+  "feature.amenities": "Amenities",
+  "feature.documents": "Documents",
+  "feature.notices": "Notices",
+  "feature.cctvCameras": "CCTV Cameras",
+  "feature.parkingSlots": "Parking Slots",
+  "feature.complaints": "Complaints"
 }

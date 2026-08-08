@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\TowerRequest;
 use App\Models\Society;
 use App\Models\Tower;
@@ -12,6 +13,7 @@ use Inertia\Response;
 
 class TowerController extends Controller
 {
+    use EnforcesEntitlements;
     /**
      * Display a paginated, searchable list of towers.
      */
@@ -64,6 +66,8 @@ class TowerController extends Controller
     public function store(TowerRequest $request): RedirectResponse
     {
         $this->authorize('create', Tower::class);
+
+        $this->enforceEntitlement('towers');
 
         Tower::create([
             'name' => $request->input('name'),

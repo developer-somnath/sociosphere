@@ -11,3 +11,6 @@ Artisan::command('inspire', function () {
 
 // Phase 13: Daily overdue penalty engine (grace period expiration & late fees).
 Schedule::job(new CalculateOverduePenaltiesJob)->dailyAt('02:00');
+
+// Phase 14: Daily subscription lifecycle sync (trials expire, terms end).
+Schedule::command('subscriptions:sync')->dailyAt('03:00');

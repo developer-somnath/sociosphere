@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\UserRequest;
 use App\Models\Role;
 use App\Models\Society;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class UserController extends Controller
 {
+    use EnforcesEntitlements;
+
     /**
      * Display a paginated, searchable list of staff and users.
      *
@@ -91,6 +94,8 @@ class UserController extends Controller
     public function store(UserRequest $request): RedirectResponse
     {
         $this->authorize('create', User::class);
+
+        $this->enforceEntitlement('users');
 
         $user = User::create([
             ...$request->validated(),

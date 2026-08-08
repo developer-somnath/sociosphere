@@ -21,6 +21,9 @@ use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SecurityLogController;
 use App\Http\Controllers\SocietyController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\SubscriptionPlanController;
+use App\Http\Controllers\SubscriptionUsageController;
 use App\Http\Controllers\TowerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisitorController;
@@ -218,6 +221,46 @@ Route::middleware(['auth', 'society'])->group(function () {
     Route::get('billing/verify', [BillingController::class, 'verify'])
         ->middleware('permission:billing.configure')
         ->name('billing.verify');
+
+    // Phase 14: Dynamic SaaS Subscription & Resource Entitlement Engine (Eagle)
+    Route::get('subscription', [SubscriptionController::class, 'show'])
+        ->middleware('permission:subscription.view')
+        ->name('subscription.show');
+
+    Route::get('subscription/usage', [SubscriptionUsageController::class, 'index'])
+        ->middleware('permission:usage.view')
+        ->name('subscription.usage');
+
+    // Platform-only: plan catalog & subscription administration
+    Route::middleware('role:SuperAdmin')->group(function () {
+        Route::resource('plans', SubscriptionPlanController::class)
+            ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+            ->middleware('permission:plan.view')
+            ->names([
+                'index' => 'plans.index',
+                'create' => 'plans.create',
+                'store' => 'plans.store',
+                'edit' => 'plans.edit',
+                'update' => 'plans.update',
+                'destroy' => 'plans.destroy',
+            ]);
+
+        Route::get('subscriptions', [SubscriptionController::class, 'index'])
+            ->middleware('permission:subscription.assign')
+            ->name('subscriptions.index');
+
+        Route::post('subscriptions/{society}/assign', [SubscriptionController::class, 'assign'])
+            ->middleware('permission:subscription.assign')
+            ->name('subscriptions.assign');
+
+        Route::post('subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])
+            ->middleware('permission:subscription.assign')
+            ->name('subscriptions.cancel');
+
+        Route::post('subscriptions/{subscription}/resume', [SubscriptionController::class, 'resume'])
+            ->middleware('permission:subscription.assign')
+            ->name('subscriptions.resume');
+    });
 
     Route::post('visitors/{visitor_pass}/approve', [VisitorController::class, 'approve'])
         ->middleware('permission:visitor.update')

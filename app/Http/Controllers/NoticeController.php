@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\NoticeRequest;
 use App\Models\Notice;
 use App\Models\NoticeAcknowledgement;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class NoticeController extends Controller
 {
+    use EnforcesEntitlements;
+
     /**
      * Display a paginated, filterable list of notices.
      */
@@ -123,6 +126,8 @@ class NoticeController extends Controller
     public function store(NoticeRequest $request): RedirectResponse
     {
         $this->authorize('create', Notice::class);
+
+        $this->enforceEntitlement('notices');
 
         $societyId = $request->user()->society_id ?? society_id();
 

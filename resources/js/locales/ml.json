@@ -281,5 +281,20 @@
   "dashboard.priorityHigh": "ഉയർന്നത്",
   "dashboard.priorityUrgent": "അടിയന്തരം",
   "dashboard.priorityNormal": "സാധാരണ",
-  "dashboard.momTrend": "+4.2% മാസാടിസ്ഥാനത്തിൽ"
+  "dashboard.momTrend": "+4.2% മാസാടിസ്ഥാനത്തിൽ",
+  "nav.subscription": "Subscription",
+  "nav.subscriptionOverview": "My Subscription",
+  "nav.subscriptionUsage": "Resource Usage",
+  "nav.subscriptionsAdmin": "Subscriptions",
+  "nav.plans": "Plans",
+  "feature.towers": "Towers",
+  "feature.flats": "Flats",
+  "feature.residents": "Residents",
+  "feature.users": "Users",
+  "feature.amenities": "Amenities",
+  "feature.documents": "Documents",
+  "feature.notices": "Notices",
+  "feature.cctvCameras": "CCTV Cameras",
+  "feature.parkingSlots": "Parking Slots",
+  "feature.complaints": "Complaints"
 }

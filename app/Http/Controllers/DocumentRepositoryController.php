@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\SocietyDocumentRequest;
 use App\Models\SocietyDocument;
 use App\Services\ActivityLogger;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocumentRepositoryController extends Controller
 {
+    use EnforcesEntitlements;
+
     /**
      * Display a paginated, filterable list of documents.
      */
@@ -86,6 +89,8 @@ class DocumentRepositoryController extends Controller
     public function store(SocietyDocumentRequest $request): RedirectResponse
     {
         $this->authorize('create', SocietyDocument::class);
+
+        $this->enforceEntitlement('documents');
 
         $societyId = $request->user()->society_id ?? society_id();
 

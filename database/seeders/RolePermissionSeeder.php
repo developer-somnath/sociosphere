@@ -53,6 +53,9 @@ class RolePermissionSeeder extends Seeder
                 'billing.configure',
                 'billing.run',
 
+                'subscription.view',
+                'usage.view',
+
                 'notice.view',
                 'notice.create',
                 'notice.update',
@@ -111,6 +114,9 @@ class RolePermissionSeeder extends Seeder
 
                 'billing.configure',
                 'billing.run',
+
+                'subscription.view',
+                'usage.view',
             ]);
 
         Role::findByName('SecurityGuard')

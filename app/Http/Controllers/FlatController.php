@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\FlatRequest;
 use App\Models\Flat;
 use App\Models\Tower;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class FlatController extends Controller
 {
+    use EnforcesEntitlements;
+
     public function __construct(private readonly ModuleQueryService $moduleQueryService)
     {
     }
@@ -91,6 +94,8 @@ class FlatController extends Controller
     public function store(FlatRequest $request): RedirectResponse
     {
         $this->authorize('create', Flat::class);
+
+        $this->enforceEntitlement('flats');
 
         Flat::create([
             ...$request->validated(),

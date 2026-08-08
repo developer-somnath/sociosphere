@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\AllocateParkingSlotRequest;
 use App\Http\Requests\ParkingSlotRequest;
 use App\Models\Flat;
@@ -14,6 +15,8 @@ use Inertia\Response;
 
 class ParkingSlotController extends Controller
 {
+    use EnforcesEntitlements;
+
     /**
      * Display the parking overview: stats, category counts, the visual slot
      * map (all slots), and the flats available for allocation.
@@ -82,6 +85,8 @@ class ParkingSlotController extends Controller
     public function store(ParkingSlotRequest $request): RedirectResponse
     {
         $this->authorize('create', ParkingSlot::class);
+
+        $this->enforceEntitlement('parking_slots');
 
         $societyId = $request->user()->society_id ?? society_id();
 

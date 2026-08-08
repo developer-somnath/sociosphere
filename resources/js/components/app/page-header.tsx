@@ -2,6 +2,7 @@ import { Link } from "@inertiajs/react";
 import { ChevronRight, Home } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export type BreadcrumbItem = { label: string; href?: string };
@@ -23,10 +24,11 @@ export function PageHeader({
     breadcrumbs = [],
     className,
 }: PageHeaderProps) {
+    const { t } = useI18n();
     const items = breadcrumbs.length > 0
         ? breadcrumbs
         : [
-            { label: "Overview", href: "/dashboard" },
+            { label: t("dashboard.overview"), href: "/dashboard" },
             { label: title },
           ];
 
@@ -39,7 +41,7 @@ export function PageHeader({
                     className="flex items-center gap-1 hover:text-primary transition-colors font-medium text-muted-foreground/80 hover:underline underline-offset-4"
                 >
                     <Home className="size-3.5" />
-                    <span>Home</span>
+                    <span>{t("common.home")}</span>
                 </Link>
                 {items.map((item, index) => (
                     <span key={`${item.label}-${index}`} className="flex items-center gap-1.5">

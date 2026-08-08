@@ -3,6 +3,7 @@ import { ArrowLeft, DoorOpen } from "lucide-react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
+import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -66,32 +67,26 @@ export default function VisitorsEdit() {
         <AppLayout>
             <Head title="Edit Visitor Pass" />
 
-            <div className="flex flex-col gap-4">
-                <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-violet-500/10 via-background to-background p-4 sm:p-5">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="flex items-start gap-3">
-                            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-600/10 text-violet-600">
-                                <DoorOpen className="size-5" />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-semibold tracking-tight">
-                                    Edit Visitor Pass
-                                </h1>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Update visitor and pass details.
-                                </p>
-                            </div>
-                        </div>
-                        <Button variant="outline" size="sm" asChild className="w-fit rounded-xl">
-                            <Link href={route("visitors.index")}>
-                                <ArrowLeft className="size-4" />
-                                Back
-                            </Link>
-                        </Button>
-                    </div>
-                </div>
+            <PageHeader
+                title="Edit Visitor Pass"
+                description="Update visitor and pass details."
+                icon={<DoorOpen className="size-5" />}
+                breadcrumbs={[
+                    { label: "Gate & Access", href: "/dashboard" },
+                    { label: "Visitors", href: route("visitors.index") },
+                    { label: "Edit Pass" },
+                ]}
+                actions={
+                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
+                        <Link href={route("visitors.index")}>
+                            <ArrowLeft className="size-3.5" />
+                            Back
+                        </Link>
+                    </Button>
+                }
+            />
 
-                <Card className="border-border/60 bg-background/70 shadow-sm">
+                <Card className="border-border/60 bg-card/80 shadow-xs">
                     <CardHeader>
                         <div className="flex items-center gap-2">
                             <div className="flex size-8 items-center justify-center rounded-md bg-violet-600/10 text-violet-600">
@@ -120,7 +115,6 @@ export default function VisitorsEdit() {
                         />
                     </CardContent>
                 </Card>
-            </div>
         </AppLayout>
     );
 }

@@ -53,6 +53,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */
 
@@ -72,10 +73,10 @@ type NavGroup = {
 
 const NAV_GROUPS: NavGroup[] = [
     {
-        label: "Overview",
+        label: "nav.overview",
         items: [
             {
-                title: "Dashboard",
+                title: "nav.dashboard",
                 routeName: "overview",
                 icon: LayoutDashboard,
                 permission: "dashboard.view",
@@ -83,57 +84,57 @@ const NAV_GROUPS: NavGroup[] = [
         ],
     },
     {
-        label: "Properties",
+        label: "nav.properties",
         items: [
-            { title: "Societies",  routeName: "societies.index",     icon: Building2, permission: "society.view"  },
-            { title: "Towers",     routeName: "towers.index",        icon: Building2, permission: "tower.view"    },
-            { title: "Flats",      routeName: "flats.index",         icon: Building2, permission: "flat.view"     },
-            { title: "Residents",  routeName: "residents.index",     icon: Users,     permission: "resident.view" },
-            { title: "Parking",    routeName: "parking-slots.index", icon: Car,       permission: "parking.view"  },
+            { title: "nav.societies",  routeName: "societies.index",     icon: Building2, permission: "society.view"  },
+            { title: "nav.towers",     routeName: "towers.index",        icon: Building2, permission: "tower.view"    },
+            { title: "nav.flats",      routeName: "flats.index",         icon: Building2, permission: "flat.view"     },
+            { title: "nav.residents",  routeName: "residents.index",     icon: Users,     permission: "resident.view" },
+            { title: "nav.parking",    routeName: "parking-slots.index", icon: Car,       permission: "parking.view"  },
         ],
     },
     {
-        label: "Operations",
+        label: "nav.operations",
         items: [
-            { title: "Visitors",       routeName: "visitors.index",         icon: DoorOpen,         permission: "visitor.view"      },
-            { title: "Amenities",      routeName: "amenities.index",        icon: Sparkles,         permission: "amenity.view"      },
-            { title: "Bookings",       routeName: "amenity-bookings.index", icon: CalendarDays,     permission: "amenity.view"      },
-            { title: "CCTV Feeds",     routeName: "cctv-cameras.index",     icon: Video,            permission: "cctv.view"         },
-            { title: "Security Log",   routeName: "security-logs.index",    icon: ShieldAlert,      permission: "security_log.view" },
+            { title: "nav.visitors",       routeName: "visitors.index",         icon: DoorOpen,         permission: "visitor.view"      },
+            { title: "nav.amenities",      routeName: "amenities.index",        icon: Sparkles,         permission: "amenity.view"      },
+            { title: "nav.bookings",       routeName: "amenity-bookings.index", icon: CalendarDays,     permission: "amenity.view"      },
+            { title: "nav.cctv",           routeName: "cctv-cameras.index",     icon: Video,            permission: "cctv.view"         },
+            { title: "nav.securityLog",    routeName: "security-logs.index",    icon: ShieldAlert,      permission: "security_log.view" },
         ],
     },
     {
-        label: "Communications",
+        label: "nav.communications",
         items: [
-            { title: "Notice Board", routeName: "notices.index",   icon: Megaphone,  permission: "notice.view"   },
-            { title: "Documents",    routeName: "documents.index", icon: FolderOpen, permission: "document.view" },
+            { title: "nav.notices", routeName: "notices.index",   icon: Megaphone,  permission: "notice.view"   },
+            { title: "nav.documents",    routeName: "documents.index", icon: FolderOpen, permission: "document.view" },
         ],
     },
     {
-        label: "Helpdesk",
+        label: "nav.helpdesk",
         items: [
-            { title: "Complaints",  routeName: "complaints.index",           icon: MessageSquareWarning, permission: "complaint.view" },
-            { title: "Categories",  routeName: "complaint-categories.index", icon: FolderOpen,            permission: "complaint.view" },
+            { title: "nav.complaints",  routeName: "complaints.index",           icon: MessageSquareWarning, permission: "complaint.view" },
+            { title: "nav.categories",  routeName: "complaint-categories.index", icon: FolderOpen,            permission: "complaint.view" },
         ],
     },
     {
-        label: "Finance",
+        label: "nav.finance",
         items: [
-            { title: "Invoices",       routeName: "invoices.index",     icon: Receipt,       permission: "invoice.view"    },
-            { title: "Payments",       routeName: "payments.index",     icon: CreditCard,    permission: "collection.view" },
-            { title: "Batch Generate", routeName: "billing.preview",    icon: CalendarCog,   permission: "billing.configure" },
-            { title: "Flat Ledger",    routeName: "billing.ledger",     icon: BookOpenText,  permission: "invoice.view"    },
-            { title: "Billing Settings", routeName: "billing.settings", icon: Settings2,    permission: "billing.configure" },
-            { title: "Run History",    routeName: "billing.runs",       icon: History,       permission: "billing.configure" },
-            { title: "Invariant Check", routeName: "billing.verify",    icon: ClipboardCheck, permission: "billing.configure" },
+            { title: "nav.invoices",       routeName: "invoices.index",     icon: Receipt,       permission: "invoice.view"    },
+            { title: "nav.payments",       routeName: "payments.index",     icon: CreditCard,    permission: "collection.view" },
+            { title: "nav.batchGenerate", routeName: "billing.preview",    icon: CalendarCog,   permission: "billing.configure" },
+            { title: "nav.flatLedger",    routeName: "billing.ledger",     icon: BookOpenText,  permission: "invoice.view"    },
+            { title: "nav.billingSettings", routeName: "billing.settings", icon: Settings2,    permission: "billing.configure" },
+            { title: "nav.runHistory",    routeName: "billing.runs",       icon: History,       permission: "billing.configure" },
+            { title: "nav.invariantCheck", routeName: "billing.verify",    icon: ClipboardCheck, permission: "billing.configure" },
         ],
     },
     {
-        label: "Admin",
+        label: "nav.admin",
         items: [
-            { title: "Users",         routeName: "users.index",         icon: UserCog,    permission: "user.view"         },
-            { title: "Roles",         routeName: "roles.index",         icon: ShieldCheck,permission: "role.view"         },
-            { title: "Activity Log",  routeName: "activity-logs.index", icon: History,    permission: "activity-log.view" },
+            { title: "nav.users",         routeName: "users.index",         icon: UserCog,    permission: "user.view"         },
+            { title: "nav.roles",         routeName: "roles.index",         icon: ShieldCheck,permission: "role.view"         },
+            { title: "nav.activityLog",  routeName: "activity-logs.index", icon: History,    permission: "activity-log.view" },
         ],
     },
 ];
@@ -148,6 +149,23 @@ function initials(name: string): string {
     return name.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
 }
 
+/** Map a raw role name (e.g. "SuperAdmin") to its i18n key, falling back to "Member". */
+function roleKey(label: string): string {
+    const map: Record<string, string> = {
+        superadmin: "roles.superAdmin",
+        societyadmin: "roles.societyAdmin",
+        societymanager: "roles.societyManager",
+        treasurer: "roles.treasurer",
+        resident: "roles.resident",
+        securityguard: "roles.securityGuard",
+        securitymanager: "roles.securityManager",
+        accountant: "roles.accountant",
+        helpdesk: "roles.helpdesk",
+        member: "roles.member",
+    };
+    return map[label.toLowerCase()] ?? "roles.member";
+}
+
 function isActive(href: string, url: string): boolean {
     if (href === "#") return false;
     return url === href || url.startsWith(`${href}/`);
@@ -156,6 +174,7 @@ function isActive(href: string, url: string): boolean {
 /* ─── NavItem component ──────────────────────────────────────────────────── */
 
 function NavLink({ item, url }: { item: NavItem & { href: string }; url: string }) {
+    const { t } = useI18n();
     const active = isActive(item.href, url);
     const Icon = item.icon;
 
@@ -164,7 +183,7 @@ function NavLink({ item, url }: { item: NavItem & { href: string }; url: string 
             <SidebarMenuButton
                 asChild
                 isActive={active}
-                tooltip={item.title}
+                tooltip={t(item.title)}
                 className={cn(
                     "group relative h-9 rounded-lg px-2.5 text-sidebar-foreground/70 transition-all duration-200",
                     "hover:bg-sidebar-accent/60 hover:text-sidebar-foreground hover:translate-x-0.5",
@@ -177,7 +196,7 @@ function NavLink({ item, url }: { item: NavItem & { href: string }; url: string 
                         <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-sidebar-primary shadow-[0_0_10px_rgba(99,102,241,0.6)]" />
                     )}
                     <Icon className={cn("size-4 shrink-0 transition-colors duration-200", active ? "text-sidebar-primary" : "text-sidebar-foreground/50 group-hover:text-sidebar-primary/80")} />
-                    <span className="truncate text-sm">{item.title}</span>
+                    <span className="truncate text-sm">{t(item.title)}</span>
                 </Link>
             </SidebarMenuButton>
         </SidebarMenuItem>
@@ -190,6 +209,7 @@ export function AppSidebar() {
     const { url } = usePage();
     const { auth } = usePage<PageProps>().props;
     const { state } = useSidebar();
+    const { t } = useI18n();
     const user = auth.user;
     const permissions = user?.permissions ?? [];
     const roleLabel = user?.roles?.[0] ?? "Member";
@@ -224,7 +244,7 @@ export function AppSidebar() {
                                         SocioSphere
                                     </span>
                                     <span className="truncate text-[11px] text-sidebar-foreground/50">
-                                        {auth.society?.name ?? "Society Portal"}
+                                        {auth.society?.name ?? t("app.portal")}
                                     </span>
                                 </div>
                                 <ChevronRight className="size-3.5 shrink-0 text-sidebar-foreground/30" />
@@ -245,13 +265,12 @@ export function AppSidebar() {
                                 "group-data-[collapsible=icon]:hidden"
                             )}
                         >
-                            {group.label}
+                            {t(group.label)}
                         </SidebarGroupLabel>
-
                         <SidebarGroupContent>
-                            <SidebarMenu className="gap-0.5">
+                            <SidebarMenu>
                                 {group.items.map((item) => (
-                                    <NavLink key={item.routeName} item={item} url={url} />
+                                    <NavLink key={item.title} item={item} url={url} />
                                 ))}
                             </SidebarMenu>
                         </SidebarGroupContent>
@@ -279,7 +298,7 @@ export function AppSidebar() {
                                             {user?.name}
                                         </span>
                                         <span className="truncate text-[11px] text-sidebar-foreground/50">
-                                            {roleLabel}
+                                            {t(roleKey(roleLabel))}
                                         </span>
                                     </div>
                                     <ChevronRight className="size-3.5 shrink-0 rotate-[-90deg] text-sidebar-foreground/30" />
@@ -315,7 +334,7 @@ export function AppSidebar() {
                                 <DropdownMenuItem asChild>
                                     <Link href={safeRoute("profile.edit")}>
                                         <UserIcon className="size-4" />
-                                        Profile settings
+                                        {t("menu.profileSettings")}
                                     </Link>
                                 </DropdownMenuItem>
 
@@ -329,7 +348,7 @@ export function AppSidebar() {
                                     }}
                                 >
                                     <LogOut className="size-4" />
-                                    Sign out
+                                    {t("auth.signOut")}
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

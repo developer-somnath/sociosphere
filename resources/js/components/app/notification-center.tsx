@@ -13,6 +13,7 @@ import { route } from "ziggy-js";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { t, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { AppNotification } from "@/types";
 
@@ -21,12 +22,12 @@ function timeAgo(iso: string): string {
     if (Number.isNaN(then)) return "";
     const diffMs = Date.now() - then;
     const mins = Math.floor(diffMs / 60_000);
-    if (mins < 1) return "just now";
-    if (mins < 60) return `${mins}m ago`;
+    if (mins < 1) return t("menu.justNow");
+    if (mins < 60) return t("menu.minutesAgo", { count: mins });
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return t("menu.hoursAgo", { count: hours });
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d ago`;
+    if (days < 7) return t("menu.daysAgo", { count: days });
     return new Date(iso).toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",
@@ -50,6 +51,7 @@ export function NotificationCenter({
 }: {
     notifications?: AppNotification[];
 }) {
+    const { t } = useI18n();
     const [open, setOpen] = useState(false);
     const [tab, setTab] = useState("all");
     const [readIds, setReadIds] = useState<Set<string | number>>(
@@ -115,8 +117,8 @@ export function NotificationCenter({
                     className="relative rounded-xl"
                     aria-label={
                         unreadCount > 0
-                            ? `Notifications, ${unreadCount} unread`
-                            : "Notifications"
+                            ? t("menu.notifications") + ", " + t("menu.unreadCount", { count: unreadCount })
+                            : t("menu.notifications")
                     }
                 >
                     <Bell className="size-4" />
@@ -134,7 +136,7 @@ export function NotificationCenter({
                 >
                     <div className="flex items-center justify-between px-2 pb-2 pt-1">
                         <p className="text-sm font-semibold text-foreground">
-                            Notifications
+                            {t("menu.notifications")}
                         </p>
                         {unreadCount > 0 && (
                             <Button
@@ -144,7 +146,7 @@ export function NotificationCenter({
                                 onClick={markAllRead}
                             >
                                 <CheckCheck className="size-3.5" />
-                                Mark all as read
+                                {t("menu.markAllRead")}
                             </Button>
                         )}
                     </div>
@@ -152,7 +154,7 @@ export function NotificationCenter({
                     <Tabs value={tab} onValueChange={setTab} variant="pills">
                         <TabsList className="w-full">
                             <TabsTrigger value="all" className="flex-1">
-                                All
+                                {t("common.all")}
                                 {notifications.length > 0 && (
                                     <span className="ml-1.5 rounded-full bg-muted px-1.5 text-[10px] font-medium tabular-nums">
                                         {notifications.length}
@@ -160,7 +162,7 @@ export function NotificationCenter({
                                 )}
                             </TabsTrigger>
                             <TabsTrigger value="unread" className="flex-1">
-                                Unread
+                                {t("menu.unread")}
                                 {unreadCount > 0 && (
                                     <span className="ml-1.5 rounded-full bg-primary/15 px-1.5 text-[10px] font-medium tabular-nums text-primary">
                                         {unreadCount}
@@ -206,11 +208,10 @@ function NotificationList({
                     <Inbox className="size-6 text-muted-foreground" />
                 </div>
                 <p className="text-sm font-medium text-foreground">
-                    No notifications yet
+                    {t("menu.noNotifications")}
                 </p>
                 <p className="max-w-56 text-xs text-muted-foreground">
-                    Updates about complaints, visitors, payments and notices
-                    will appear here.
+                    {t("menu.notificationsHint")}
                 </p>
             </div>
         );

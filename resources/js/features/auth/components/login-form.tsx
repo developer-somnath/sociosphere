@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 import { route } from "ziggy-js";
 
 export default function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
     const { status } = usePage<{ status?: string }>().props;
+    const { t } = useI18n();
 
     const { data, setData, post, processing, errors } = useForm({
         email: "",
@@ -33,10 +35,10 @@ export default function LoginForm() {
                     </div>
                     <div>
                         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                            Welcome back
+                            {t("auth.welcomeBack")}
                         </h1>
                         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                            Sign in to access your society administration portal.
+                            {t("auth.loginPortalSubtitle")}
                         </p>
                     </div>
                 </div>
@@ -48,7 +50,7 @@ export default function LoginForm() {
                         </p>
                     )}
                     <div className="space-y-2">
-                        <Label htmlFor="email">Email address</Label>
+                        <Label htmlFor="email">{t("auth.email")}</Label>
 
                         <div className="relative">
                             <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -56,7 +58,7 @@ export default function LoginForm() {
                             <Input
                                 id="email"
                                 type="email"
-                                placeholder="you@example.com"
+                                placeholder={t("auth.emailPlaceholder")}
                                 className="h-12 pl-11"
                                 value={data.email}
                                 onChange={(e) =>
@@ -70,7 +72,7 @@ export default function LoginForm() {
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">{t("auth.password")}</Label>
 
                         <div className="relative">
                             <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -78,7 +80,7 @@ export default function LoginForm() {
                             <Input
                                 id="password"
                                 type={showPassword ? "text" : "password"}
-                                placeholder="Enter password"
+                                placeholder={t("auth.passwordPlaceholder")}
                                 className="h-12 pl-11 pr-11"
                                 value={data.password}
                                 onChange={(e) =>
@@ -117,7 +119,7 @@ export default function LoginForm() {
                                 htmlFor="remember"
                                 className="cursor-pointer text-sm font-normal"
                             >
-                                Keep me signed in
+                                {t("auth.keepSignedIn")}
                             </Label>
                         </div>
 
@@ -125,7 +127,7 @@ export default function LoginForm() {
                             href={route("password.request")}
                             className="text-sm font-medium text-emerald-600 transition hover:text-emerald-700"
                         >
-                            Forgot Password?
+                            {t("auth.forgotPassword")}
                         </Link>
                     </div>
 
@@ -137,24 +139,24 @@ export default function LoginForm() {
                         {processing && (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}
-                        Sign In Securely
+                        {t("auth.signInSecurely")}
                     </Button>
 
                     <div className="rounded-2xl border border-border/60 bg-muted/50 p-4">
                         <p className="text-xs leading-relaxed text-muted-foreground">
                             <Verified className="mr-1 inline h-4 w-4 text-emerald-500" />
-                            Your data is protected using encrypted communication and secure authentication.
+                            {t("auth.dataProtected")}
                         </p>
                     </div>
 
                     <p className="text-center text-xs leading-relaxed text-muted-foreground">
-                        By signing in, you agree to our{" "}
+                        {t("auth.termsIntro")}{" "}
                         <a href="/terms" className="font-medium text-foreground">
-                            Terms of Service
+                            {t("auth.termsOfService")}
                         </a>{" "}
-                        and{" "}
+                        {t("auth.and")}{" "}
                         <a href="/privacy" className="font-medium text-foreground">
-                            Privacy Policy
+                            {t("auth.privacyPolicy")}
                         </a>
                         .
                     </p>

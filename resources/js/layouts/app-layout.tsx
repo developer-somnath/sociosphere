@@ -31,6 +31,7 @@ import { LanguageSwitcher } from "@/components/app/language-switcher";
 import { NotificationCenter } from "@/components/app/notification-center";
 import { PageLoadingIndicator } from "@/components/app/page-loading-indicator";
 import { ThemeSwitcher } from "@/components/theme/theme-switcher";
+import { useI18n } from "@/lib/i18n";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,46 +65,47 @@ function initials(name: string): string {
 
 export default function AppLayout({ children }: PropsWithChildren) {
     const [societySearch, setSocietySearch] = useState("");
+    const { t } = useI18n();
     // Build groups inside component — deferred to render so route() is safe
     const commandGroups: CommandGroup[] = [
         {
-            label: "Overview",
+            label: t("nav.overview"),
             items: [
                 {
-                    id: "overview", label: "Dashboard", icon: LayoutDashboard,
-                    hint: "Go to overview", keywords: ["home", "overview", "dashboard"],
+                    id: "overview", label: t("nav.dashboard"), icon: LayoutDashboard,
+                    hint: t("menu.goTo", { target: t("nav.dashboard") }), keywords: ["home", "overview", "dashboard"],
                     onSelect: () => router.visit(safeRoute("overview")),
                 },
             ],
         },
         {
-            label: "Properties",
+            label: t("nav.properties"),
             items: [
-                { id: "towers",    label: "Towers",    icon: Building,  hint: "Go to towers",    keywords: ["building", "blocks", "wings"],            onSelect: () => router.visit(safeRoute("towers.index"))    },
-                { id: "flats",     label: "Flats",     icon: Layers,    hint: "Go to flats",     keywords: ["apartments", "units", "houses"],          onSelect: () => router.visit(safeRoute("flats.index"))     },
-                { id: "residents", label: "Residents", icon: UserRound, hint: "Go to residents", keywords: ["people", "owners", "tenants", "families"], onSelect: () => router.visit(safeRoute("residents.index")) },
+                { id: "towers",    label: t("nav.towers"),    icon: Building,  hint: t("menu.goTo", { target: t("nav.towers") }),    keywords: ["building", "blocks", "wings"],            onSelect: () => router.visit(safeRoute("towers.index"))    },
+                { id: "flats",     label: t("nav.flats"),     icon: Layers,    hint: t("menu.goTo", { target: t("nav.flats") }),     keywords: ["apartments", "units", "houses"],          onSelect: () => router.visit(safeRoute("flats.index"))     },
+                { id: "residents", label: t("nav.residents"), icon: UserRound, hint: t("menu.goTo", { target: t("nav.residents") }), keywords: ["people", "owners", "tenants", "families"], onSelect: () => router.visit(safeRoute("residents.index")) },
             ],
         },
         {
-            label: "Operations",
+            label: t("nav.operations"),
             items: [
-                { id: "visitors", label: "Visitors", icon: DoorOpen, hint: "Go to visitors", keywords: ["gate", "pass", "security"], onSelect: () => router.visit(safeRoute("visitors.index")) },
+                { id: "visitors", label: t("nav.visitors"), icon: DoorOpen, hint: t("menu.goTo", { target: t("nav.visitors") }), keywords: ["gate", "pass", "security"], onSelect: () => router.visit(safeRoute("visitors.index")) },
             ],
         },
         {
-            label: "Administration",
+            label: t("nav.admin"),
             items: [
-                { id: "users",         label: "Users",         icon: UserCog,    hint: "Go to users",         keywords: ["accounts", "team"],        onSelect: () => router.visit(safeRoute("users.index"))          },
-                { id: "roles",         label: "Roles",         icon: ShieldCheck,hint: "Go to roles",         keywords: ["permissions", "rbac"],     onSelect: () => router.visit(safeRoute("roles.index"))          },
-                { id: "activity-logs", label: "Activity Logs", icon: History,    hint: "Go to activity logs", keywords: ["audit", "history"],        onSelect: () => router.visit(safeRoute("activity-logs.index"))  },
+                { id: "users",         label: t("nav.users"),         icon: UserCog,    hint: t("menu.goTo", { target: t("nav.users") }),         keywords: ["accounts", "team"],        onSelect: () => router.visit(safeRoute("users.index"))          },
+                { id: "roles",         label: t("nav.roles"),         icon: ShieldCheck,hint: t("menu.goTo", { target: t("nav.roles") }),         keywords: ["permissions", "rbac"],     onSelect: () => router.visit(safeRoute("roles.index"))          },
+                { id: "activity-logs", label: t("nav.activityLog"),    icon: History,    hint: t("menu.goTo", { target: t("nav.activityLog") }),    keywords: ["audit", "history"],        onSelect: () => router.visit(safeRoute("activity-logs.index"))  },
             ],
         },
         {
-            label: "Quick create",
+            label: t("menu.quickCreate"),
             items: [
-                { id: "create-tower",    label: "New Tower",    icon: Plus, hint: "Create", keywords: ["add", "new"], onSelect: () => router.visit(safeRoute("towers.create"))    },
-                { id: "create-flat",     label: "New Flat",     icon: Plus, hint: "Create", keywords: ["add", "new"], onSelect: () => router.visit(safeRoute("flats.create"))     },
-                { id: "create-resident", label: "New Resident", icon: Plus, hint: "Create", keywords: ["add", "new"], onSelect: () => router.visit(safeRoute("residents.create")) },
+                { id: "create-tower",    label: t("quickActions.addTower"),    icon: Plus, hint: t("common.create"), keywords: ["add", "new"], onSelect: () => router.visit(safeRoute("towers.create"))    },
+                { id: "create-flat",     label: t("quickActions.addFlat"),     icon: Plus, hint: t("common.create"), keywords: ["add", "new"], onSelect: () => router.visit(safeRoute("flats.create"))     },
+                { id: "create-resident", label: t("quickActions.addResident"), icon: Plus, hint: t("common.create"), keywords: ["add", "new"], onSelect: () => router.visit(safeRoute("residents.create")) },
             ],
         },
     ];
@@ -131,11 +133,11 @@ export default function AppLayout({ children }: PropsWithChildren) {
                             type="button"
                             onClick={openCommandPalette}
                             className="hidden h-8.5 w-64 items-center justify-between gap-2 rounded-xl border border-border/70 bg-background/80 px-3 text-xs text-muted-foreground transition-all hover:border-primary/40 hover:bg-accent/40 sm:flex lg:w-80 shadow-2xs"
-                            aria-label="Open command palette"
+                            aria-label={t("menu.commandPalette")}
                         >
                             <div className="flex items-center gap-2">
                                 <Search className="size-3.5 shrink-0 text-muted-foreground" />
-                                <span>Search anything...</span>
+                                <span>{t("menu.searchAnything")}</span>
                             </div>
                             <kbd className="rounded-md border border-border/60 bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                                 ⌘K
@@ -156,14 +158,14 @@ export default function AppLayout({ children }: PropsWithChildren) {
                                     >
                                         <Building className="size-3.5 text-primary" />
                                         <span className="max-w-[140px] truncate">
-                                            {auth.society?.name ?? "All Societies (Portfolio)"}
+                                            {auth.society?.name ?? t("dashboard.allSocieties")}
                                         </span>
                                         <ChevronDown className="size-3 text-muted-foreground opacity-70" />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-72 rounded-2xl p-2 shadow-xl">
                                     <DropdownMenuLabel className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                                        Select Target Society
+                                        {t("menu.selectSociety")}
                                     </DropdownMenuLabel>
 
                                     <div className="relative my-1 px-1">
@@ -172,7 +174,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                                             type="text"
                                             value={societySearch}
                                             onChange={(e) => setSocietySearch(e.target.value)}
-                                            placeholder="Search society..."
+                                            placeholder={t("menu.searchSociety")}
                                             className="h-8 w-full rounded-lg border border-border bg-background pl-8 pr-2 text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                                         />
                                     </div>
@@ -187,7 +189,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                                         >
                                             <div className="flex items-center gap-2">
                                                 <Building className="size-4 text-muted-foreground" />
-                                                <span>All Societies (Global)</span>
+                                                <span>{t("menu.allSocietiesGlobal")}</span>
                                             </div>
                                             {!auth.society && <Check className="size-4 text-primary" />}
                                         </DropdownMenuItem>
@@ -219,7 +221,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                                                 })
                                         ) : (
                                             <div className="px-3 py-2 text-xs text-muted-foreground">
-                                                No societies found.
+                                                {t("menu.noSocieties")}
                                             </div>
                                         )}
                                     </div>
@@ -246,7 +248,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                                     variant="ghost"
                                     size="icon"
                                     className="size-8 rounded-lg"
-                                    aria-label="Account menu"
+                                    aria-label={t("menu.accountMenu")}
                                 >
                                     <Avatar className="size-7 rounded-lg">
                                         <AvatarFallback className="rounded-lg text-[11px] font-semibold">
@@ -269,7 +271,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                                 <DropdownMenuItem asChild>
                                     <Link href={safeRoute("profile.edit")}>
                                         <UserIcon className="size-4" />
-                                        Profile
+                                        {t("menu.profileSettings")}
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
@@ -278,7 +280,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                                     onClick={() => router.post(safeRoute("logout"))}
                                 >
                                     <LogOut className="size-4" />
-                                    Sign out
+                                    {t("auth.signOut")}
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

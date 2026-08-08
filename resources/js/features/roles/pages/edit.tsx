@@ -3,6 +3,7 @@ import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
+import { PageHeader } from "@/components/app/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,38 +68,29 @@ export default function RolesEdit() {
         <AppLayout>
             <Head title={`Edit ${role.name}`} />
 
-            <div className="flex flex-col gap-4">
-                <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-indigo-500/10 via-background to-background p-4 sm:p-5">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="flex items-start gap-3">
-                            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
-                                <ShieldCheck className="size-5" />
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <h1 className="text-2xl font-semibold tracking-tight">
-                                        Edit Role
-                                    </h1>
-                                    {role.is_system && (
-                                        <Badge variant="secondary">System</Badge>
-                                    )}
-                                </div>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Update the role name, description, and feature-wise
-                                    permissions.
-                                </p>
-                            </div>
-                        </div>
-                        <Button variant="outline" size="sm" asChild className="w-fit rounded-xl">
+            <PageHeader
+                title="Edit Role"
+                description={`Update the role name, description, and feature-wise permissions.`}
+                icon={<ShieldCheck className="size-5" />}
+                breadcrumbs={[
+                    { label: "Admin", href: "/dashboard" },
+                    { label: "Roles", href: route("roles.index") },
+                    { label: role.name },
+                ]}
+                actions={
+                    <>
+                        {role.is_system && <Badge variant="secondary">System</Badge>}
+                        <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                             <Link href={route("roles.index")}>
-                                <ArrowLeft className="size-4" />
+                                <ArrowLeft className="size-3.5" />
                                 Back
                             </Link>
                         </Button>
-                    </div>
-                </div>
+                    </>
+                }
+            />
 
-                <Card className="border-border/60 bg-background/70 shadow-sm">
+                <Card className="border-border/60 bg-card/80 shadow-xs">
                     <CardHeader>
                         <div className="flex items-center gap-2">
                             <div className="flex size-8 items-center justify-center rounded-md bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
@@ -129,7 +121,6 @@ export default function RolesEdit() {
                         />
                     </CardContent>
                 </Card>
-            </div>
         </AppLayout>
     );
 }

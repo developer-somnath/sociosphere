@@ -11,7 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentRepositoryController;
 use App\Http\Controllers\FlatController;
 use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\LanguageSwitchController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\ParkingSlotController;
@@ -384,7 +384,7 @@ Route::middleware('auth')->group(function () {
     ->middleware(['auth', 'role:SuperAdmin'])
     ->name('society.switch');
 
-    Route::post('/language/switch', LanguageSwitchController::class)
+    Route::post('/language/switch', LocaleController::class)
     ->name('language.switch');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

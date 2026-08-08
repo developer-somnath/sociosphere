@@ -1,8 +1,9 @@
 import { Head, Link, useForm, usePage } from "@inertiajs/react";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Receipt, Trash2 } from "lucide-react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
+import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormSection } from "@/components/ui/form-section";
@@ -88,17 +89,24 @@ export default function InvoiceCreate() {
         <AppLayout>
             <Head title="Generate Maintenance Invoice" />
 
-            <div className="flex items-center gap-3">
-                <Button variant="outline" size="icon" asChild className="rounded-xl">
-                    <Link href={route("invoices.index")}>
-                        <ArrowLeft className="size-4" />
-                    </Link>
-                </Button>
-                <div>
-                    <h1 className="text-xl font-bold tracking-tight">Generate Maintenance Invoice</h1>
-                    <p className="text-xs text-muted-foreground">Create itemized billing dues for a residential flat.</p>
-                </div>
-            </div>
+            <PageHeader
+                title="Generate Maintenance Invoice"
+                description="Create itemized billing dues for a residential flat."
+                icon={<Receipt className="size-5" />}
+                breadcrumbs={[
+                    { label: "Finance", href: "/dashboard" },
+                    { label: "Invoices", href: route("invoices.index") },
+                    { label: "Generate Invoice" },
+                ]}
+                actions={
+                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
+                        <Link href={route("invoices.index")}>
+                            <ArrowLeft className="size-3.5" />
+                            Back
+                        </Link>
+                    </Button>
+                }
+            />
 
             <Card className="border-border/70 bg-card/80 shadow-xs">
                 <CardHeader>

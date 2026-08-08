@@ -221,8 +221,8 @@ export default function UserForm({
                 </div>
             </div>
 
-            <div className="flex justify-end gap-3 border-t border-border/60 pt-5">
-                <Button type="submit" className="rounded-xl bg-emerald-600 px-5 shadow-sm hover:bg-emerald-700" disabled={processing}>
+            <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-5">
+                <Button type="submit" className="rounded-full px-6 text-xs font-semibold shadow-md hover:-translate-y-0.5 transition-all duration-200" disabled={processing}>
                     {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {submitLabel}
                 </Button>

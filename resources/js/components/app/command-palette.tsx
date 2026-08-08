@@ -4,6 +4,7 @@ import { Dialog } from "radix-ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export type CommandItem = {
@@ -30,6 +31,7 @@ type FlatItem = CommandItem & { group: string };
  * label + keywords, full keyboard navigation.
  */
 export function CommandPalette({ groups }: { groups: CommandGroup[] }) {
+    const { t } = useI18n();
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [active, setActive] = useState(0);
@@ -112,7 +114,7 @@ export function CommandPalette({ groups }: { groups: CommandGroup[] }) {
                     onKeyDown={onKeyDown}
                     className="fixed left-1/2 top-[12vh] z-50 w-[min(640px,calc(100vw-32px))] -translate-x-1/2 overflow-hidden rounded-2xl border bg-popover shadow-lg outline-none data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
                 >
-                    <Dialog.Title className="sr-only">Command palette</Dialog.Title>
+                    <Dialog.Title className="sr-only">{t("menu.commandPalette")}</Dialog.Title>
                     <div className="flex items-center gap-2 border-b px-4">
                         <Search className="size-4 shrink-0 text-muted-foreground" />
                         <Input
@@ -122,15 +124,15 @@ export function CommandPalette({ groups }: { groups: CommandGroup[] }) {
                                 setQuery(event.target.value);
                                 setActive(0);
                             }}
-                            placeholder="Search residents, flats, towers, actions…"
-                            aria-label="Command palette search"
+                            placeholder={t("menu.commandPalette")}
+                            aria-label={t("menu.commandPalette")}
                             className="h-12 border-0 bg-transparent text-base shadow-none focus-visible:ring-0"
                         />
                     </div>
                     <div className="max-h-[50vh] overflow-y-auto p-2">
                         {flatResults.length === 0 ? (
                             <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-                                No results for “{query}”.
+                                {t("menu.noResults", { query })}
                             </div>
                         ) : (
                             results.map((group) => (
@@ -177,13 +179,13 @@ export function CommandPalette({ groups }: { groups: CommandGroup[] }) {
                     </div>
                     <div className="flex items-center gap-4 border-t px-4 py-2 text-xs text-muted-foreground">
                         <span>
-                            <kbd className="rounded border bg-muted px-1">↑↓</kbd> navigate
+                            <kbd className="rounded border bg-muted px-1">↑↓</kbd> {t("menu.navigate")}
                         </span>
                         <span>
-                            <kbd className="rounded border bg-muted px-1">↵</kbd> select
+                            <kbd className="rounded border bg-muted px-1">↵</kbd> {t("menu.select")}
                         </span>
                         <span>
-                            <kbd className="rounded border bg-muted px-1">esc</kbd> close
+                            <kbd className="rounded border bg-muted px-1">esc</kbd> {t("common.close")}
                         </span>
                     </div>
                 </Dialog.Content>

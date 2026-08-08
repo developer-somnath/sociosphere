@@ -54,11 +54,16 @@ export default function NoticeEdit() {
                 title="Edit Notice"
                 description={`Update the announcement "${notice.title}".`}
                 icon={<Megaphone className="size-5" />}
+                breadcrumbs={[
+                    { label: "Communications", href: "/dashboard" },
+                    { label: "Notices", href: route("notices.index") },
+                    { label: notice.title },
+                ]}
                 actions={
-                    <Button variant="outline" asChild>
+                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                         <Link href={route("notices.index")}>
-                            <ArrowLeft className="size-4" />
-                            Back to Notices
+                            <ArrowLeft className="size-3.5" />
+                            Back
                         </Link>
                     </Button>
                 }
@@ -171,11 +176,11 @@ export default function NoticeEdit() {
                             </label>
                         </FormSection>
 
-                        <div className="flex items-center justify-end gap-3 border-t pt-4">
-                            <Button variant="outline" type="button" asChild>
+                        <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
+                            <Button variant="outline" type="button" className="rounded-full px-5 text-xs font-semibold hover:bg-muted" asChild>
                                 <Link href={route("notices.index")}>Cancel</Link>
                             </Button>
-                            <Button type="submit" disabled={form.processing}>
+                            <Button type="submit" disabled={form.processing} className="rounded-full px-6 text-xs font-semibold shadow-md hover:-translate-y-0.5 transition-all duration-200">
                                 {form.processing ? "Saving…" : "Save Changes"}
                             </Button>
                         </div>

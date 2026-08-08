@@ -5,11 +5,13 @@ import { route } from "ziggy-js";
 import AuthPageShell from "@/features/auth/components/auth-page-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useI18n } from "@/lib/i18n";
 
 export default function Register() {
+    const { t } = useI18n();
     return (
         <AuthPageShell>
-            <Head title="Account access" />
+            <Head title={t("auth.invitationOnly")} />
             <Card>
                 <CardContent className="space-y-6 p-7 sm:p-8 lg:p-10">
                     <div className="flex items-start gap-3">
@@ -18,25 +20,22 @@ export default function Register() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-semibold tracking-tight">
-                                Account access is invitation-only
+                                {t("auth.invitationOnly")}
                             </h1>
                             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                                Your society administrator creates accounts with
-                                the correct role and society access.
+                                {t("auth.invitationSubtitle")}
                             </p>
                         </div>
                     </div>
 
                     <div className="rounded-xl border border-border/70 bg-muted/40 p-4 text-sm leading-6 text-muted-foreground">
-                        Contact your society administrator to receive an
-                        invitation. If you already have an account, sign in
-                        below.
+                        {t("auth.invitationContact")}
                     </div>
 
                     <Button className="h-11 w-full" asChild>
                         <Link href={route("login")}>
                             <LogIn />
-                            Go to sign in
+                            {t("auth.goToSignIn")}
                         </Link>
                     </Button>
                 </CardContent>

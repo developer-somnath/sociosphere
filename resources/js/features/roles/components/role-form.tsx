@@ -205,11 +205,11 @@ export default function RoleForm({
                 )}
             </div>
 
-            <div className="flex justify-end border-t border-border/60 pt-4">
+            <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
                 <Button
                     type="submit"
                     disabled={processing || disabled}
-                    className="rounded-xl bg-emerald-600 px-5 shadow-sm hover:bg-emerald-700"
+                    className="rounded-full px-6 text-xs font-semibold shadow-md hover:-translate-y-0.5 transition-all duration-200"
                 >
                     {processing ? "Saving…" : submitLabel}
                 </Button>

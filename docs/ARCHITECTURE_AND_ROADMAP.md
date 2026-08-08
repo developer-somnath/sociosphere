@@ -1,10 +1,10 @@
 # SocioSphere: Master MDR Roadmap, Enterprise Release Management & DevOps Architecture
 
-**Document Version:** 5.1.0  
+**Document Version:** 5.2.0  
 **Audit Date:** August 8, 2026  
 **Current Platform Version:** `v2.0.0 — Tiger`  
 **Target Platform:** Laravel 12 + Inertia.js v2 + React 18 + TypeScript + PostgreSQL 17 + PWA + i18n Multilingual Engine + GitHub Release Automation  
-**Current Progress:** **63.6% Core Completion** (14 of 22 Active Functional Phases Completed, 223 Automated Feature Tests / 1245 Assertions Passing)
+**Current Progress:** **63.6% Core Completion** (14 of 22 Active Functional Phases Completed, 225 Automated Feature Tests / 1250 Assertions Passing)
 
 ---
 
@@ -34,7 +34,7 @@ SocioSphere follows strict Semantic Versioning (`vMAJOR.MINOR.PATCH`) paired wit
 ```mermaid
 flowchart TD
     Commit["Git Commit on main"] --> CI_Build["1. Build & Asset Compilation"]
-    CI_Build --> CI_Test["2. PHPUnit (223 Tests) + tsc (0 Errors)"]
+    CI_Build --> CI_Test["2. PHPUnit (225 Tests) + tsc (0 Errors)"]
     CI_Test --> CI_Security["3. Static Analysis & Vulnerability Audit"]
     CI_Security --> CI_Tag["4. Auto-Generate Git Tag (vX.Y.Z)"]
     CI_Tag --> CI_Branch["5. Create Release Branch (release/vX.Y.Z)"]
@@ -47,7 +47,7 @@ flowchart TD
 ### GitHub CI/CD Pipeline Stages
 
 1. **Build & Lint**: Asset compilation (`vite build`), TypeScript validation (`tsc --noEmit`), and ESLint checks.
-2. **Automated Testing**: Full execution of PHPUnit feature test suite (**223 tests / 1,245 assertions**).
+2. **Automated Testing**: Full execution of PHPUnit feature test suite (**225 tests / 1,250 assertions**).
 3. **Static Analysis & Security Scan**: Security vulnerability audit (`composer audit`, `npm audit`), SAST code scanner.
 4. **Semantic Versioning & Release Branch**: Automatic calculation of next SemVer increment, git tag creation (`v2.0.0`), and release branch checkout (`release/v2.0.0`).
 5. **Changelog & Release Notes Generation**: Parsing conventional commits into categorized markdown sections:
@@ -100,6 +100,36 @@ Phases 25–30: Future / Operations 🚀 (v3.0.0 Phoenix)
 | **Phases 20–24**| `v2.6.0–v2.9.0` | Cobra / Bison / Bear | **Planned** | Emergency SOS, Recharts Analytics, PDF Exports, Config Engine |
 | **Phases 25–27**| `v3.0.0` | **Phoenix** | **Future** | Dedicated Cloud, On-Premise K8s/Docker & Hybrid Sync |
 | **Phases 28–30**| `v3.1.0` | Phoenix (Ops) | **Planned** | Redis Caching, Security Penetration Matrix, Release Documentation Suite |
+
+---
+
+## 5. Phase 12 — Tiger v2.0.0: Global i18n, LTR/RTL & Adaptive Dashboard (Implementation Notes)
+
+### 5.1 42-Locale i18n Engine ✅
+
+- **42 Global Locales** seeded via `LanguageSeeder` (en default + 41 translations): ar, bn, hi, ur, es, fr, de, pt, it, nl, tr, ru, zh-CN, zh-TW, ja, ko, th, vi, id, ms, fa, he, pl, cs, ro, el, sv, no, da, fi, hu, uk, ta, te, kn, ml, mr, gu, pa, si, ne.
+- **Genuine hand-written translations** for all 42 locale JSON files under `resources/js/locales/*.json` — no machine placeholder text. `en.json` is the master catalog; every other locale carries `common.*`, `menu.*`, `auth.*`, and `dashboard.*` keys with per-language phrasing, date/number formatting via `Intl`.
+- **Client i18n engine** (`resources/js/lib/i18n.tsx`): eager `import.meta.glob` catalog loading, `t(key, params?, locale?)` with `:param` + `{param}` interpolation, `Intl`-based `formatDate/DateTime/Currency/Number`, `I18nProvider` + `useI18n()` hook, module-level fallback so helpers (greeting, timeAgo) work anywhere.
+- **Backend locale switch**: invokable `LocaleController` validates locale against active `Language` rows, persists to user + session, `SetLocaleMiddleware` resolves user → session → Accept-Language (5-char tags for zh-CN/zh-TW) → app locale.
+- **Role/quick-action key maps** (`roleKey()`, `quickActionKey()`) translate roles and dashboard quick actions at render time.
+
+### 5.2 LTR/RTL Script Direction Engine ✅
+
+- `script_dir` flag on `Language` model; **4 RTL locales**: `ar`, `ur`, `fa`, `he`.
+- `I18nProvider` sets `document.documentElement.dir` / `lang` / `data-dir` on locale switch; `useI18n().isRTL` available to components for mirrored layouts.
+- Verified via `InternationalizationTest`: exactly 42 languages seeded and exactly 4 RTL script directions.
+
+### 5.3 Adaptive Dashboard Engine ✅
+
+- Fully translated adaptive dashboard (`dashboard-page.tsx`): role-aware greeting, metric cards, occupancy analysis, priority matrix, quick operations, and 9-item quick-action registry — all driven by `t()` lookups.
+- Auth pages (login, register, password reset, email verification), auth branding, app sidebar, notification center, page header, and command palette fully internationalized.
+
+### 5.4 Validation ✅
+
+- `npx tsc --noEmit`: **0 errors**.
+- Full PHPUnit suite: **225 tests / 1,250 assertions passing** (incl. 5 dedicated `InternationalizationTest` cases).
+- `npx vite build`: production build succeeds.
+- InternationalizationTest coverage: 42-locale seed + 4 RTL check, guest redirect on switch, Laravel app locale set, user context persistence, unsupported-locale rejection.
 
 ---
 

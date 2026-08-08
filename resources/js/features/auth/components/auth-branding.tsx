@@ -5,8 +5,10 @@ import {
     ReceiptIndianRupee,
     ShieldCheck,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export default function AuthBranding() {
+    const { t } = useI18n();
     return (
         <div className="relative flex h-full flex-col justify-between overflow-hidden bg-slate-950 p-16 text-white">
 
@@ -26,7 +28,7 @@ export default function AuthBranding() {
                         </h1>
 
                         <p className="text-slate-400">
-                            Community Operations Platform
+                            {t("auth.communityPlatform")}
                         </p>
                     </div>
                 </div>
@@ -35,38 +37,36 @@ export default function AuthBranding() {
             {/* Hero */}
             <div className="relative z-10 max-w-2xl">
                 <h2 className="text-6xl font-bold leading-tight">
-                    Manage your society,
+                    {t("auth.heroManage")}
                     <span className="block text-emerald-400">
-                        not spreadsheets.
+                        {t("auth.heroNotSpreadsheets")}
                     </span>
                 </h2>
 
                 <p className="mt-6 text-xl text-slate-400">
-                    Modern resident management, maintenance tracking,
-                    billing, collections and community operations
-                    from a single platform.
+                    {t("auth.heroParagraph")}
                 </p>
 
                 {/* Features */}
                 <div className="mt-12 grid gap-5">
                     <Feature
                         icon={<Users size={20} />}
-                        text="Resident Management"
+                        text={t("auth.featureResidentMgmt")}
                     />
 
                     <Feature
                         icon={<Wrench size={20} />}
-                        text="Maintenance Tracking"
+                        text={t("auth.featureMaintenance")}
                     />
 
                     <Feature
                         icon={<ReceiptIndianRupee size={20} />}
-                        text="Billing & Collections"
+                        text={t("auth.featureBilling")}
                     />
 
                     <Feature
                         icon={<ShieldCheck size={20} />}
-                        text="Visitor & Security Management"
+                        text={t("auth.featureSecurity")}
                     />
                 </div>
 
@@ -74,17 +74,17 @@ export default function AuthBranding() {
                 <div className="mt-12 grid grid-cols-3 gap-4">
                     <StatCard
                         value="12K+"
-                        label="Residents"
+                        label={t("auth.statResidents")}
                     />
 
                     <StatCard
                         value="₹5Cr+"
-                        label="Collections"
+                        label={t("auth.statCollections")}
                     />
 
                     <StatCard
                         value="99.9%"
-                        label="Uptime"
+                        label={t("auth.statUptime")}
                     />
                 </div>
             </div>
@@ -92,9 +92,9 @@ export default function AuthBranding() {
             {/* Footer */}
             <div className="relative z-10">
                 <div className="flex items-center gap-6 text-sm text-slate-500">
-                    <span>Enterprise Ready</span>
-                    <span>ISO Aligned</span>
-                    <span>Role Based Access</span>
+                    <span>{t("auth.enterpriseReady")}</span>
+                    <span>{t("auth.isoAligned")}</span>
+                    <span>{t("auth.roleBasedAccess")}</span>
                 </div>
 
                 <p className="mt-3 text-sm text-slate-600">

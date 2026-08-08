@@ -7,6 +7,7 @@ export type AuthUser = {
     permissions: string[];
     society_id: number | null;
     is_super_admin?: boolean;
+    locale?: string;
 };
 
 export type AuthSociety = {

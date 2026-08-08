@@ -42,6 +42,28 @@ class InternationalizationTest extends TestCase
         ]);
 
         $this->assertGreaterThanOrEqual(40, Language::count());
+        $this->assertSame(42, Language::count());
+        $this->assertSame(4, Language::where('script_dir', 'rtl')->count());
+    }
+
+    public function test_guest_is_redirected_to_login_when_switching_language(): void
+    {
+        $response = $this->post(route('language.switch'), [
+            'locale' => 'fr',
+        ]);
+
+        $response->assertRedirect(route('login'));
+    }
+
+    public function test_switch_sets_laravel_app_locale(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('language.switch'), [
+            'locale' => 'he',
+        ]);
+
+        $this->assertEquals('he', app()->getLocale());
     }
 
     public function test_user_can_switch_language_context(): void

@@ -1,9 +1,11 @@
-import { Head, useForm, usePage } from "@inertiajs/react";
-import { UserPlus } from "lucide-react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
+import { ArrowLeft, UserPlus } from "lucide-react";
 import { FormEvent } from "react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
+import { PageHeader } from "@/components/app/page-header";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import UserForm, {
@@ -58,24 +60,26 @@ export default function UsersCreate() {
         <AppLayout>
             <Head title="Add User" />
 
-            <div className="flex flex-col gap-4">
-                <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-sky-500/10 via-background to-background p-4 sm:p-5">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="flex items-start gap-3">
-                            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-600/10 text-sky-600">
-                                <UserPlus className="size-5" />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-semibold tracking-tight">Add User</h1>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Create a staff or resident account.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <PageHeader
+                title="Add User"
+                description="Create a staff or resident account."
+                icon={<UserPlus className="size-5" />}
+                breadcrumbs={[
+                    { label: "Admin", href: "/dashboard" },
+                    { label: "Users", href: route("users.index") },
+                    { label: "Add User" },
+                ]}
+                actions={
+                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
+                        <Link href={route("users.index")}>
+                            <ArrowLeft className="size-3.5" />
+                            Back
+                        </Link>
+                    </Button>
+                }
+            />
 
-                <Card className="border-border/60 bg-background/70 shadow-sm">
+            <Card className="border-border/60 bg-card/80 shadow-xs">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
                             <UserPlus className="size-5 text-sky-600" />
@@ -95,7 +99,6 @@ export default function UsersCreate() {
                         />
                     </CardContent>
                 </Card>
-            </div>
         </AppLayout>
     );
 }

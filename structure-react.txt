@@ -1,177 +1,223 @@
 resources/js
 
-├── app.tsx
-├── bootstrap.ts
-
-├── Types
-│   ├── auth.ts
-│   ├── user.ts
-│   ├── resident.ts
-│   ├── complaint.ts
-│   ├── invoice.ts
-│   └── common.ts
-│
-├── Hooks
-│   ├── useAuth.ts
-│   ├── usePermissions.ts
-│   ├── useDebounce.ts
-│   └── usePagination.ts
-│
-├── Services
-│   ├── auth.service.ts
-│   ├── resident.service.ts
-│   ├── complaint.service.ts
-│   ├── invoice.service.ts
-│   └── api.ts
-│
-├── Utils
-│   ├── constants.ts
-│   ├── enums.ts
-│   ├── helpers.ts
-│   ├── permissions.ts
-│   └── date.ts
-│
-├── Layouts
-│   ├── GuestLayout.tsx
-│   ├── DashboardLayout.tsx
-│   └── MinimalLayout.tsx
-│
-├── Components
-│   │
-│   ├── ui
-│   │   ├── Button
-│   │   │   ├── Button.tsx
-│   │   │   └── index.ts
-│   │   │
-│   │   ├── Input
-│   │   │   ├── Input.tsx
-│   │   │   └── index.ts
-│   │   │
-│   │   ├── Checkbox
-│   │   ├── Select
-│   │   ├── Modal
-│   │   ├── Table
-│   │   ├── Badge
-│   │   ├── Card
-│   │   ├── Pagination
-│   │   ├── Loader
-│   │   ├── Alert
-│   │   ├── Tabs
-│   │   ├── Drawer
-│   │   ├── Avatar
-│   │   ├── Tooltip
-│   │   └── EmptyState
-│   │
-│   ├── Shared
-│   │   ├── Logo.tsx
-│   │   ├── PageHeader.tsx
-│   │   ├── SearchBar.tsx
-│   │   ├── Breadcrumb.tsx
-│   │   ├── ConfirmDialog.tsx
-│   │   └── StatCard.tsx
-│   │
-│   └── Charts
-│       ├── RevenueChart.tsx
-│       ├── ComplaintChart.tsx
-│       └── CollectionChart.tsx
-│
-├── Features
-│
-│   ├── Auth
-│   │   ├── Components
-│   │   │   ├── LoginBanner.tsx
-│   │   │   ├── LoginForm.tsx
-│   │   │   ├── ForgotPasswordForm.tsx
-│   │   │   └── OtpLoginForm.tsx
-│   │   │
-│   │   ├── Pages
-│   │   │   ├── Login.tsx
-│   │   │   ├── ForgotPassword.tsx
-│   │   │   └── VerifyOtp.tsx
-│   │   │
-│   │   ├── types.ts
-│   │   └── validation.ts
-│
-│   ├── Dashboard
-│   │   ├── Components
-│   │   │   ├── SummaryCards.tsx
-│   │   │   ├── CollectionWidget.tsx
-│   │   │   ├── ComplaintWidget.tsx
-│   │   │   └── NoticeWidget.tsx
-│   │   │
-│   │   └── Pages
-│   │       └── Dashboard.tsx
-│
-│   ├── Residents
-│   │   ├── Components
-│   │   │   ├── ResidentForm.tsx
-│   │   │   ├── ResidentTable.tsx
-│   │   │   └── ResidentProfile.tsx
-│   │   │
-│   │   └── Pages
-│   │       ├── ResidentList.tsx
-│   │       ├── ResidentCreate.tsx
-│   │       └── ResidentEdit.tsx
-│
-│   ├── Towers
-│   │   ├── Components
-│   │   └── Pages
-│
-│   ├── Flats
-│   │   ├── Components
-│   │   └── Pages
-│
-│   ├── Complaints
-│   │   ├── Components
-│   │   │   ├── ComplaintForm.tsx
-│   │   │   ├── ComplaintTable.tsx
-│   │   │   └── ComplaintTimeline.tsx
-│   │   │
-│   │   └── Pages
-│   │       ├── ComplaintList.tsx
-│   │       └── ComplaintDetails.tsx
-│
-│   ├── Billing
-│   │   ├── Components
-│   │   │   ├── InvoiceTable.tsx
-│   │   │   ├── InvoiceForm.tsx
-│   │   │   ├── PaymentTable.tsx
-│   │   │   └── CollectionSummary.tsx
-│   │   │
-│   │   └── Pages
-│   │       ├── InvoiceList.tsx
-│   │       └── PaymentList.tsx
-│
-│   ├── Notices
-│   │   ├── Components
-│   │   └── Pages
-│
-│   ├── Visitors
-│   │   ├── Components
-│   │   └── Pages
-│
-│   ├── Security
-│   │   ├── Components
-│   │   └── Pages
-│
-│   ├── Users
-│   │   ├── Components
-│   │   └── Pages
-│
-│   └── Settings
-│       ├── Components
-│       └── Pages
-│
-├── Pages
-│   ├── Error
-│   │   ├── 403.tsx
-│   │   ├── 404.tsx
-│   │   └── 500.tsx
-│   │
-│   └── Welcome.tsx
-│
-└── Stores
-    ├── auth.store.ts
-    ├── resident.store.ts
-    ├── complaint.store.ts
-    └── settings.store.ts
+Auth/
+  ConfirmPassword.tsx
+  ForgotPassword.tsx
+  Register.tsx
+  ResetPassword.tsx
+  VerifyEmail.tsx
+Profile/
+  Edit.tsx
+components/
+  app/
+    app-sidebar.tsx
+    command-palette.tsx
+    flash-toaster.tsx
+    language-switcher.tsx
+    notification-center.tsx
+    page-header.tsx
+    page-loading-indicator.tsx
+  theme/
+    theme-provider.tsx
+    theme-switcher.tsx
+  ui/
+    action-link.tsx
+    avatar.tsx
+    badge.tsx
+    bulk-action-bar.tsx
+    button.tsx
+    card.tsx
+    chart.tsx
+    checkbox.tsx
+    combobox.tsx
+    confirm-dialog.tsx
+    data-table.tsx
+    date-picker.tsx
+    dialog.tsx
+    dropdown-menu.tsx
+    empty-state.tsx
+    export-menu.tsx
+    filter-bar.tsx
+    filter-drawer.tsx
+    form-drawer.tsx
+    form-section.tsx
+    input.tsx
+    label.tsx
+    metric-card.tsx
+    pagination.tsx
+    progress.tsx
+    quick-action-pill.tsx
+    row-actions.tsx
+    select.tsx
+    separator.tsx
+    sheet.tsx
+    sidebar.tsx
+    skeleton.tsx
+    tabs.tsx
+    toaster.tsx
+    tooltip.tsx
+features/
+  activity-logs/
+    pages/
+      index.tsx
+    types.ts
+  amenities/
+    pages/
+      bookings.tsx
+      create.tsx
+      edit.tsx
+      index.tsx
+  auth/
+    components/
+      auth-branding.tsx
+      auth-layout.tsx
+      auth-page-shell.tsx
+      login-form.tsx
+    pages/
+      invitation-register.tsx
+      login-page.tsx
+  billing/
+    pages/
+      tax-settings.tsx
+  cctv/
+    pages/
+      create.tsx
+      edit.tsx
+      index.tsx
+  complaints/
+    pages/
+      categories.tsx
+      create.tsx
+      edit.tsx
+      index.tsx
+      show.tsx
+  dashboard/
+    config/
+      dashboard-charts.tsx
+      widget-registry.ts
+    pages/
+      dashboard-page.tsx
+  documents/
+    pages/
+      index.tsx
+  flats/
+    components/
+      flat-form.tsx
+    pages/
+      create.tsx
+      edit.tsx
+      index.tsx
+    types.ts
+  invoices/
+    pages/
+      batch-generate.tsx
+      billing-runs.tsx
+      billing-settings.tsx
+      create.tsx
+      flat-ledger.tsx
+      index.tsx
+      invariant-check.tsx
+      show.tsx
+  legal/
+    components/
+      legal-layout.tsx
+    pages/
+      privacy.tsx
+      terms.tsx
+  notices/
+    components/
+      notice-gallery.tsx
+    pages/
+      create.tsx
+      edit.tsx
+      index.tsx
+  parking/
+    pages/
+      create.tsx
+      edit.tsx
+      index.tsx
+  payments/
+    pages/
+      index.tsx
+  pwa/
+    push-notifications-card.tsx
+  reports/
+    pages/
+      index.tsx
+  residents/
+    components/
+      family-member-section.tsx
+      resident-form.tsx
+      vehicle-section.tsx
+    pages/
+      create.tsx
+      edit.tsx
+      index.tsx
+    types.ts
+  roles/
+    components/
+      role-form.tsx
+    pages/
+      create.tsx
+      edit.tsx
+      index.tsx
+    types.ts
+  security-logs/
+    pages/
+      index.tsx
+  societies/
+    pages/
+      create.tsx
+      edit.tsx
+      index.tsx
+      show.tsx
+  subscription/
+    pages/
+      plans/
+        create.tsx
+        edit.tsx
+        index.tsx
+      admin.tsx
+      overview.tsx
+      usage.tsx
+  towers/
+    components/
+      tower-form.tsx
+    pages/
+      create.tsx
+      edit.tsx
+      index.tsx
+    types.ts
+  users/
+    components/
+      user-form.tsx
+    pages/
+      create.tsx
+      edit.tsx
+      index.tsx
+    types.ts
+  visitors/
+    components/
+      visitor-form.tsx
+    pages/
+      create.tsx
+      edit.tsx
+      index.tsx
+    types.ts
+hooks/
+  use-mobile.ts
+  use-unsaved-changes.ts
+layouts/
+  app-layout.tsx
+lib/
+  export-csv.ts
+  i18n.tsx
+  pwa.ts
+  toast.ts
+  utils.ts
+types/
+  global.d.ts
+  index.ts
+app.tsx
+bootstrap.ts
+vite-env.d.ts

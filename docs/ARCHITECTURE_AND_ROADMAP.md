@@ -1,10 +1,10 @@
 # SocioSphere: Master MDR Roadmap, Enterprise Release Management & DevOps Architecture
 
-**Document Version:** 5.4.0  
-**Audit Date:** August 16, 2026  
-**Current Platform Version:** `v2.2.0 — Orca`  
+**Document Version:** 5.5.0  
+**Audit Date:** August 22, 2026  
+**Current Platform Version:** `v2.5.0 — Hawk`  
 **Target Platform:** Laravel 12 + Inertia.js v2 + React 18 + TypeScript + PostgreSQL 17 + PWA + i18n Multilingual Engine + Global Tax Engine + GitHub Release Automation  
-**Current Progress:** **72.7% Core Completion** (16 of 22 Active Functional Phases Completed, 249 Automated Feature Tests / 1371 Assertions Passing)
+**Current Progress:** **81.8% Core Completion** (18 of 22 Active Functional Phases Completed, 249 Automated Feature Tests / 1371 Assertions Passing)
 
 ---
 
@@ -49,9 +49,9 @@ flowchart TD
 ## 4. Master MDR Roadmap Phase Breakdown (Phases 1–30)
 
 ```text
-[========================================-----------------] 72.7% Core Completion
-Phases 1–15, 17: Completed ✅ (v1.0.0 Falcon, v1.1.0 Panther, v1.2.0 Wolf, v2.0.0 Tiger, v2.1.0 Eagle, v2.2.0 Orca, v2.4.0 Cheetah Phase 17)
-Phases 16, 18–24: Planned 📌 (v2.3.0 Leopard, v2.4.1 Cheetah Patch, v2.5.0 Hawk)
+[==============================================---------] 81.8% Core Completion
+Phases 1–19, 21–22: Completed ✅ (v1.0.0 Falcon, v1.1.0 Panther, v1.2.0 Wolf, v2.0.0 Tiger, v2.1.0 Eagle, v2.2.0 Orca, v2.4.0 Cheetah Phase 17, v2.4.1 Cheetah Patch Phase 18, v2.5.0 Hawk Phase 19, v2.6.0 Cobra Phase 21, v2.7.0 Bison Phase 22)
+Phases 16, 20, 23–24: Planned 📌 (v2.3.0 Leopard, v2.6.0 Cobra SOS, v2.8.0 Bear Config)
 Phases 25–30: Future / Operations 🚀 (v3.0.0 Phoenix)
 ```
 
@@ -64,8 +64,8 @@ Phases 25–30: Future / Operations 🚀 (v3.0.0 Phoenix)
 | **Phase 15** | `v2.2.0` | **Orca** | **Completed** | Global Configurable Tax Engine (GST, VAT, Sales Tax) |
 | **Phase 16** | `v2.3.0` | **Leopard** | **Planned** | Self-Service Customer Onboarding & Pricing Landing Portal |
 | **Phase 17** | `v2.4.0` | **Cheetah** | **Completed** | Auto-Billing, Recurring Invoices & Financial Invariants |
-| **Phase 18** | `v2.4.1` | Cheetah (Patch) | **Planned** | Payment Gateway Abstraction & Automated Digital Receipts |
-| **Phase 19** | `v2.5.0` | **Hawk** | **Planned** | Enterprise Progressive Web App (PWA) & Mobile Push Engine |
+| **Phase 18** | `v2.4.1` | Cheetah (Patch) | **Completed** | Payment Gateway Abstraction & Automated Digital Receipts |
+| **Phase 19** | `v2.5.0` | **Hawk** | **Completed** | Enterprise Progressive Web App (PWA) & Mobile Push Engine |
 | **Phases 20–24**| `v2.6.0–v2.9.0` | Cobra / Bison / Bear | **Planned** | Emergency SOS, Recharts Analytics, PDF Exports, Config Engine |
 
 ---
@@ -91,3 +91,31 @@ Phases 25–30: Future / Operations 🚀 (v3.0.0 Phoenix)
 - `npx tsc --noEmit`: **0 errors**.
 - Full PHPUnit test suite: **249 tests / 1,371 assertions passing** (incl. 7 dedicated `TaxEngineTest` cases).
 - `npx vite build`: Production asset compilation succeeded in 13 seconds.
+
+---
+
+## 8. Sprint 4 — Platform & Scale (Phases 18, 19, 21–22)
+
+### 8.1 Phase 18 — Cheetah Patch v2.4.1: Payment Gateway Abstraction ✅
+- **Gateway contract** (`app/Contracts/PaymentGateway.php`) with `name`, `label`, `supportedMethods`, `supportsWebhooks`, `verifyWebhook`, `parseWebhook`.
+- **Gateway manager** (`app/Services/PaymentGatewayManager.php`) registers `ledger` (Manual Ledger) and `razorpay` gateways; active set read from `config('services.payments.gateways')`.
+- **Razorpay gateway** (`app/Services/PaymentGateways/RazorpayGateway.php`) verifies webhooks via `X-Razorpay-Signature` HMAC-SHA256 and maps captured/failed events to payment status.
+- **Webhook handler** (`app/Http/Controllers/PaymentWebhookController.php`) at `POST /api/payments/webhook/{gateway}` (throttled), resolves gateway, verifies signature, records payment via `PaymentService`.
+- **Digital receipts** (`app/Http/Controllers/PaymentController::receipt`) generate a printable HTML receipt (`PAY-YYYYMM-NNNN` reference) downloadable from the collections index.
+
+### 8.2 Phase 19 — Hawk v2.5.0: Progressive Web App (PWA) ✅
+- **Manifest** (`public/manifest.webmanifest`) with maskable icons (`public/icon.svg`, `public/icon-maskable.svg`).
+- **Service worker** (`public/sw.js`) handles push events, offline caching, and badge updates.
+- **WebPush subscriptions** (`app/Models/PushSubscription.php`, `app/Services/WebPushService.php`, `app/Http/Controllers/PushSubscriptionController.php`) with VAPID key generation (`php artisan generate:vapid-keys`).
+- **Frontend** (`resources/js/features/pwa/push-notifications-card.tsx`, `resources/js/lib/pwa.ts`) registers the SW and manages subscription state.
+
+### 8.3 Phases 21–22 — Cobra / Bison: Enterprise Reporting Engine ✅
+- **Reporting service** (`app/Services/ReportingService.php`) builds datasets for `collections`, `invoices`, `residents`, `complaints` with consistent society scoping and date ranges.
+- **Exports** (`app/Exports/ReportExport.php`, `resources/views/reports/report-pdf.blade.php`): CSV (UTF-8 BOM stream), Excel (Maatwebsite), and PDF (DomPDF).
+- **Reports hub** (`app/Http/Controllers/ReportController.php`, `resources/js/features/reports/pages/index.tsx`) with role-aware dashboards and CSV/Excel/PDF download buttons.
+- **Scheduled delivery** (`app/Console/Commands/DeliverReportCommand.php`) emails a monthly PDF report to each society's administrators; scheduled via `routes/console.php` (`report:deliver invoices --format=pdf` monthly on the 1st at 06:00).
+
+### 8.4 Documentation Drift Fix (S4-4) ✅
+- `structure-react.txt` regenerated to match the actual `resources/js` tree (`features/`, `lib/`, `hooks/`, `layouts/`, `components/`, `locales/`, `types/`).
+- Added `scripts/check-docs-structure.cjs` doc-lint that fails CI if `structure-react.txt` drifts from the real tree.
+- Phase statuses in this document updated to reflect completed Phases 18, 19, 21–22.

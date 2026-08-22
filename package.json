@@ -6,7 +6,8 @@
         "build": "tsc && vite build",
         "dev": "vite",
         "check:routes": "node scripts/check-routes.cjs",
-        "check:i18n": "node scripts/check-i18n-keys.cjs"
+        "check:i18n": "node scripts/check-i18n-keys.cjs",
+        "check:docs": "node scripts/check-docs-structure.cjs"
     },
     "devDependencies": {
         "@headlessui/react": "^2.0.0",

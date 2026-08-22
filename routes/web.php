@@ -26,6 +26,7 @@ use App\Http\Controllers\SocietyController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\SubscriptionUsageController;
+use App\Http\Controllers\TaxSettingsController;
 use App\Http\Controllers\TowerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisitorController;
@@ -214,6 +215,7 @@ Route::middleware(['auth', 'society'])->group(function () {
         ->middleware('permission:billing.run')
         ->name('billing.run');
 
+    // Society billing configuration (base rate, due day, penalty, etc.)
     Route::get('billing/settings', [BillingController::class, 'settings'])
         ->middleware('permission:billing.configure')
         ->name('billing.settings');
@@ -221,6 +223,27 @@ Route::middleware(['auth', 'society'])->group(function () {
     Route::put('billing/settings', [BillingController::class, 'updateSettings'])
         ->middleware('permission:billing.configure')
         ->name('billing.settings.update');
+
+    // Phase 15: Global Configurable Tax Engine (Orca) — tax profile + rates.
+    Route::get('billing/tax-settings', [TaxSettingsController::class, 'edit'])
+        ->middleware('permission:billing.configure')
+        ->name('billing.tax-settings.edit');
+
+    Route::put('billing/tax-settings', [TaxSettingsController::class, 'update'])
+        ->middleware('permission:billing.configure')
+        ->name('billing.tax-settings.update');
+
+    Route::post('billing/tax-settings/rates', [TaxSettingsController::class, 'storeRate'])
+        ->middleware('permission:billing.configure')
+        ->name('billing.tax-settings.rates.store');
+
+    Route::put('billing/tax-settings/rates/{rate}', [TaxSettingsController::class, 'updateRate'])
+        ->middleware('permission:billing.configure')
+        ->name('billing.tax-settings.rates.update');
+
+    Route::delete('billing/tax-settings/rates/{rate}', [TaxSettingsController::class, 'destroyRate'])
+        ->middleware('permission:billing.configure')
+        ->name('billing.tax-settings.rates.destroy');
 
     Route::get('billing/runs', [BillingController::class, 'runs'])
         ->middleware('permission:billing.configure')
@@ -456,13 +479,16 @@ Route::middleware(['auth', 'society'])->group(function () {
 
 use App\Http\Controllers\SocietySwitchController;
 
+// Locale switching is available to both guests and authenticated users
+// (LocaleController persists to the session when unauthenticated).
+Route::post('/language/switch', LocaleController::class)
+    ->name('language.switch');
+
 Route::middleware('auth')->group(function () {
     Route::post('/society/switch', SocietySwitchController::class)
     ->middleware(['auth', 'role:SuperAdmin'])
     ->name('society.switch');
 
-    Route::post('/language/switch', LocaleController::class)
-    ->name('language.switch');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

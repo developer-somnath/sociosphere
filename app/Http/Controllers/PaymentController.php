@@ -14,6 +14,10 @@ use Inertia\Response;
 
 class PaymentController extends Controller
 {
+    public function __construct(private readonly PaymentService $paymentService)
+    {
+    }
+
     /**
      * Display a paginated payment collections ledger.
      */

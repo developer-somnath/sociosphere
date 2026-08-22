@@ -13,20 +13,24 @@ return new class extends Migration
     {
         // Extend the payments payment_method check constraint to allow "Refund"
         // entries (used when amenity bookings are cancelled and money is returned).
-        if (Schema::hasTable('payments')) {
-            DB::statement('ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_payment_method_check');
-            DB::statement(
-                "ALTER TABLE payments ADD CONSTRAINT payments_payment_method_check "
-                . "CHECK (payment_method::text = ANY (ARRAY['UPI'::character varying, 'Card'::character varying, 'NetBanking'::character varying, 'Cash'::character varying, 'Cheque'::character varying, 'Refund'::character varying]::text[]))"
-            );
-
-            // Extend the payments status check constraint to allow "Refunded".
-            DB::statement('ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_status_check');
-            DB::statement(
-                "ALTER TABLE payments ADD CONSTRAINT payments_status_check "
-                . "CHECK (status::text = ANY (ARRAY['Pending'::character varying, 'Success'::character varying, 'Failed'::character varying, 'Refunded'::character varying]::text[]))"
-            );
+        // The constraint is managed directly in PostgreSQL; SQLite (tests) never
+        // had it, so skip non-pgsql drivers to keep the suite portable.
+        if (DB::getDriverName() !== 'pgsql' || ! Schema::hasTable('payments')) {
+            return;
         }
+
+        DB::statement('ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_payment_method_check');
+        DB::statement(
+            "ALTER TABLE payments ADD CONSTRAINT payments_payment_method_check "
+            . "CHECK (payment_method IN ('UPI', 'Card', 'NetBanking', 'Cash', 'Cheque', 'Refund'))"
+        );
+
+        // Extend the payments status check constraint to allow "Refunded".
+        DB::statement('ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_status_check');
+        DB::statement(
+            "ALTER TABLE payments ADD CONSTRAINT payments_status_check "
+            . "CHECK (status IN ('Pending', 'Success', 'Failed', 'Refunded'))"
+        );
     }
 
     /**
@@ -34,18 +38,20 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (Schema::hasTable('payments')) {
-            DB::statement('ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_payment_method_check');
-            DB::statement(
-                "ALTER TABLE payments ADD CONSTRAINT payments_payment_method_check "
-                . "CHECK (payment_method::text = ANY (ARRAY['UPI'::character varying, 'Card'::character varying, 'NetBanking'::character varying, 'Cash'::character varying, 'Cheque'::character varying]::text[]))"
-            );
-
-            DB::statement('ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_status_check');
-            DB::statement(
-                "ALTER TABLE payments ADD CONSTRAINT payments_status_check "
-                . "CHECK (status::text = ANY (ARRAY['Pending'::character varying, 'Success'::character varying, 'Failed'::character varying]::text[]))"
-            );
+        if (DB::getDriverName() !== 'pgsql' || ! Schema::hasTable('payments')) {
+            return;
         }
+
+        DB::statement('ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_payment_method_check');
+        DB::statement(
+            "ALTER TABLE payments ADD CONSTRAINT payments_payment_method_check "
+            . "CHECK (payment_method IN ('UPI', 'Card', 'NetBanking', 'Cash', 'Cheque'))"
+        );
+
+        DB::statement('ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_status_check');
+        DB::statement(
+            "ALTER TABLE payments ADD CONSTRAINT payments_status_check "
+            . "CHECK (status IN ('Pending', 'Success', 'Failed'))"
+        );
     }
 };

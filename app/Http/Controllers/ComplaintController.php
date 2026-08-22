@@ -10,6 +10,7 @@ use App\Models\Flat;
 use App\Models\Resident;
 use App\Models\User;
 use App\Services\ActivityLogger;
+use App\Services\WebPushService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -257,6 +258,16 @@ class ComplaintController extends Controller
             entityId: (string) $complaint->id,
             remarks: "Complaint assigned to {$assignee->name}: {$complaint->title}"
         );
+
+        // Notify the assignee via web push if they have subscriptions.
+        if ($assignee->pushSubscriptions->isNotEmpty()) {
+            app(WebPushService::class)->sendToUser($assignee, [
+                'type' => 'complaint.assigned',
+                'title' => 'Complaint assigned to you',
+                'body' => "{$complaint->title} was assigned to you.",
+                'url' => "/complaints/{$complaint->id}",
+            ]);
+        }
 
         return redirect()
             ->route('complaints.show', $complaint)

@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\VisitorRequest;
 use App\Models\Flat;
+use App\Models\User;
 use App\Models\Visitor;
 use App\Models\VisitorPass;
 use App\Services\ModuleQueryService;
+use App\Services\WebPushService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -180,6 +182,17 @@ class VisitorController extends Controller
             'approved_by' => $request->user()->id,
             'approved_at' => now(),
         ]);
+
+        // Notify the resident who requested the pass via web push.
+        $resident = $visitorPass->createdBy;
+        if ($resident instanceof User && $resident->pushSubscriptions->isNotEmpty()) {
+            app(WebPushService::class)->sendToUser($resident, [
+                'type' => 'visitor.approved',
+                'title' => 'Visitor pass approved',
+                'body' => "Your visitor pass for {$visitorPass->visitor->name} was approved.",
+                'url' => '/visitors',
+            ]);
+        }
 
         return back()->with('success', 'Visitor pass approved.');
     }

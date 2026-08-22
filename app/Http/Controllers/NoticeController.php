@@ -6,7 +6,9 @@ use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\NoticeRequest;
 use App\Models\Notice;
 use App\Models\NoticeAcknowledgement;
+use App\Models\PushSubscription;
 use App\Services\ActivityLogger;
+use App\Services\WebPushService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -151,6 +153,20 @@ class NoticeController extends Controller
             entityId: (string) $notice->id,
             remarks: "Notice created: {$notice->title}"
         );
+
+        // Notify society members who have enabled web push.
+        $subscriptions = PushSubscription::query()
+            ->where('society_id', $societyId)
+            ->get();
+
+        if ($subscriptions->isNotEmpty()) {
+            app(WebPushService::class)->broadcast($subscriptions, [
+                'type' => 'notice.published',
+                'title' => $notice->title,
+                'body' => 'A new notice was published in your society.',
+                'url' => '/notices',
+            ]);
+        }
 
         return redirect()
             ->route('notices.index')

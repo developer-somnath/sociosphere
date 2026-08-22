@@ -19,6 +19,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
 
 type TaxRate = {
@@ -69,7 +78,8 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
     });
 
     // Tax Rate Form
-    const [showRateModal, setShowRateModal] = useState(false);
+    const [rateModalOpen, setRateModalOpen] = useState(false);
+    const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
     const rateForm = useForm({
         name: "",
         code: "",
@@ -93,16 +103,18 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
         rateForm.post("/billing/tax-settings/rates", {
             preserveScroll: true,
             onSuccess: () => {
-                setShowRateModal(false);
+                setRateModalOpen(false);
                 rateForm.reset();
             },
         });
     };
 
-    const deleteRate = (rateId: number) => {
-        if (confirm("Are you sure you want to delete this tax rate rule?")) {
-            router.delete(`/billing/tax-settings/rates/${rateId}`, { preserveScroll: true });
-        }
+    const confirmDeleteRate = () => {
+        if (deleteTargetId === null) return;
+        router.delete(`/billing/tax-settings/rates/${deleteTargetId}`, {
+            preserveScroll: true,
+            onFinish: () => setDeleteTargetId(null),
+        });
     };
 
     // Calculate sandbox live tax
@@ -148,7 +160,7 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
                     <div className="flex items-center gap-2">
                         <Button
                             size="sm"
-                            onClick={() => setShowRateModal(true)}
+                            onClick={() => setRateModalOpen(true)}
                             className="rounded-xl gap-1.5 bg-brand hover:bg-brand text-white font-semibold text-xs shadow-xs"
                         >
                             <Plus className="size-3.5" />
@@ -351,7 +363,7 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
                                 <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => setShowRateModal(true)}
+                                    onClick={() => setRateModalOpen(true)}
                                     className="rounded-xl gap-1 text-xs"
                                 >
                                     <Plus className="size-3.5" /> Rate
@@ -391,7 +403,7 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"
-                                                    onClick={() => deleteRate(rate.id)}
+                                                    onClick={() => setDeleteTargetId(rate.id)}
                                                     className="size-7 text-muted-foreground hover:text-destructive"
                                                 >
                                                     <Trash2 className="size-3.5" />
@@ -465,84 +477,96 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
                 </div>
             </div>
 
-            {/* Add Rate Modal */}
-            {showRateModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-                    <div className="w-full max-w-md rounded-2xl border border-border/80 bg-card p-6 shadow-2xl space-y-4">
-                        <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                            <h3 className="text-base font-bold text-foreground">Add Tax Rate Rule</h3>
-                            <Button size="icon" variant="ghost" onClick={() => setShowRateModal(false)} className="size-7">
-                                ✕
-                            </Button>
+            {/* Add Rate Dialog */}
+            <Dialog open={rateModalOpen} onOpenChange={setRateModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add Tax Rate Rule</DialogTitle>
+                        <DialogDescription>
+                            Define a new tax rate applied to maintenance billing calculations.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={submitRate} className="space-y-4">
+                        <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold">Rate Name</Label>
+                            <Input
+                                value={rateForm.data.name}
+                                onChange={(e) => rateForm.setData("name", e.target.value)}
+                                placeholder="e.g. GST Standard Rate"
+                                className="rounded-xl text-xs h-9"
+                                required
+                            />
                         </div>
 
-                        <form onSubmit={submitRate} className="space-y-4">
+                        <div className="grid gap-3 grid-cols-2">
                             <div className="space-y-1.5">
-                                <Label className="text-xs font-semibold">Rate Name</Label>
+                                <Label className="text-xs font-semibold">Code / Identifier</Label>
                                 <Input
-                                    value={rateForm.data.name}
-                                    onChange={(e) => rateForm.setData("name", e.target.value)}
-                                    placeholder="e.g. GST Standard Rate"
-                                    className="rounded-xl text-xs h-9"
+                                    value={rateForm.data.code}
+                                    onChange={(e) => rateForm.setData("code", e.target.value)}
+                                    placeholder="e.g. GST"
+                                    className="rounded-xl text-xs h-9 font-mono"
                                     required
                                 />
                             </div>
 
-                            <div className="grid gap-3 grid-cols-2">
-                                <div className="space-y-1.5">
-                                    <Label className="text-xs font-semibold">Code / Identifier</Label>
-                                    <Input
-                                        value={rateForm.data.code}
-                                        onChange={(e) => rateForm.setData("code", e.target.value)}
-                                        placeholder="e.g. GST"
-                                        className="rounded-xl text-xs h-9 font-mono"
-                                        required
-                                    />
-                                </div>
-
-                                <div className="space-y-1.5">
-                                    <Label className="text-xs font-semibold">Rate Percentage (%)</Label>
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        value={rateForm.data.rate_percentage}
-                                        onChange={(e) => rateForm.setData("rate_percentage", e.target.value)}
-                                        placeholder="18"
-                                        className="rounded-xl text-xs h-9 font-mono"
-                                        required
-                                    />
-                                </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Rate Percentage (%)</Label>
+                                <Input
+                                    type="number"
+                                    step="0.01"
+                                    value={rateForm.data.rate_percentage}
+                                    onChange={(e) => rateForm.setData("rate_percentage", e.target.value)}
+                                    placeholder="18"
+                                    className="rounded-xl text-xs h-9 font-mono"
+                                    required
+                                />
                             </div>
+                        </div>
 
-                            <div className="flex items-center justify-between rounded-xl border border-border/60 p-3">
-                                <Label className="text-xs font-semibold">Tax Inclusive</Label>
-                                <button
-                                    type="button"
-                                    onClick={() => rateForm.setData("is_inclusive", !rateForm.data.is_inclusive)}
-                                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                                        rateForm.data.is_inclusive ? "bg-brand" : "bg-muted-foreground/30"
+                        <div className="flex items-center justify-between rounded-xl border border-border/60 p-3">
+                            <Label className="text-xs font-semibold">Tax Inclusive</Label>
+                            <button
+                                type="button"
+                                onClick={() => rateForm.setData("is_inclusive", !rateForm.data.is_inclusive)}
+                                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                                    rateForm.data.is_inclusive ? "bg-brand" : "bg-muted-foreground/30"
+                                }`}
+                            >
+                                <span
+                                    className={`pointer-events-none inline-block size-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                                        rateForm.data.is_inclusive ? "translate-x-4" : "translate-x-0"
                                     }`}
-                                >
-                                    <span
-                                        className={`pointer-events-none inline-block size-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                                            rateForm.data.is_inclusive ? "translate-x-4" : "translate-x-0"
-                                        }`}
-                                    />
-                                </button>
-                            </div>
+                                />
+                            </button>
+                        </div>
 
-                            <div className="flex justify-end gap-2 pt-2">
-                                <Button type="button" variant="outline" onClick={() => setShowRateModal(false)} className="rounded-xl text-xs">
-                                    Cancel
-                                </Button>
-                                <Button type="submit" disabled={rateForm.processing} className="rounded-xl bg-brand text-white hover:bg-brand text-xs font-semibold">
-                                    Save Rate
-                                </Button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setRateModalOpen(false)} className="rounded-xl text-xs">
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={rateForm.processing} className="rounded-xl bg-brand text-white hover:bg-brand text-xs font-semibold">
+                                Save Rate
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Rate Confirmation */}
+            <ConfirmDialog
+                open={deleteTargetId !== null}
+                onOpenChange={(open) => {
+                    if (!open) setDeleteTargetId(null);
+                }}
+                title="Delete Tax Rate Rule"
+                description="This action cannot be undone. The tax rate will be removed from all future billing calculations."
+                confirmLabel="Delete"
+                cancelLabel="Cancel"
+                destructive
+                onConfirm={confirmDeleteRate}
+            />
         </AppLayout>
     );
 }

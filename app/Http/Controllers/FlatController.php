@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\FlatRequest;
 use App\Models\Flat;
 use App\Models\Tower;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class FlatController extends Controller
 {
+    use EnforcesEntitlements;
+
     public function __construct(private readonly ModuleQueryService $moduleQueryService)
     {
     }
@@ -82,6 +85,7 @@ class FlatController extends Controller
     public function store(FlatRequest $request): RedirectResponse
     {
         $this->authorize('create', Flat::class);
+        $this->enforceEntitlement('flats');
 
         Flat::create([
             ...$request->validated(),
@@ -139,6 +143,20 @@ class FlatController extends Controller
         return redirect()
             ->route('flats.index')
             ->with('success', 'Flat removed successfully.');
+    }
+
+    /**
+     * Restore a soft-deleted flat.
+     */
+    public function restore(Request $request, Flat $flat): RedirectResponse
+    {
+        $this->authorize('restore', $flat);
+
+        $flat->restore();
+
+        return redirect()
+            ->route('flats.index')
+            ->with('success', 'Flat restored successfully.');
     }
 
     /**

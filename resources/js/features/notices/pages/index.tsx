@@ -27,6 +27,7 @@ import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { Pagination } from "@/components/ui/pagination";
 import { NoticeGallery } from "@/features/notices/components/notice-gallery";
 import type { PageProps } from "@/types";
+import { useI18n } from "@/lib/i18n";
 
 type NoticeItem = {
     id: number;
@@ -94,6 +95,7 @@ function formatDate(value: string | null): string {
 }
 
 export default function NoticesIndex() {
+    const { t } = useI18n();
     const { notices, stats, categories, filters, can } = usePage<PageProps<IndexProps>>().props;
     const [search, setSearch] = useState(filters.search);
     const [category, setCategory] = useState<string>(filters.category ?? "");
@@ -145,10 +147,10 @@ export default function NoticesIndex() {
 
     return (
         <AppLayout>
-            <Head title="Notice Board" />
+            <Head title={t("notices.title")} />
 
             <PageHeader
-                title="Notice Board"
+                title={t("notices.title")}
                 description="Publish and manage society announcements, circulars, and important updates."
                 icon={<Megaphone className="size-5" />}
                 actions={
@@ -239,7 +241,7 @@ export default function NoticesIndex() {
             {notices.data.length === 0 ? (
                 <EmptyState
                     icon={Megaphone}
-                    title="No notices found"
+                    title={t("notices.emptyTitle")}
                     description="No society notices match your filters yet."
                 />
             ) : (
@@ -365,7 +367,7 @@ export default function NoticesIndex() {
             <ConfirmDialog
                 open={!!deletingNotice}
                 onOpenChange={(open) => !open && setDeletingNotice(null)}
-                title="Delete Notice"
+                title={t("notices.deleteTitle")}
                 description={`Are you sure you want to delete "${deletingNotice?.title}"? This action cannot be undone.`}
                 destructive
                 confirmLabel="Delete"

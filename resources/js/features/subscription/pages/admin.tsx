@@ -156,13 +156,13 @@ export default function SubscriptionAdmin() {
 
     return (
         <AppLayout>
-            <Head title="Subscriptions Admin" />
+            <Head title={t("subscription.adminTitle")} />
 
             <PageHeader
-                title="Subscriptions Admin"
+                title={t("subscription.adminTitle")}
                 description="Assign and manage subscription plans across all societies."
                 icon={<Settings2 className="size-5" />}
-                breadcrumbs={[{ label: "Subscription" }, { label: "Admin" }]}
+                breadcrumbs={[{ label: t("nav.subscription") }, { label: "Admin" }]}
             />
 
             <Card>
@@ -177,7 +177,7 @@ export default function SubscriptionAdmin() {
                     {societies.data.length === 0 ? (
                         <EmptyState
                             icon={Settings2}
-                            title="No societies found"
+                            title={t("subscription.emptySocieties")}
                             description="Try a different search term."
                         />
                     ) : (

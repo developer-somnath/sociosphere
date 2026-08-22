@@ -1,5 +1,7 @@
 import { Head, Link, router, usePage } from "@inertiajs/react";
-import { ArrowLeft, History, ReceiptText } from "lucide-react";
+import { History, ReceiptText } from "lucide-react";
+import { BackButton } from "@/components/app/back-button";
+import { useI18n } from "@/lib/i18n";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
@@ -75,24 +77,20 @@ function runStatusBadge(status: string) {
 }
 
 export default function BillingRuns() {
+    const { t } = useI18n();
     const { runs, can } = usePage<PageProps<BillingRunsProps>>().props;
 
     return (
         <AppLayout>
-            <Head title="Billing Run History" />
+            <Head title={t("billing.runsTitle")} />
 
             <PageHeader
-                title="Billing Run History"
+                title={t("billing.runsTitle")}
                 description="Every auto-billing run executed for this society."
                 icon={<History className="size-5" />}
-                breadcrumbs={[{ label: "Finance" }, { label: "Run History" }]}
+                breadcrumbs={[{ label: t("nav.finance") }, { label: "Run History" }]}
                 actions={
-                    <Button variant="outline" size="sm" asChild>
-                        <Link href={route("billing.preview")}>
-                            <ArrowLeft className="size-4" />
-                            Back to Engine
-                        </Link>
-                    </Button>
+                    <BackButton routeName="billing.preview" label={t("billing.backToEngine")} />
                 }
             />
 
@@ -104,7 +102,7 @@ export default function BillingRuns() {
                     {runs.data.length === 0 ? (
                         <EmptyState
                             icon={ReceiptText}
-                            title="No billing runs yet"
+                            title={t("billing.emptyRunsTitle")}
                             description="Run the auto-billing engine from the Batch Generate page to see history here."
                         />
                     ) : (

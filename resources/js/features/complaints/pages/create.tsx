@@ -4,6 +4,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { BackButton } from "@/components/app/back-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Combobox } from "@/components/ui/combobox";
@@ -54,12 +55,7 @@ export default function ComplaintCreate() {
                 description={t("complaintForm.createDescription")}
                 icon={<MessageSquareWarning className="size-5" />}
                 actions={
-                    <Button variant="outline" asChild>
-                        <Link href={route("complaints.index")}>
-                            <ArrowLeft className="size-4" />
-                            {t("complaintForm.backToComplaints")}
-                        </Link>
-                    </Button>
+                    <BackButton routeName="complaints.index" label={t("complaintForm.backToComplaints")} />
                 }
             />
 

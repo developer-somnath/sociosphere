@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/ui/metric-card";
 import { cn } from "@/lib/utils";
 import type { PageProps } from "@/types";
+import { useI18n } from "@/lib/i18n";
 
 type PlanFlat = {
     id: number;
@@ -105,6 +106,7 @@ function runStatusBadge(status: string) {
 }
 
 export default function BatchGenerate() {
+    const { t } = useI18n();
     const { plan, period, recent_runs, can } = usePage<PageProps<BatchGenerateProps>>().props;
 
     const [excluded, setExcluded] = useState<Set<number>>(
@@ -146,13 +148,13 @@ export default function BatchGenerate() {
 
     return (
         <AppLayout>
-            <Head title="Batch Generate Invoices" />
+            <Head title={t("invoices.batchGenerateTitle")} />
 
             <PageHeader
                 title="Auto-Billing Engine"
                 description="Preview, exclude, and run batch maintenance invoice generation."
                 icon={<CalendarCog className="size-5" />}
-                breadcrumbs={[{ label: "Finance" }, { label: "Batch Generate" }]}
+                breadcrumbs={[{ label: t("nav.finance") }, { label: "Batch Generate" }]}
                 actions={
                     can.configure ? (
                         <Button variant="outline" size="sm" asChild>

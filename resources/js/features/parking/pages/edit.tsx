@@ -4,6 +4,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { BackButton } from "@/components/app/back-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormSection } from "@/components/ui/form-section";
@@ -60,17 +61,12 @@ export default function ParkingEdit() {
                 description={t("parking.editPageDescription", { slotNumber: slot.slot_number })}
                 icon={<ParkingMeter className="size-5" />}
                 breadcrumbs={[
-                    { label: t("parking.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.properties"), href: "/dashboard" },
                     { label: t("nav.parking"), href: route("parking-slots.index") },
                     { label: t("parking.breadcrumbSlot", { slotNumber: slot.slot_number }) },
                 ]}
                 actions={
-                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
-                        <Link href={route("parking-slots.index")}>
-                            <ArrowLeft className="size-3.5" />
-                            {t("common.back")}
-                        </Link>
-                    </Button>
+                    <BackButton routeName="parking-slots.index" label={t("common.back")} />
                 }
             />
 

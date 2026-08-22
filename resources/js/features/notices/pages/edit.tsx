@@ -1,5 +1,6 @@
 import { Head, Link, useForm, usePage } from "@inertiajs/react";
-import { ArrowLeft, Megaphone, Plus, Trash2 } from "lucide-react";
+import { Megaphone, Plus, Trash2 } from "lucide-react";
+import { BackButton } from "@/components/app/back-button";
 import { useState } from "react";
 import { route } from "ziggy-js";
 
@@ -12,6 +13,7 @@ import { FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { PageProps } from "@/types";
+import { useI18n } from "@/lib/i18n";
 
 type NoticeDetail = {
     id: number;
@@ -31,6 +33,7 @@ type EditProps = {
 };
 
 export default function NoticeEdit() {
+    const { t } = useI18n();
     const { notice } = usePage<PageProps<EditProps>>().props;
     const [newAttachment, setNewAttachment] = useState("");
 
@@ -66,7 +69,7 @@ export default function NoticeEdit() {
             <Head title={`Edit: ${notice.title}`} />
 
             <PageHeader
-                title="Edit Notice"
+                title={t("notices.editTitle")}
                 description={`Update the announcement "${notice.title}".`}
                 icon={<Megaphone className="size-5" />}
                 breadcrumbs={[
@@ -75,12 +78,7 @@ export default function NoticeEdit() {
                     { label: notice.title },
                 ]}
                 actions={
-                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
-                        <Link href={route("notices.index")}>
-                            <ArrowLeft className="size-3.5" />
-                            Back
-                        </Link>
-                    </Button>
+                    <BackButton routeName="notices.index" />
                 }
             />
 
@@ -90,7 +88,7 @@ export default function NoticeEdit() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                        <FormSection title="Announcement">
+                        <FormSection title={t("notices.announcementTitle")}>
                             <div className="space-y-1.5">
                                 <Label>Title *</Label>
                                 <Input
@@ -153,7 +151,7 @@ export default function NoticeEdit() {
                             </div>
                         </FormSection>
 
-                        <FormSection title="Attachments">
+                        <FormSection title={t("notices.attachmentsTitle")}>
                             <div className="space-y-3">
                                 {form.data.attachments.length > 0 && (
                                     <ul className="space-y-2">
@@ -214,7 +212,7 @@ export default function NoticeEdit() {
                             </div>
                         </FormSection>
 
-                        <FormSection title="Publishing Window">
+                        <FormSection title={t("notices.publishingWindowTitle")}>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
                                     <Label>Publish From</Label>

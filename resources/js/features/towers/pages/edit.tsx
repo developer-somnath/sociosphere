@@ -4,6 +4,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { BackButton } from "@/components/app/back-button";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -67,17 +68,12 @@ export default function TowersEdit() {
                     description={t("towers.editPageDescription", { name: tower.name })}
                     icon={<Pencil className="size-5" />}
                     breadcrumbs={[
-                        { label: t("towers.breadcrumb.section") },
+                        { label: t("nav.properties") },
                         { label: t("nav.towers"), href: route("towers.index") },
                         { label: tower.name },
                     ]}
                     actions={
-                        <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
-                            <Link href={route("towers.index")}>
-                                <ArrowLeft className="size-3.5" />
-                                {t("common.back")}
-                            </Link>
-                        </Button>
+                        <BackButton routeName="towers.index" label={t("common.back")} />
                     }
                 />
 

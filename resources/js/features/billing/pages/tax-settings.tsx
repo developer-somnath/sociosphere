@@ -62,7 +62,7 @@ type Props = {
 };
 
 export default function TaxSettingsPage({ profile, schemes, roundingModes }: Props) {
-    const { formatCurrency } = useI18n();
+    const { t, formatCurrency } = useI18n();
 
     // Tax Profile Form
     const { data, setData, put, processing } = useForm({
@@ -560,7 +560,7 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
                 onOpenChange={(open) => {
                     if (!open) setDeleteTargetId(null);
                 }}
-                title="Delete Tax Rate Rule"
+                title={t("taxSettings.deleteTitle")}
                 description="This action cannot be undone. The tax rate will be removed from all future billing calculations."
                 confirmLabel="Delete"
                 cancelLabel="Cancel"

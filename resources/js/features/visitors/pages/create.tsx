@@ -4,6 +4,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { BackButton } from "@/components/app/back-button";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
@@ -72,17 +73,12 @@ export default function VisitorsCreate() {
                     description={t("visitors.addPageDescription")}
                     icon={<DoorOpen className="size-5" />}
                     breadcrumbs={[
-                        { label: t("visitors.breadcrumb.section") },
+                        { label: t("nav.operations") },
                         { label: t("nav.visitors"), href: route("visitors.index") },
                         { label: t("visitors.add") },
                     ]}
                     actions={
-                        <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
-                            <Link href={route("visitors.index")}>
-                                <ArrowLeft className="size-3.5" />
-                                {t("common.back")}
-                            </Link>
-                        </Button>
+                        <BackButton routeName="visitors.index" label={t("common.back")} />
                     }
                 />
 

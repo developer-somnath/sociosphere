@@ -4,6 +4,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { BackButton } from "@/components/app/back-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Combobox } from "@/components/ui/combobox";
@@ -56,17 +57,12 @@ export default function AmenityEdit() {
                 description={t("amenities.editPageDescription", { name: amenity.name })}
                 icon={<Sparkles className="size-5" />}
                 breadcrumbs={[
-                    { label: t("amenities.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.operations"), href: "/dashboard" },
                     { label: t("nav.amenities"), href: route("amenities.index") },
                     { label: amenity.name },
                 ]}
                 actions={
-                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
-                        <Link href={route("amenities.index")}>
-                            <ArrowLeft className="size-3.5" />
-                            {t("common.back")}
-                        </Link>
-                    </Button>
+                    <BackButton routeName="amenities.index" label={t("common.back")} />
                 }
             />
 

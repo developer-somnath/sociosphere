@@ -45,7 +45,7 @@ type PlansIndexProps = {
 
 export default function PlansIndex() {
     const { plans, can } = usePage<PageProps<PlansIndexProps>>().props;
-    const { formatCurrency } = useI18n();
+    const { t, formatCurrency } = useI18n();
     const [deleting, setDeleting] = useState<PlanRow | null>(null);
 
     const handleDelete = () => {
@@ -57,13 +57,13 @@ export default function PlansIndex() {
 
     return (
         <AppLayout>
-            <Head title="Subscription Plans" />
+            <Head title={t("plans.indexTitle")} />
 
             <PageHeader
-                title="Subscription Plans"
+                title={t("plans.indexTitle")}
                 description="Manage the SaaS plan catalog offered to societies."
                 icon={<Receipt className="size-5" />}
-                breadcrumbs={[{ label: "Subscription" }, { label: "Plans" }]}
+                breadcrumbs={[{ label: t("nav.subscription") }, { label: "Plans" }]}
                 actions={
                     can.create && (
                         <Button size="sm" asChild>
@@ -81,7 +81,7 @@ export default function PlansIndex() {
                     <CardContent className="pt-6">
                         <EmptyState
                             icon={Receipt}
-                            title="No plans yet"
+                            title={t("plans.emptyTitle")}
                             description="Create your first subscription plan to start offering tiers to societies."
                             action={
                                 can.create && (

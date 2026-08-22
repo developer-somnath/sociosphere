@@ -314,7 +314,7 @@ export default function SocietiesIndex() {
                 description={t("societies.pageDescription")}
                 icon={<Building className="size-5" />}
                 breadcrumbs={[
-                    { label: t("residents.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.properties"), href: "/dashboard" },
                     { label: t("nav.societies") },
                 ]}
                 actions={

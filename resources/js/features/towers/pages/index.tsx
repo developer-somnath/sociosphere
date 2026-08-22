@@ -183,7 +183,7 @@ export default function TowersIndex() {
                 title={t("towers.title")}
                 description={t("towers.pageDescription")}
                 icon={<Building2 className="size-5" />}
-                breadcrumbs={[{ label: t("towers.breadcrumb.section") }, { label: t("nav.towers") }]}
+                breadcrumbs={[{ label: t("nav.properties") }, { label: t("nav.towers") }]}
                 actions={can.create && <QuickActionPill href={route("towers.create")} icon={Plus} label={t("towers.new")} variant="indigo" />}
             />
 

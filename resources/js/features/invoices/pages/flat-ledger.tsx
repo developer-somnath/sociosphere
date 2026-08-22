@@ -10,6 +10,7 @@ import { Combobox, type ComboboxItem } from "@/components/ui/combobox";
 import { MetricCard } from "@/components/ui/metric-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { PageProps } from "@/types";
+import { useI18n } from "@/lib/i18n";
 
 type LedgerInvoice = {
     id: number;
@@ -95,6 +96,7 @@ function invoiceStatusBadge(status: LedgerInvoice["status"]) {
 }
 
 export default function FlatLedger() {
+    const { t } = useI18n();
     const { flats, selected_flat_id, invoices, balance, can } = usePage<PageProps<FlatLedgerProps>>().props;
 
     const flatItems: ComboboxItem[] = flats.map((flat) => ({
@@ -113,13 +115,13 @@ export default function FlatLedger() {
 
     return (
         <AppLayout>
-            <Head title="Flat Ledger" />
+            <Head title={t("invoices.flatLedgerTitle")} />
 
             <PageHeader
-                title="Flat Ledger"
+                title={t("invoices.flatLedgerTitle")}
                 description="Financial statement — invoices, payments and outstanding balance per flat."
                 icon={<BookOpenText className="size-5" />}
-                breadcrumbs={[{ label: "Finance" }, { label: "Flat Ledger" }]}
+                breadcrumbs={[{ label: t("nav.finance") }, { label: "Flat Ledger" }]}
             />
 
             <Card>
@@ -183,7 +185,7 @@ export default function FlatLedger() {
                     <CardContent className="pt-4">
                         <EmptyState
                             icon={BookOpenText}
-                            title="No invoices"
+                            title={t("invoices.flatLedgerEmpty")}
                             description="No invoices found for the selected flat."
                         />
                     </CardContent>

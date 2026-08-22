@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/ui/metric-card";
 import type { PageProps } from "@/types";
+import { useI18n } from "@/lib/i18n";
 
 type InvariantCheckProps = {
     healthy: boolean;
@@ -31,6 +32,7 @@ function money(value: number | null | undefined) {
 }
 
 export default function InvariantCheck() {
+    const { t } = useI18n();
     const { healthy, violations, checked_at, stats, can } = usePage<PageProps<InvariantCheckProps>>().props;
 
     const recheck = () => {
@@ -39,13 +41,13 @@ export default function InvariantCheck() {
 
     return (
         <AppLayout>
-            <Head title="Financial Invariant Check" />
+            <Head title={t("invoices.invariantHeadTitle")} />
 
             <PageHeader
-                title="Financial Invariants"
+                title={t("invoices.invariantTitle")}
                 description="Validate that invoices and payments are always consistent."
                 icon={<ClipboardCheck className="size-5" />}
-                breadcrumbs={[{ label: "Finance" }, { label: "Invariant Check" }]}
+                breadcrumbs={[{ label: t("nav.finance") }, { label: "Invariant Check" }]}
                 actions={
                     <Button variant="outline" size="sm" onClick={recheck}>
                         <RefreshCw className="size-4" />

@@ -4,6 +4,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { BackButton } from "@/components/app/back-button";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -67,12 +68,7 @@ export default function RolesCreate() {
                     { label: t("common.create") },
                 ]}
                 actions={
-                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
-                        <Link href={route("roles.index")}>
-                            <ArrowLeft className="size-3.5" />
-                            {t("common.back")}
-                        </Link>
-                    </Button>
+                    <BackButton routeName="roles.index" label={t("common.back")} />
                 }
             />
 

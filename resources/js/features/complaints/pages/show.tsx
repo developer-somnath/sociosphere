@@ -13,6 +13,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { BackButton } from "@/components/app/back-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -169,12 +170,7 @@ export default function ComplaintShow() {
                                 </Link>
                             </Button>
                         )}
-                        <Button variant="outline" asChild>
-                            <Link href={route("complaints.index")}>
-                                <ArrowLeft className="size-4" />
-                                {t("common.back")}
-                            </Link>
-                        </Button>
+                        <BackButton routeName="complaints.index" label={t("common.back")} />
                     </div>
                 }
             />

@@ -5,6 +5,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { BackButton } from "@/components/app/back-button";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -80,17 +81,12 @@ export default function UsersEdit() {
                 description={t("users.editPageDescription")}
                 icon={<UserCog className="size-5" />}
                 breadcrumbs={[
-                    { label: t("residents.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.admin"), href: "/dashboard" },
                     { label: t("nav.users"), href: route("users.index") },
                     { label: user.name },
                 ]}
                 actions={
-                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
-                        <Link href={route("users.index")}>
-                            <ArrowLeft className="size-3.5" />
-                            {t("common.back")}
-                        </Link>
-                    </Button>
+                    <BackButton routeName="users.index" label={t("common.back")} />
                 }
             />
 

@@ -1,5 +1,7 @@
 import { Head, Link, useForm, usePage } from "@inertiajs/react";
-import { ArrowLeft, Save, Settings2 } from "lucide-react";
+import { Save, Settings2 } from "lucide-react";
+import { BackButton } from "@/components/app/back-button";
+import { useI18n } from "@/lib/i18n";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
@@ -29,6 +31,7 @@ type BillingSettingsProps = {
 };
 
 export default function BillingSettings() {
+    const { t } = useI18n();
     const { config, modes, can } = usePage<PageProps<BillingSettingsProps>>().props;
 
     const form = useForm({
@@ -49,20 +52,15 @@ export default function BillingSettings() {
 
     return (
         <AppLayout>
-            <Head title="Billing Settings" />
+            <Head title={t("billing.settingsTitle")} />
 
             <PageHeader
-                title="Billing Settings"
+                title={t("billing.settingsTitle")}
                 description="Configure maintenance rates, due dates and penalty policy."
                 icon={<Settings2 className="size-5" />}
-                breadcrumbs={[{ label: "Finance" }, { label: "Billing Settings" }]}
+                breadcrumbs={[{ label: t("nav.finance") }, { label: "Billing Settings" }]}
                 actions={
-                    <Button variant="outline" size="sm" asChild>
-                        <Link href={route("billing.preview")}>
-                            <ArrowLeft className="size-4" />
-                            Back to Engine
-                        </Link>
-                    </Button>
+                    <BackButton routeName="billing.preview" label={t("billing.backToEngine")} />
                 }
             />
 
@@ -72,7 +70,7 @@ export default function BillingSettings() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={submit} className="space-y-6">
-                        <FormSection title="Billing Mode" description="How monthly maintenance is calculated per flat.">
+                        <FormSection title={t("billing.modeTitle")} description={t("billing.modeDescription")}>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
                                     <Label htmlFor="billing_mode">Calculation Mode *</Label>
@@ -131,7 +129,7 @@ export default function BillingSettings() {
                             </div>
                         </FormSection>
 
-                        <FormSection title="Penalty Policy" description="Late payment fees applied after the grace period.">
+                        <FormSection title={t("billing.penaltyTitle")} description={t("billing.penaltyDescription")}>
                             <div className="grid gap-4 sm:grid-cols-3">
                                 <div className="space-y-1.5">
                                     <Label htmlFor="grace_days">Grace Days *</Label>
@@ -174,7 +172,7 @@ export default function BillingSettings() {
                             </div>
                         </FormSection>
 
-                        <FormSection title="Status" description="Disable to pause future auto-billing runs without losing configuration.">
+                        <FormSection title={t("billing.statusTitle")} description={t("billing.statusDescription")}>
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <Checkbox
                                     checked={form.data.is_active}

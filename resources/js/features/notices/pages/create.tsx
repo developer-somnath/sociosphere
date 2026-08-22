@@ -1,5 +1,6 @@
 import { Head, Link, useForm } from "@inertiajs/react";
-import { ArrowLeft, Megaphone } from "lucide-react";
+import { Megaphone } from "lucide-react";
+import { BackButton } from "@/components/app/back-button";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
@@ -10,8 +11,10 @@ import { Combobox } from "@/components/ui/combobox";
 import { FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 
 export default function NoticeCreate() {
+    const { t } = useI18n();
     const form = useForm({
         title: "",
         category: "",
@@ -29,10 +32,10 @@ export default function NoticeCreate() {
 
     return (
         <AppLayout>
-            <Head title="New Notice" />
+            <Head title={t("notices.createHeadTitle")} />
 
             <PageHeader
-                title="Publish New Notice"
+                title={t("notices.createTitle")}
                 description="Create an announcement for residents, owners, or tenants."
                 icon={<Megaphone className="size-5" />}
                 breadcrumbs={[
@@ -41,12 +44,7 @@ export default function NoticeCreate() {
                     { label: "Publish Notice" },
                 ]}
                 actions={
-                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
-                        <Link href={route("notices.index")}>
-                            <ArrowLeft className="size-3.5" />
-                            Back
-                        </Link>
-                    </Button>
+                    <BackButton routeName="notices.index" />
                 }
             />
 
@@ -56,7 +54,7 @@ export default function NoticeCreate() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                        <FormSection title="Announcement">
+                        <FormSection title={t("notices.announcementTitle")}>
                             <div className="space-y-1.5">
                                 <Label>Title *</Label>
                                 <Input
@@ -119,7 +117,7 @@ export default function NoticeCreate() {
                             </div>
                         </FormSection>
 
-                        <FormSection title="Publishing Window">
+                        <FormSection title={t("notices.publishingWindowTitle")}>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
                                     <Label>Publish From</Label>

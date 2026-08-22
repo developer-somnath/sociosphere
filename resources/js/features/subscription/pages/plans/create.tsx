@@ -1,5 +1,6 @@
 import { Head, Link, useForm, usePage } from "@inertiajs/react";
-import { ArrowLeft, Plus, Receipt, Trash2 } from "lucide-react";
+import { Plus, Receipt, Trash2 } from "lucide-react";
+import { BackButton } from "@/components/app/back-button";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
@@ -71,10 +72,10 @@ export default function PlanCreate() {
 
     return (
         <AppLayout>
-            <Head title="New Plan" />
+            <Head title={t("plans.createHeadTitle")} />
 
             <PageHeader
-                title="Create Subscription Plan"
+                title={t("plans.createTitle")}
                 description="Define a new plan tier with pricing and resource entitlement limits."
                 icon={<Receipt className="size-5" />}
                 breadcrumbs={[
@@ -83,12 +84,7 @@ export default function PlanCreate() {
                     { label: "Create Plan" },
                 ]}
                 actions={
-                    <Button variant="outline" size="sm" asChild>
-                        <Link href={route("plans.index")}>
-                            <ArrowLeft className="size-4" />
-                            Back
-                        </Link>
-                    </Button>
+                    <BackButton routeName="plans.index" label={t("subscription.backToOverview")} />
                 }
             />
 
@@ -98,7 +94,7 @@ export default function PlanCreate() {
                         <CardTitle className="text-base">Plan Details</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <FormSection title="Pricing" description="Set the monthly and yearly list price for this tier.">
+                        <FormSection title={t("plans.pricingTitle")} description={t("plans.pricingDescription")}>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
                                     <Label htmlFor="name">Plan Name *</Label>

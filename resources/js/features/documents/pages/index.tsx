@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { MetricCard } from "@/components/ui/metric-card";
 import { Pagination } from "@/components/ui/pagination";
 import type { PageProps } from "@/types";
+import { useI18n } from "@/lib/i18n";
 
 type DocumentItem = {
     id: number;
@@ -88,6 +89,7 @@ function formatDate(value: string): string {
 }
 
 export default function DocumentsIndex() {
+    const { t } = useI18n();
     const { documents, stats, categories, filters, can } = usePage<PageProps<IndexProps>>().props;
     const [search, setSearch] = useState(filters.search);
     const [category, setCategory] = useState<string>(filters.category ?? "");
@@ -173,10 +175,10 @@ export default function DocumentsIndex() {
 
     return (
         <AppLayout>
-            <Head title="Document Repository" />
+            <Head title={t("documents.title")} />
 
             <PageHeader
-                title="Document Repository"
+                title={t("documents.title")}
                 description="Store and share society documents, forms, and important files securely."
                 icon={<FolderOpen className="size-5" />}
                 actions={
@@ -237,7 +239,7 @@ export default function DocumentsIndex() {
             {documents.data.length === 0 ? (
                 <EmptyState
                     icon={FolderOpen}
-                    title="No documents found"
+                    title={t("documents.emptyTitle")}
                     description="No society documents match your filters yet."
                 />
             ) : (
@@ -330,7 +332,7 @@ export default function DocumentsIndex() {
             <FormDrawer
                 open={showUpload}
                 onOpenChange={(open) => !open && setShowUpload(false)}
-                title="Upload Document"
+                title={t("documents.uploadTitle")}
                 description="Add a new document to the society repository."
                 icon={<Upload className="size-5" />}
                 isDirty={uploadForm.isDirty}
@@ -400,7 +402,7 @@ export default function DocumentsIndex() {
             <FormDrawer
                 open={!!editing}
                 onOpenChange={(open) => !open && setEditing(null)}
-                title="Edit Document"
+                title={t("documents.editTitle")}
                 description={`Update metadata for "${editing?.title}".`}
                 icon={<Pencil className="size-5" />}
                 isDirty={editForm.isDirty}
@@ -468,7 +470,7 @@ export default function DocumentsIndex() {
             <ConfirmDialog
                 open={!!deleting}
                 onOpenChange={(open) => !open && setDeleting(null)}
-                title="Delete Document"
+                title={t("documents.deleteTitle")}
                 description={`Are you sure you want to delete "${deleting?.title}"? The file will be permanently removed.`}
                 destructive
                 confirmLabel="Delete"

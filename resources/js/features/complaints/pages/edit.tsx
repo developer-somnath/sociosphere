@@ -1,5 +1,6 @@
 import { Head, Link, useForm, usePage } from "@inertiajs/react";
-import { ArrowLeft, MessageSquareWarning } from "lucide-react";
+import { MessageSquareWarning } from "lucide-react";
+import { BackButton } from "@/components/app/back-button";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
@@ -64,12 +65,7 @@ export default function ComplaintEdit() {
                 description={`#${complaint.id} · ${complaint.flat?.flat_no ?? ""} ${complaint.flat?.tower ? `(${complaint.flat.tower.name})` : ""}`}
                 icon={<MessageSquareWarning className="size-5" />}
                 actions={
-                    <Button variant="outline" asChild>
-                        <Link href={route("complaints.show", complaint.id)}>
-                            <ArrowLeft className="size-4" />
-                            {t("complaintForm.backToDetail")}
-                        </Link>
-                    </Button>
+                    <BackButton routeName="complaints.show" routeParams={[complaint.id]} label={t("complaintForm.backToDetail")} />
                 }
             />
 

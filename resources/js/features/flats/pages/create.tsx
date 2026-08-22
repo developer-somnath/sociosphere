@@ -4,6 +4,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { BackButton } from "@/components/app/back-button";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -71,17 +72,12 @@ export default function FlatsCreate() {
                     description={t("flats.addPageDescription")}
                     icon={<DoorOpen className="size-5" />}
                     breadcrumbs={[
-                        { label: t("flats.breadcrumb.section") },
+                        { label: t("nav.properties") },
                         { label: t("nav.flats"), href: route("flats.index") },
                         { label: t("flats.add") },
                     ]}
                     actions={
-                        <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
-                            <Link href={route("flats.index")}>
-                                <ArrowLeft className="size-3.5" />
-                                {t("common.back")}
-                            </Link>
-                        </Button>
+                        <BackButton routeName="flats.index" label={t("common.back")} />
                     }
                 />
 

@@ -516,7 +516,7 @@ export default function ParkingIndex() {
                 description={t("parking.pageDescription")}
                 icon={<ParkingMeter className="size-5" />}
                 breadcrumbs={[
-                    { label: t("parking.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.properties"), href: "/dashboard" },
                     { label: t("nav.parking") },
                 ]}
                 actions={

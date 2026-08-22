@@ -4,6 +4,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { BackButton } from "@/components/app/back-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormSection } from "@/components/ui/form-section";
@@ -40,17 +41,12 @@ export default function SocietyCreate() {
                 description={t("societies.registerPageDescription")}
                 icon={<Building className="size-5" />}
                 breadcrumbs={[
-                    { label: t("residents.breadcrumb.section") },
+                    { label: t("nav.properties") },
                     { label: t("nav.societies"), href: route("societies.index") },
                     { label: t("societies.register") },
                 ]}
                 actions={
-                    <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
-                        <Link href={route("societies.index")}>
-                            <ArrowLeft className="size-3.5" />
-                            {t("common.back")}
-                        </Link>
-                    </Button>
+                    <BackButton routeName="societies.index" label={t("common.back")} />
                 }
             />
 

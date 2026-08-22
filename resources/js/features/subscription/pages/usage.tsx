@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from "@inertiajs/react";
-import { ArrowLeft, Gauge, Infinity as InfinityIcon, Sparkles } from "lucide-react";
+import { Gauge, Infinity as InfinityIcon, Sparkles } from "lucide-react";
+import { BackButton } from "@/components/app/back-button";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
@@ -50,20 +51,15 @@ export default function SubscriptionUsage() {
 
     return (
         <AppLayout>
-            <Head title="Subscription Usage" />
+            <Head title={t("subscription.usageTitle")} />
 
             <PageHeader
-                title="Subscription Usage"
+                title={t("subscription.usageTitle")}
                 description="Detailed breakdown of resource consumption against your plan limits."
                 icon={<Gauge className="size-5" />}
-                breadcrumbs={[{ label: "Subscription" }, { label: "Usage" }]}
+                breadcrumbs={[{ label: t("nav.subscription") }, { label: "Usage" }]}
                 actions={
-                    <Button variant="outline" size="sm" asChild>
-                        <Link href={route("subscription.show")}>
-                            <ArrowLeft className="size-4" />
-                            Back to Overview
-                        </Link>
-                    </Button>
+                    <BackButton routeName="subscription.show" label={t("subscription.backToOverview")} />
                 }
             />
 
@@ -112,7 +108,7 @@ export default function SubscriptionUsage() {
                         {usage.length === 0 ? (
                             <EmptyState
                                 icon={Gauge}
-                                title="No usage data"
+                                title={t("subscription.emptyUsage")}
                                 description="Entitlement usage will appear here once the plan is configured."
                             />
                         ) : (

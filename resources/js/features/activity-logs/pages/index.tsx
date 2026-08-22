@@ -24,6 +24,7 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import type { PageProps } from "@/types";
+import { useI18n } from "@/lib/i18n";
 import type {
     ActivityLog,
     ActivityLogFilters,
@@ -100,6 +101,7 @@ function entityName(log: ActivityLog): string {
 }
 
 export default function ActivityLogsIndex() {
+    const { t } = useI18n();
     const { logs, filters, filterOptions, stats } =
         usePage<PageProps<IndexProps>>().props;
 
@@ -321,10 +323,10 @@ export default function ActivityLogsIndex() {
 
     return (
         <AppLayout>
-            <Head title="Activity Logs" />
+            <Head title={t("activityLogs.title")} />
 
             <PageHeader
-                title="Activity Logs"
+                title={t("activityLogs.title")}
                 description="Searchable audit trail of who did what, when, and where."
                 icon={<History className="size-5" />}
             />
@@ -491,7 +493,7 @@ export default function ActivityLogsIndex() {
                         emptyState={
                             <EmptyState
                                 icon={Inbox}
-                                title="No activity found"
+                                title={t("activityLogs.emptyTitle")}
                                 description="Try adjusting your search or filters."
                             />
                         }

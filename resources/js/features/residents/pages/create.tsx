@@ -1,10 +1,10 @@
-import { Head, Link, useForm, usePage } from "@inertiajs/react";
-import { ArrowLeft, UserPlus } from "lucide-react";
+import { Head, useForm, usePage } from "@inertiajs/react";
+import { UserPlus } from "lucide-react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
-import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/app/back-button";
 import {
     Card,
     CardContent,
@@ -13,6 +13,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 import type { FlatOption } from "@/features/residents/types";
 import ResidentForm, {
@@ -25,6 +26,7 @@ type CreateProps = {
 
 export default function ResidentsCreate() {
     const { flats } = usePage<PageProps<CreateProps>>().props;
+    const { t } = useI18n();
 
     const { data, setData: rawSetData, post, processing, errors } =
         useForm<ResidentFormValues>({
@@ -62,36 +64,29 @@ export default function ResidentsCreate() {
 
     return (
         <AppLayout>
-            <Head title="Add Resident" />
+            <Head title={t("residents.add")} />
 
             <div className="flex flex-col gap-4">
                 <PageHeader
-                    title="Add Resident"
-                    description="Register a new resident in your society."
+                    title={t("residents.add")}
+                    description={t("residents.createPageDescription")}
                     icon={<UserPlus className="size-5" />}
                     breadcrumbs={[
-                        { label: "Management" },
-                        { label: "Residents", href: route("residents.index") },
-                        { label: "Add Resident" },
+                        { label: t("nav.properties") },
+                        { label: t("nav.residents"), href: route("residents.index") },
+                        { label: t("residents.add") },
                     ]}
-                    actions={
-                        <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
-                            <Link href={route("residents.index")}>
-                                <ArrowLeft className="size-3.5" />
-                                Back
-                            </Link>
-                        </Button>
-                    }
+                    actions={<BackButton routeName="residents.index" />}
                 />
 
                 <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <UserPlus className="size-5 text-brand" />
-                            Resident Details
+                            {t("residents.details")}
                         </CardTitle>
                         <CardDescription>
-                            Fields marked with * are required.
+                            {t("form.requiredFields")}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -102,7 +97,7 @@ export default function ResidentsCreate() {
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}
-                            submitLabel="Add Resident"
+                            submitLabel={t("residents.add")}
                         />
                     </CardContent>
                 </Card>

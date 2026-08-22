@@ -96,13 +96,13 @@ export default function SubscriptionOverview() {
 
     return (
         <AppLayout>
-            <Head title="Subscription" />
+            <Head title={t("subscription.overviewTitle")} />
 
             <PageHeader
-                title="Subscription"
+                title={t("subscription.overviewTitle")}
                 description="Your society plan, billing cycle and resource entitlements."
                 icon={<Sparkles className="size-5" />}
-                breadcrumbs={[{ label: "Subscription" }, { label: "Overview" }]}
+                breadcrumbs={[{ label: t("nav.subscription") }, { label: "Overview" }]}
                 actions={
                     <Button variant="outline" size="sm" asChild>
                         <Link href={route("subscription.usage")}>
@@ -120,7 +120,7 @@ export default function SubscriptionOverview() {
                         <CardContent className="pt-6">
                             <EmptyState
                                 icon={CreditCard}
-                                title="No active subscription"
+                                title={t("subscription.emptySubscription")}
                                 description="This society does not have an active plan yet. Contact the platform administrator to assign a subscription."
                             />
                         </CardContent>

@@ -10,6 +10,7 @@ use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentRepositoryController;
 use App\Http\Controllers\FlatController;
+use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NotificationController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\ParkingSlotController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResidentController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SecurityLogController;
 use App\Http\Controllers\SocietyController;
@@ -48,6 +50,11 @@ Route::get('/', function () {
 
     return redirect()->route('login');
 });
+
+// Payment gateway webhooks (S4-2 / Phase 18) — public, signature-verified.
+Route::post('/api/payments/webhook/{gateway}', [PaymentWebhookController::class, 'handle'])
+    ->middleware('throttle:60,1')
+    ->name('payments.webhook');
 
 use App\Http\Controllers\UserInvitationController;
 
@@ -193,6 +200,11 @@ Route::middleware(['auth', 'society'])->group(function () {
             'store' => 'payments.store',
         ]);
 
+    // Digital receipt (S4-2 / Phase 18) — downloadable for a recorded payment.
+    Route::get('payments/{payment}/receipt', [PaymentController::class, 'receipt'])
+        ->middleware('permission:collection.view')
+        ->name('payments.receipt');
+
     // Phase 13: Auto-Billing & Financial Invariants Engine
     Route::get('billing/preview', [BillingController::class, 'preview'])
         ->middleware('permission:billing.configure')
@@ -318,6 +330,28 @@ Route::middleware(['auth', 'society'])->group(function () {
         ->middleware('permission:complaint.update')
         ->name('complaints.assign');
 
+    Route::prefix('residents/{resident}')->group(function () {
+        Route::post('family-members', [FamilyMemberController::class, 'store'])
+            ->middleware('permission:resident.update')
+            ->name('residents.family-members.store');
+        Route::put('family-members/{familyMember}', [FamilyMemberController::class, 'update'])
+            ->middleware('permission:resident.update')
+            ->name('residents.family-members.update');
+        Route::delete('family-members/{familyMember}', [FamilyMemberController::class, 'destroy'])
+            ->middleware('permission:resident.update')
+            ->name('residents.family-members.destroy');
+
+        Route::post('vehicles', [VehicleController::class, 'store'])
+            ->middleware('permission:resident.update')
+            ->name('residents.vehicles.store');
+        Route::put('vehicles/{vehicle}', [VehicleController::class, 'update'])
+            ->middleware('permission:resident.update')
+            ->name('residents.vehicles.update');
+        Route::delete('vehicles/{vehicle}', [VehicleController::class, 'destroy'])
+            ->middleware('permission:resident.update')
+            ->name('residents.vehicles.destroy');
+    });
+
     Route::post('complaints/{complaint}/transition', [ComplaintController::class, 'transition'])
         ->middleware('permission:complaint.update')
         ->name('complaints.transition');
@@ -439,6 +473,20 @@ Route::middleware('auth')->group(function () {
         ->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])
         ->name('notifications.read-all');
+
+    // WebPush subscription management (PWA — S4-1)
+    Route::post('/push/subscribe', [PushSubscriptionController::class, 'subscribe'])
+        ->name('push.subscribe');
+    Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'unsubscribe'])
+        ->name('push.unsubscribe');
+
+    // Reporting engine (S4-3 / Phases 21-22)
+    Route::get('/reports', [ReportController::class, 'index'])
+        ->middleware('permission:collection.view')
+        ->name('reports.index');
+    Route::get('/reports/export', [ReportController::class, 'export'])
+        ->middleware('permission:collection.view')
+        ->name('reports.export');
 });
 
 require __DIR__.'/auth.php';

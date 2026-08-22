@@ -15,28 +15,28 @@ type QuickActionPillProps = {
 
 const variantStyles: Record<VariantType, { pill: string; iconWrapper: string }> = {
     indigo: {
-        pill: "bg-indigo-500/10 text-indigo-600 border-indigo-500/30 hover:bg-indigo-600 hover:text-white dark:bg-indigo-500/20 dark:text-indigo-400 dark:hover:bg-indigo-600 dark:hover:text-white shadow-indigo-500/10",
-        iconWrapper: "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 group-hover:bg-white/20 group-hover:text-white",
+        pill: "bg-info/10 text-info border-info/30 hover:bg-info hover:text-white dark:bg-info/20 dark:text-info dark:hover:bg-info dark:hover:text-white shadow-info/10",
+        iconWrapper: "bg-info/15 text-info dark:text-info group-hover:bg-white/20 group-hover:text-white",
     },
     teal: {
-        pill: "bg-teal-500/10 text-teal-600 border-teal-500/30 hover:bg-teal-600 hover:text-white dark:bg-teal-500/20 dark:text-teal-400 dark:hover:bg-teal-600 dark:hover:text-white shadow-teal-500/10",
-        iconWrapper: "bg-teal-500/15 text-teal-600 dark:text-teal-400 group-hover:bg-white/20 group-hover:text-white",
+        pill: "bg-info/10 text-info border-info/30 hover:bg-info hover:text-white dark:bg-info/20 dark:text-info dark:hover:bg-info dark:hover:text-white shadow-info/10",
+        iconWrapper: "bg-info/15 text-info dark:text-info group-hover:bg-white/20 group-hover:text-white",
     },
     rose: {
-        pill: "bg-rose-500/10 text-rose-600 border-rose-500/30 hover:bg-rose-600 hover:text-white dark:bg-rose-500/20 dark:text-rose-400 dark:hover:bg-rose-600 dark:hover:text-white shadow-rose-500/10",
-        iconWrapper: "bg-rose-500/15 text-rose-600 dark:text-rose-400 group-hover:bg-white/20 group-hover:text-white",
+        pill: "bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive hover:text-white dark:bg-destructive/20 dark:text-destructive dark:hover:bg-destructive dark:hover:text-white shadow-destructive/10",
+        iconWrapper: "bg-destructive/15 text-destructive dark:text-destructive group-hover:bg-white/20 group-hover:text-white",
     },
     amber: {
-        pill: "bg-amber-500/10 text-amber-600 border-amber-500/30 hover:bg-amber-500 hover:text-white dark:bg-amber-500/20 dark:text-amber-400 dark:hover:bg-amber-500 dark:hover:text-white shadow-amber-500/10",
-        iconWrapper: "bg-amber-500/15 text-amber-600 dark:text-amber-400 group-hover:bg-white/20 group-hover:text-white",
+        pill: "bg-warning/10 text-warning border-warning/30 hover:bg-warning hover:text-white dark:bg-warning/20 dark:text-warning dark:hover:bg-warning dark:hover:text-white shadow-warning/10",
+        iconWrapper: "bg-warning/15 text-warning dark:text-warning group-hover:bg-white/20 group-hover:text-white",
     },
     purple: {
-        pill: "bg-purple-500/10 text-purple-600 border-purple-500/30 hover:bg-purple-600 hover:text-white dark:bg-purple-500/20 dark:text-purple-400 dark:hover:bg-purple-600 dark:hover:text-white shadow-purple-500/10",
-        iconWrapper: "bg-purple-500/15 text-purple-600 dark:text-purple-400 group-hover:bg-white/20 group-hover:text-white",
+        pill: "bg-info/10 text-info border-info/30 hover:bg-info hover:text-white dark:bg-info/20 dark:text-info dark:hover:bg-info dark:hover:text-white shadow-info/10",
+        iconWrapper: "bg-info/15 text-info dark:text-info group-hover:bg-white/20 group-hover:text-white",
     },
     blue: {
-        pill: "bg-blue-500/10 text-blue-600 border-blue-500/30 hover:bg-blue-600 hover:text-white dark:bg-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-600 dark:hover:text-white shadow-blue-500/10",
-        iconWrapper: "bg-blue-500/15 text-blue-600 dark:text-blue-400 group-hover:bg-white/20 group-hover:text-white",
+        pill: "bg-info/10 text-info border-info/30 hover:bg-info hover:text-white dark:bg-info/20 dark:text-info dark:hover:bg-info dark:hover:text-white shadow-info/10",
+        iconWrapper: "bg-info/15 text-info dark:text-info group-hover:bg-white/20 group-hover:text-white",
     },
 };
 

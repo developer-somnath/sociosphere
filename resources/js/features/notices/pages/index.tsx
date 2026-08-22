@@ -25,6 +25,7 @@ import { FilterBar } from "@/components/ui/filter-bar";
 import { MetricCard } from "@/components/ui/metric-card";
 import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { Pagination } from "@/components/ui/pagination";
+import { NoticeGallery } from "@/features/notices/components/notice-gallery";
 import type { PageProps } from "@/types";
 
 type NoticeItem = {
@@ -35,6 +36,7 @@ type NoticeItem = {
     is_pinned: boolean;
     target_audience: "All" | "Owners" | "Tenants";
     description: string | null;
+    attachments?: string[];
     publish_from: string | null;
     publish_to: string | null;
     created_at: string;
@@ -78,8 +80,8 @@ type IndexProps = {
 
 const AUDIENCE_STYLES: Record<string, string> = {
     All: "bg-primary/10 text-primary",
-    Owners: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-    Tenants: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
+    Owners: "bg-warning/10 text-warning dark:text-warning",
+    Tenants: "bg-info/10 text-info dark:text-info",
 };
 
 function formatDate(value: string | null): string {
@@ -166,25 +168,25 @@ export default function NoticesIndex() {
                     label="Total Notices"
                     value={stats.total}
                     icon={Megaphone}
-                    accent="border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                    accent="border-info/20 bg-info/10 text-info dark:text-info"
                 />
                 <MetricCard
                     label="Published"
                     value={stats.published}
                     icon={CheckCircle2}
-                    accent="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    accent="border-brand/20 bg-brand/10 text-brand dark:text-brand"
                 />
                 <MetricCard
                     label="Pinned"
                     value={stats.pinned}
                     icon={Pin}
-                    accent="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    accent="border-warning/20 bg-warning/10 text-warning dark:text-warning"
                 />
                 <MetricCard
                     label="Scheduled"
                     value={stats.scheduled}
                     icon={CalendarClock}
-                    accent="border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                    accent="border-info/20 bg-info/10 text-info dark:text-info"
                 />
             </div>
 
@@ -246,13 +248,13 @@ export default function NoticesIndex() {
                         <Card
                             key={notice.id}
                             className={`flex flex-col justify-between border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)] transition-all hover:border-border ${
-                                notice.is_pinned ? "ring-1 ring-amber-500/30" : ""
+                                notice.is_pinned ? "ring-1 ring-warning/30" : ""
                             }`}
                         >
                             <CardHeader className="pb-3">
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="flex items-center gap-2">
-                                        <div className={`flex size-9 items-center justify-center rounded-lg ${notice.is_pinned ? "bg-amber-500/10 text-amber-500" : "bg-primary/10 text-primary"}`}>
+                                        <div className={`flex size-9 items-center justify-center rounded-lg ${notice.is_pinned ? "bg-warning/10 text-warning" : "bg-primary/10 text-primary"}`}>
                                             {notice.is_pinned ? <Pin className="size-5" /> : <Megaphone className="size-5" />}
                                         </div>
                                         <div>
@@ -272,6 +274,10 @@ export default function NoticesIndex() {
                                     <p className="line-clamp-3 text-xs text-muted-foreground leading-relaxed">
                                         {notice.description}
                                     </p>
+                                )}
+
+                                {notice.attachments && notice.attachments.length > 0 && (
+                                    <NoticeGallery attachments={notice.attachments} />
                                 )}
 
                                 <div className="flex flex-wrap items-center gap-1.5">

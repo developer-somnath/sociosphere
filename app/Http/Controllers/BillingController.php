@@ -32,8 +32,10 @@ class BillingController extends Controller
 
         $period = $request->query('period', now()->format('Y-m'));
 
+        $societyId = $this->societyId();
+
         $plan = $this->billing->buildRunPlan(
-            societyId: $request->user()->society_id,
+            societyId: $societyId,
             billingPeriod: $period,
         );
 
@@ -41,7 +43,7 @@ class BillingController extends Controller
             'plan' => $plan,
             'period' => $period,
             'recent_runs' => BillingRunHistory::query()
-                ->where('society_id', $request->user()->society_id)
+                ->where('society_id', $societyId)
                 ->latest('id')
                 ->limit(5)
                 ->get(['billing_period', 'invoices_generated', 'total_amount', 'status', 'created_at']),
@@ -66,7 +68,7 @@ class BillingController extends Controller
         ]);
 
         $result = (new GenerateMonthlyInvoicesJob(
-            societyId: $request->user()->society_id,
+            societyId: $this->societyId(),
             billingPeriod: $validated['billing_period'] ?? null,
             excludedFlatIds: $validated['excluded_flat_ids'] ?? [],
             runByUserId: $request->user()->id,
@@ -90,8 +92,10 @@ class BillingController extends Controller
     {
         $this->authorize('viewAny', SocietyBillingConfig::class);
 
+        $societyId = $this->societyId();
+
         $config = SocietyBillingConfig::query()
-            ->where('society_id', $request->user()->society_id)
+            ->where('society_id', $societyId)
             ->first();
 
         return Inertia::render('features/invoices/pages/billing-settings', [
@@ -111,9 +115,11 @@ class BillingController extends Controller
      */
     public function updateSettings(Request $request): RedirectResponse
     {
+        $societyId = $this->societyId();
+
         $config = SocietyBillingConfig::query()
-            ->where('society_id', $request->user()->society_id)
-            ->firstOrNew(['society_id' => $request->user()->society_id]);
+            ->where('society_id', $societyId)
+            ->firstOrNew(['society_id' => $societyId]);
 
         $this->authorize('update', $config);
 
@@ -157,8 +163,10 @@ class BillingController extends Controller
     {
         $this->authorize('viewAny', SocietyBillingConfig::class);
 
+        $societyId = $this->societyId();
+
         $runs = BillingRunHistory::query()
-            ->where('society_id', $request->user()->society_id)
+            ->where('society_id', $societyId)
             ->with('runBy:id,name')
             ->latest('id')
             ->paginate(15)
@@ -180,9 +188,11 @@ class BillingController extends Controller
     {
         $this->authorize('viewAny', Invoice::class);
 
+        $societyId = $this->societyId();
+
         $flats = Flat::query()
             ->with('tower')
-            ->where('society_id', $request->user()->society_id)
+            ->where('society_id', $societyId)
             ->orderBy('flat_no')
             ->get(['id', 'uuid', 'flat_no', 'tower_id', 'area_sqft']);
 
@@ -190,7 +200,7 @@ class BillingController extends Controller
 
         $invoices = Invoice::query()
             ->with(['items', 'payments'])
-            ->where('society_id', $request->user()->society_id)
+            ->where('society_id', $societyId)
             ->when($selectedFlatId > 0, fn ($q) => $q->where('flat_id', $selectedFlatId))
             ->latest('id')
             ->get();
@@ -215,20 +225,38 @@ class BillingController extends Controller
     {
         $this->authorize('viewAny', SocietyBillingConfig::class);
 
-        $violations = $this->invariants->checkInvoicesMatchPayments($request->user()->society_id);
+        $societyId = $this->societyId();
+
+        $violations = $this->invariants->checkInvoicesMatchPayments($societyId);
 
         return Inertia::render('features/invoices/pages/invariant-check', [
             'healthy' => count($violations) === 0,
             'violations' => $violations,
             'checked_at' => now()->toDateTimeString(),
             'stats' => [
-                'invoices' => Invoice::query()->where('society_id', $request->user()->society_id)->count(),
-                'total_billed' => Invoice::query()->where('society_id', $request->user()->society_id)->sum('total_amount'),
-                'total_collected' => Invoice::query()->where('society_id', $request->user()->society_id)->sum('paid_amount'),
+                'invoices' => Invoice::query()->where('society_id', $societyId)->count(),
+                'total_billed' => Invoice::query()->where('society_id', $societyId)->sum('total_amount'),
+                'total_collected' => Invoice::query()->where('society_id', $societyId)->sum('paid_amount'),
             ],
             'can' => [
                 'configure' => $request->user()->hasPermissionTo('billing.configure'),
             ],
         ]);
+    }
+
+    /**
+     * Resolve the active society for the current user.
+     *
+     * Society admins have a fixed society on their user record; super admins
+     * operate against the society selected in the session (see society_id()
+     * helper). A null here means no society is active.
+     */
+    private function societyId(): int
+    {
+        $societyId = society_id();
+
+        abort_if($societyId === null, 403, 'Please select a society before using billing.');
+
+        return $societyId;
     }
 }

@@ -46,13 +46,14 @@ class InternationalizationTest extends TestCase
         $this->assertSame(4, Language::where('script_dir', 'rtl')->count());
     }
 
-    public function test_guest_is_redirected_to_login_when_switching_language(): void
+    public function test_guest_can_switch_language(): void
     {
         $response = $this->post(route('language.switch'), [
             'locale' => 'fr',
         ]);
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect();
+        $this->assertEquals('fr', session('locale'));
     }
 
     public function test_switch_sets_laravel_app_locale(): void

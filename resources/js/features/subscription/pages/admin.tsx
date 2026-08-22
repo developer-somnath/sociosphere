@@ -66,7 +66,7 @@ function statusBadge(status: string) {
     switch (status) {
         case "trialing":
             return (
-                <Badge className="border-transparent bg-sky-600/10 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
+                <Badge className="border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info">
                     Trialing
                 </Badge>
             );

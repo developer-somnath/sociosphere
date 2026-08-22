@@ -19,6 +19,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
+import { t, useI18n } from "@/lib/i18n";
 import { toast } from "@/lib/toast";
 import type { PageProps } from "@/types";
 import type {
@@ -43,24 +44,33 @@ const selectClasses =
 
 const statusStyles: Record<VisitorStatus, string> = {
     pending:
-        "border-transparent bg-amber-600/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
+        "border-transparent bg-warning/10 text-warning dark:bg-warning/10 dark:text-warning",
     approved:
-        "border-transparent bg-sky-600/10 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400",
+        "border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info",
     checked_in:
-        "border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
+        "border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand",
     checked_out:
         "border-transparent bg-muted text-muted-foreground",
     rejected:
         "border-transparent bg-destructive/10 text-destructive dark:bg-destructive/20",
 };
 
-const statusLabels: Record<VisitorStatus, string> = {
-    pending: "Pending",
-    approved: "Approved",
-    checked_in: "Checked In",
-    checked_out: "Checked Out",
-    rejected: "Rejected",
-};
+function statusLabel(status: VisitorStatus): string {
+    switch (status) {
+        case "pending":
+            return t("common.pending");
+        case "approved":
+            return t("common.approved");
+        case "checked_in":
+            return t("visitors.status.checkedIn");
+        case "checked_out":
+            return t("visitors.status.checkedOut");
+        case "rejected":
+            return t("common.rejected");
+        default:
+            return status;
+    }
+}
 
 function formatDate(value: string | null): string {
     if (!value) return "—";
@@ -94,6 +104,7 @@ function flatLabel(pass: VisitorPass): string {
 export default function VisitorsIndex() {
     const { passes, filters, can } =
         usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
 
     const [search, setSearch] = useState(filters.search);
     const [status, setStatus] = useState(filters.status ?? "");
@@ -194,31 +205,33 @@ export default function VisitorsIndex() {
     const handleExport = (format: ExportFormat) => {
         if (format !== "csv") {
             toast({
-                title: "Export coming soon",
+                title: t("visitors.exportComingSoon"),
                 variant: "info",
-                description: `${format.toUpperCase()} export will be available soon.`,
+                description: t("visitors.exportFormatComingSoon", {
+                    format: format.toUpperCase(),
+                }),
             });
             return;
         }
         exportCsv<VisitorPass>({
             filename: "visitor-passes.csv",
             columns: [
-                { header: "Visitor", accessor: (pass) => pass.visitor.name },
-                { header: "Phone", accessor: (pass) => pass.visitor.phone },
-                { header: "Email", accessor: (pass) => pass.visitor.email ?? "" },
-                { header: "Flat", accessor: (pass) => flatLabel(pass) },
-                { header: "Purpose", accessor: (pass) => pass.purpose },
+                { header: t("visitors.colVisitor"), accessor: (pass) => pass.visitor.name },
+                { header: t("common.phone"), accessor: (pass) => pass.visitor.phone },
+                { header: t("common.email"), accessor: (pass) => pass.visitor.email ?? "" },
+                { header: t("visitors.colFlat"), accessor: (pass) => flatLabel(pass) },
+                { header: t("visitors.colPurpose"), accessor: (pass) => pass.purpose },
                 {
-                    header: "Vehicle",
+                    header: t("visitors.colVehicle"),
                     accessor: (pass) => pass.vehicle_number ?? "",
                 },
-                { header: "Status", accessor: (pass) => statusLabels[pass.status] },
+                { header: t("common.status"), accessor: (pass) => statusLabel(pass.status) },
                 {
-                    header: "Scheduled For",
+                    header: t("visitors.colScheduledFor"),
                     accessor: (pass) => pass.scheduled_for ?? "",
                 },
-                { header: "Check In", accessor: (pass) => pass.check_in_at ?? "" },
-                { header: "Check Out", accessor: (pass) => pass.check_out_at ?? "" },
+                { header: t("visitors.colCheckIn"), accessor: (pass) => pass.check_in_at ?? "" },
+                { header: t("visitors.colCheckOut"), accessor: (pass) => pass.check_out_at ?? "" },
             ],
             rows: passes.data,
         });
@@ -228,7 +241,7 @@ export default function VisitorsIndex() {
         () => [
             {
                 id: "visitor",
-                header: "Visitor",
+                header: t("visitors.colVisitor"),
                 sortable: true,
                 sortKey: "visitor_name",
                 cell: (pass) => (
@@ -247,7 +260,7 @@ export default function VisitorsIndex() {
             },
             {
                 id: "flat",
-                header: "Flat",
+                header: t("visitors.colFlat"),
                 cell: (pass) => (
                     <span className="text-muted-foreground">
                         {flatLabel(pass)}
@@ -256,7 +269,7 @@ export default function VisitorsIndex() {
             },
             {
                 id: "purpose",
-                header: "Purpose",
+                header: t("visitors.colPurpose"),
                 sortable: true,
                 sortKey: "purpose",
                 cell: (pass) => (
@@ -265,7 +278,7 @@ export default function VisitorsIndex() {
             },
             {
                 id: "vehicle",
-                header: "Vehicle",
+                header: t("visitors.colVehicle"),
                 cell: (pass) => (
                     <span className="text-muted-foreground">
                         {pass.vehicle_number || "—"}
@@ -274,18 +287,18 @@ export default function VisitorsIndex() {
             },
             {
                 id: "status",
-                header: "Status",
+                header: t("common.status"),
                 sortable: true,
                 sortKey: "status",
                 cell: (pass) => (
                     <Badge className={statusStyles[pass.status]}>
-                        {statusLabels[pass.status]}
+                        {statusLabel(pass.status)}
                     </Badge>
                 ),
             },
             {
                 id: "schedule",
-                header: "Schedule",
+                header: t("visitors.colSchedule"),
                 sortable: true,
                 sortKey: "scheduled_for",
                 cell: (pass) => (
@@ -296,17 +309,25 @@ export default function VisitorsIndex() {
             },
             {
                 id: "check",
-                header: "Check In / Out",
+                header: t("visitors.colCheckInOut"),
                 cell: (pass) => (
                     <div className="flex flex-col text-xs text-muted-foreground">
-                        <span>In: {formatDateTime(pass.check_in_at)}</span>
-                        <span>Out: {formatDateTime(pass.check_out_at)}</span>
+                        <span>
+                            {t("visitors.checkInShort", {
+                                time: formatDateTime(pass.check_in_at),
+                            })}
+                        </span>
+                        <span>
+                            {t("visitors.checkOutShort", {
+                                time: formatDateTime(pass.check_out_at),
+                            })}
+                        </span>
                     </div>
                 ),
             },
             {
                 id: "actions",
-                header: "Actions",
+                header: t("common.actions"),
                 align: "right",
                 cell: (pass) => (
                     <div
@@ -318,17 +339,21 @@ export default function VisitorsIndex() {
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    title="Approve"
-                                    aria-label={`Approve ${pass.visitor.name}`}
+                                    title={t("visitors.approve")}
+                                    aria-label={t("visitors.approveAria", {
+                                        name: pass.visitor.name,
+                                    })}
                                     onClick={() => runAction(pass, "approve")}
                                 >
-                                    <CheckCircle2 className="size-4 text-emerald-600" />
+                                    <CheckCircle2 className="size-4 text-brand" />
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    title="Reject"
-                                    aria-label={`Reject ${pass.visitor.name}`}
+                                    title={t("visitors.reject")}
+                                    aria-label={t("visitors.rejectAria", {
+                                        name: pass.visitor.name,
+                                    })}
                                     onClick={() => runAction(pass, "reject")}
                                 >
                                     <UserX className="size-4 text-destructive" />
@@ -340,11 +365,13 @@ export default function VisitorsIndex() {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                title="Check in"
-                                aria-label={`Check in ${pass.visitor.name}`}
+                                title={t("visitors.checkIn")}
+                                aria-label={t("visitors.checkInAria", {
+                                    name: pass.visitor.name,
+                                })}
                                 onClick={() => runAction(pass, "check-in")}
                             >
-                                <LogIn className="size-4 text-emerald-600" />
+                                <LogIn className="size-4 text-brand" />
                             </Button>
                         )}
 
@@ -352,8 +379,10 @@ export default function VisitorsIndex() {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                title="Check out"
-                                aria-label={`Check out ${pass.visitor.name}`}
+                                title={t("visitors.checkOut")}
+                                aria-label={t("visitors.checkOutAria", {
+                                    name: pass.visitor.name,
+                                })}
                                 onClick={() => runAction(pass, "check-out")}
                             >
                                 <LogOut className="size-4 text-muted-foreground" />
@@ -363,7 +392,7 @@ export default function VisitorsIndex() {
                         <RowActions
                             actions={[
                                 {
-                                    label: "Edit",
+                                    label: t("common.edit"),
                                     icon: Pencil,
                                     onClick: () =>
                                         router.visit(
@@ -371,7 +400,7 @@ export default function VisitorsIndex() {
                                         ),
                                 },
                                 {
-                                    label: "Remove",
+                                    label: t("visitors.remove"),
                                     icon: Trash2,
                                     destructive: true,
                                     separatorBefore: true,
@@ -384,8 +413,7 @@ export default function VisitorsIndex() {
                 ),
             },
         ],
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [can],
+        [can, t],
     );
 
     const handleDelete = () => {
@@ -401,18 +429,18 @@ export default function VisitorsIndex() {
 
     return (
         <AppLayout>
-            <Head title="Visitors" />
+            <Head title={t("visitors.title")} />
 
             <PageHeader
-                title="Visitors"
-                description="Gate passes, approvals, and check-in/check-out tracking."
+                title={t("visitors.title")}
+                description={t("visitors.pageDescription")}
                 icon={<DoorOpen className="size-5" />}
                 actions={
                     can.create && (
                         <QuickActionPill
                             href={route("visitors.create")}
                             icon={Plus}
-                            label="Create Visitor Pass"
+                            label={t("visitors.createPass")}
                             variant="blue"
                         />
                     )
@@ -422,13 +450,13 @@ export default function VisitorsIndex() {
             <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search visitor, phone, vehicle, purpose…"
-                searchLabel="Search visitors"
+                searchPlaceholder={t("visitors.searchPlaceholder")}
+                searchLabel={t("visitors.searchLabel")}
                 activeFilters={
                     status
                         ? [
                               {
-                                  label: statusLabels[status as VisitorStatus],
+                                  label: statusLabel(status as VisitorStatus),
                                   onRemove: () => {
                                       setStatus("");
                                       applyFilters({ status: "" });
@@ -447,19 +475,26 @@ export default function VisitorsIndex() {
                         setStatus(e.target.value);
                         applyFilters({ status: e.target.value });
                     }}
-                    aria-label="Filter by status"
+                    aria-label={t("visitors.filterByStatus")}
                 >
-                    <option value="">All statuses</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="checked_in">Checked In</option>
-                    <option value="checked_out">Checked Out</option>
-                    <option value="rejected">Rejected</option>
+                    <option value="">{t("visitors.statusAll")}</option>
+                    <option value="pending">{t("common.pending")}</option>
+                    <option value="approved">{t("common.approved")}</option>
+                    <option value="checked_in">
+                        {t("visitors.status.checkedIn")}
+                    </option>
+                    <option value="checked_out">
+                        {t("visitors.status.checkedOut")}
+                    </option>
+                    <option value="rejected">{t("common.rejected")}</option>
                 </select>
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <ShieldCheck className="size-4" />
-                    {passes.total} pass{passes.total === 1 ? "" : "es"}
+                    {passes.total}{" "}
+                    {passes.total === 1
+                        ? t("visitors.passSingular")
+                        : t("visitors.passPlural")}
                 </div>
             </FilterBar>
 
@@ -479,22 +514,22 @@ export default function VisitorsIndex() {
                                 icon={Inbox}
                                 title={
                                     hasActiveFilters
-                                        ? "No passes match your filters"
-                                        : "No visitor passes yet"
+                                        ? t("visitors.emptySearchTitle")
+                                        : t("visitors.emptyTitle")
                                 }
                                 description={
                                     hasActiveFilters
-                                        ? "Try different search terms or filters."
+                                        ? t("visitors.emptySearchDescription")
                                         : can.create
-                                          ? "Create your first gate pass to get started."
-                                          : "Check back later."
+                                          ? t("visitors.emptyDescription")
+                                          : t("visitors.emptyDescriptionNoCreate")
                                 }
                                 action={
                                     can.create && !hasActiveFilters ? (
                                         <Button asChild>
                                             <Link href={route("visitors.create")}>
                                                 <Plus />
-                                                New pass
+                                                {t("visitors.newPass")}
                                             </Link>
                                         </Button>
                                     ) : undefined
@@ -514,7 +549,7 @@ export default function VisitorsIndex() {
                                     { preserveState: true, replace: true },
                                 )
                             }
-                            noun="passes"
+                            noun={t("visitors.nounPlural")}
                         />
                     )}
                 </CardContent>
@@ -523,10 +558,10 @@ export default function VisitorsIndex() {
             <BulkActionBar
                 count={selectedIds.length}
                 onClear={() => setSelectedIds([])}
-                noun="passes"
+                noun={t("visitors.nounPlural")}
                 actions={[
                     {
-                        label: "Delete",
+                        label: t("common.delete"),
                         icon: <Trash2 />,
                         destructive: true,
                         disabled: !can.delete,
@@ -543,11 +578,13 @@ export default function VisitorsIndex() {
                     }}
                     title={
                         confirming
-                            ? `Remove pass for ${confirming.visitor.name}?`
-                            : "Remove pass?"
+                            ? t("visitors.confirmRemoveTitle", {
+                                  name: confirming.visitor.name,
+                              })
+                            : t("visitors.confirmRemoveTitleGeneric")
                     }
-                    description="This removes the pending gate pass from the register."
-                    confirmLabel="Remove"
+                    description={t("visitors.confirmRemoveDescription")}
+                    confirmLabel={t("visitors.remove")}
                     destructive
                     onConfirm={handleDelete}
                 />

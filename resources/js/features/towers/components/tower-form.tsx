@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 import type { SocietyOption } from "@/features/towers/types";
 
 export type TowerFormValues = {
@@ -25,10 +26,10 @@ type Props = {
 };
 
 const inputClasses =
-    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-brand/60 focus-visible:ring-[3px] focus-visible:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 const selectClasses =
-    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-brand/60 focus-visible:ring-[3px] focus-visible:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 export default function TowerForm({
     societies,
@@ -39,22 +40,24 @@ export default function TowerForm({
     onSubmit,
     submitLabel,
 }: Props) {
+    const { t } = useI18n();
+
     return (
         <form onSubmit={onSubmit} className="space-y-6">
             <FormSection
-                title="Tower details"
-                description="Fields marked with an asterisk are required."
+                title={t("towerForm.title")}
+                description={t("towerForm.requiredHint")}
             >
                 <div className="space-y-2">
                     <Label htmlFor="name">
-                        Tower Name <span className="text-destructive">*</span>
+                        {t("towerForm.towerName")} <span className="text-destructive">*</span>
                     </Label>
                     <Input
                         id="name"
                         className={inputClasses}
                         value={data.name}
                         onChange={(e) => setData("name", e.target.value)}
-                        placeholder="e.g. Tower A"
+                        placeholder={t("towerForm.towerNamePlaceholder")}
                         autoFocus
                     />
                     {errors.name && (
@@ -65,7 +68,7 @@ export default function TowerForm({
                 {societies.length > 0 && (
                     <div className="mt-5 space-y-2">
                         <Label htmlFor="society_id">
-                            Society <span className="text-destructive">*</span>
+                            {t("towerForm.society")} <span className="text-destructive">*</span>
                         </Label>
                         <select
                             id="society_id"
@@ -80,7 +83,7 @@ export default function TowerForm({
                                 )
                             }
                         >
-                            <option value="">Select a society</option>
+                            <option value="">{t("towerForm.selectSociety")}</option>
                             {societies.map((society) => (
                                 <option key={society.id} value={society.id}>
                                     {society.label}
@@ -103,12 +106,12 @@ export default function TowerForm({
                     onClick={() => window.history.back()}
                     className="rounded-full px-5 text-xs font-semibold hover:bg-muted"
                 >
-                    Cancel
+                    {t("common.cancel")}
                 </Button>
                 <Button
                     type="submit"
                     disabled={processing}
-                    className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all duration-200 text-white"
+                    className="rounded-full bg-brand px-6 text-xs font-semibold shadow-md hover:bg-brand hover:-translate-y-0.5 transition-all duration-200 text-white"
                 >
                     {processing && <Loader2 className="mr-2 size-3.5 animate-spin" />}
                     {submitLabel}

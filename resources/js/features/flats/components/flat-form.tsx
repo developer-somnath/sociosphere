@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 import type { TowerOption } from "@/features/flats/types";
 
 export type FlatFormValues = {
@@ -30,10 +31,10 @@ type Props = {
 };
 
 const inputClasses =
-    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-brand/60 focus-visible:ring-[3px] focus-visible:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 const selectClasses =
-    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-brand/60 focus-visible:ring-[3px] focus-visible:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 export default function FlatForm({
     towers,
@@ -44,27 +45,29 @@ export default function FlatForm({
     onSubmit,
     submitLabel,
 }: Props) {
+    const { t } = useI18n();
+
     return (
         <form onSubmit={onSubmit} className="space-y-6">
             <div className="rounded-2xl border border-border/60 bg-muted/25 p-4 sm:p-5">
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2 sm:col-span-2">
                         <Label htmlFor="tower_id">
-                            Tower <span className="text-destructive">*</span>
+                            {t("flatForm.tower")} <span className="text-destructive">*</span>
                         </Label>
                         <Combobox
                             id="tower_id"
-                            items={towers.map((t) => ({
-                                value: String(t.id),
-                                label: t.label,
+                            items={towers.map((tower) => ({
+                                value: String(tower.id),
+                                label: tower.label,
                             }))}
                             value={String(data.tower_id)}
                             onValueChange={(val) =>
                                 setData("tower_id", val === "" ? "" : Number(val))
                             }
-                            placeholder="Select tower…"
-                            searchPlaceholder="Search towers…"
-                            emptyText="No towers found"
+                            placeholder={t("flatForm.selectTower")}
+                            searchPlaceholder={t("flatForm.searchTowers")}
+                            emptyText={t("flatForm.noTowers")}
                         />
                         {errors.tower_id && (
                             <p className="text-sm text-destructive">
@@ -75,14 +78,14 @@ export default function FlatForm({
 
                     <div className="space-y-2">
                         <Label htmlFor="flat_no">
-                            Flat Number <span className="text-destructive">*</span>
+                            {t("flatForm.flatNumber")} <span className="text-destructive">*</span>
                         </Label>
                         <Input
                             id="flat_no"
                             className={inputClasses}
                             value={data.flat_no}
                             onChange={(e) => setData("flat_no", e.target.value)}
-                            placeholder="e.g. A-101"
+                            placeholder={t("flatForm.flatNumberPlaceholder")}
                             autoFocus
                         />
                         {errors.flat_no && (
@@ -93,7 +96,7 @@ export default function FlatForm({
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="floor_no">Floor</Label>
+                        <Label htmlFor="floor_no">{t("flatForm.floor")}</Label>
                         <Input
                             id="floor_no"
                             type="number"
@@ -102,7 +105,7 @@ export default function FlatForm({
                             className={inputClasses}
                             value={data.floor_no}
                             onChange={(e) => setData("floor_no", e.target.value)}
-                            placeholder="e.g. 1"
+                            placeholder={t("flatForm.floorPlaceholder")}
                         />
                         {errors.floor_no && (
                             <p className="text-sm text-destructive">
@@ -112,13 +115,13 @@ export default function FlatForm({
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="flat_type">Flat Type</Label>
+                        <Label htmlFor="flat_type">{t("flatForm.flatType")}</Label>
                         <Input
                             id="flat_type"
                             className={inputClasses}
                             value={data.flat_type}
                             onChange={(e) => setData("flat_type", e.target.value)}
-                            placeholder="e.g. 2BHK"
+                            placeholder={t("flatForm.flatTypePlaceholder")}
                         />
                         {errors.flat_type && (
                             <p className="text-sm text-destructive">
@@ -128,7 +131,7 @@ export default function FlatForm({
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="area_sqft">Area (sq. ft.)</Label>
+                        <Label htmlFor="area_sqft">{t("flatForm.area")}</Label>
                         <Input
                             id="area_sqft"
                             type="number"
@@ -137,7 +140,7 @@ export default function FlatForm({
                             className={inputClasses}
                             value={data.area_sqft}
                             onChange={(e) => setData("area_sqft", e.target.value)}
-                            placeholder="e.g. 850"
+                            placeholder={t("flatForm.areaPlaceholder")}
                         />
                         {errors.area_sqft && (
                             <p className="text-sm text-destructive">
@@ -148,7 +151,7 @@ export default function FlatForm({
 
                     <div className="space-y-2">
                         <Label htmlFor="ownership_type">
-                            Ownership <span className="text-destructive">*</span>
+                            {t("flatForm.ownership")} <span className="text-destructive">*</span>
                         </Label>
                         <select
                             id="ownership_type"
@@ -161,9 +164,9 @@ export default function FlatForm({
                                 )
                             }
                         >
-                            <option value="">Select ownership</option>
-                            <option value="Owner">Owner</option>
-                            <option value="Tenant">Tenant</option>
+                            <option value="">{t("flatForm.selectOwnership")}</option>
+                            <option value="Owner">{t("flats.ownership.owner")}</option>
+                            <option value="Tenant">{t("flats.ownership.tenant")}</option>
                         </select>
                         {errors.ownership_type && (
                             <p className="text-sm text-destructive">
@@ -174,7 +177,7 @@ export default function FlatForm({
 
                     <div className="space-y-2 sm:col-span-2">
                         <Label htmlFor="occupancy_status">
-                            Occupancy Status{" "}
+                            {t("flatForm.occupancyStatus")}{" "}
                             <span className="text-destructive">*</span>
                         </Label>
                         <select
@@ -188,10 +191,10 @@ export default function FlatForm({
                                 )
                             }
                         >
-                            <option value="">Select status</option>
-                            <option value="Occupied">Occupied</option>
-                            <option value="Vacant">Vacant</option>
-                            <option value="Self-Occupied">Self-Occupied</option>
+                            <option value="">{t("flatForm.selectStatus")}</option>
+                            <option value="Occupied">{t("flats.status.occupied")}</option>
+                            <option value="Vacant">{t("flats.status.vacant")}</option>
+                            <option value="Self-Occupied">{t("flats.status.selfOccupied")}</option>
                         </select>
                         {errors.occupancy_status && (
                             <p className="text-sm text-destructive">
@@ -209,12 +212,12 @@ export default function FlatForm({
                     onClick={() => window.history.back()}
                     className="rounded-full px-5 text-xs font-semibold hover:bg-muted"
                 >
-                    Cancel
+                    {t("common.cancel")}
                 </Button>
                 <Button
                     type="submit"
                     disabled={processing}
-                    className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all duration-200 text-white"
+                    className="rounded-full bg-brand px-6 text-xs font-semibold shadow-md hover:bg-brand hover:-translate-y-0.5 transition-all duration-200 text-white"
                 >
                     {processing && <Loader2 className="mr-2 size-3.5 animate-spin" />}
                     {submitLabel}

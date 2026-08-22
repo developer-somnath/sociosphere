@@ -93,6 +93,11 @@ class HandleInertiaRequests extends Middleware
 
         return array_merge(parent::share($request), [
 
+            // Platform release info (blueprint §3 — version display). Keep in
+            // sync with docs/ARCHITECTURE_AND_ROADMAP.md "Current Platform Version".
+            'version' => config('app.version', 'v2.1.0 — Eagle'),
+            'environment' => app()->environment(),
+
             'auth' => [
 
                 'user' => $user
@@ -120,6 +125,10 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+
+            // WebPush VAPID public key — needed by the frontend to create a
+            // push subscription (PWA — S4-1). Empty until keys are generated.
+            'vapid_public_key' => config('services.webpush.vapid_public_key'),
 
             // Bell notification center (blueprint §2) — latest 10, mapped to the
             // front-end AppNotification shape. Lazy closure: only computed when

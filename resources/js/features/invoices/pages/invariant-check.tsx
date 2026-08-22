@@ -62,9 +62,9 @@ export default function InvariantCheck() {
                 }
             >
                 {healthy ? (
-                    <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                    <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-brand dark:text-brand" />
                 ) : (
-                    <ShieldAlert className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                    <ShieldAlert className="mt-0.5 size-5 shrink-0 text-warning dark:text-warning" />
                 )}
                 <div>
                     <p className="font-semibold">
@@ -92,16 +92,16 @@ export default function InvariantCheck() {
                     value={money(stats.total_billed)}
                     hint="Sum of invoice totals"
                     icon={ShieldCheck}
-                    accentColor="bg-sky-500"
-                    iconColor="bg-sky-500/10 text-sky-600 border-sky-500/20"
+                    accentColor="bg-info"
+                    iconColor="bg-info/10 text-info border-info/20"
                 />
                 <MetricCard
                     label="Total Collected"
                     value={money(stats.total_collected)}
                     hint="Sum of paid amounts"
                     icon={ShieldCheck}
-                    accentColor="bg-emerald-500"
-                    iconColor="bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                    accentColor="bg-brand"
+                    iconColor="bg-brand/10 text-brand border-brand/20"
                 />
             </div>
 
@@ -115,7 +115,7 @@ export default function InvariantCheck() {
                 <CardContent>
                     {violations.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-8 text-center">
-                            <Badge className="border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                            <Badge className="border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand">
                                 Healthy
                             </Badge>
                             <p className="text-sm text-muted-foreground">
@@ -127,9 +127,9 @@ export default function InvariantCheck() {
                             {violations.map((violation, index) => (
                                 <li
                                     key={index}
-                                    className="flex items-start gap-3 rounded-lg border border-amber-600/30 bg-amber-600/5 px-4 py-3 text-sm"
+                                    className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/5 px-4 py-3 text-sm"
                                 >
-                                    <ShieldAlert className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                                    <ShieldAlert className="mt-0.5 size-4 shrink-0 text-warning dark:text-warning" />
                                     <span>{violation}</span>
                                 </li>
                             ))}

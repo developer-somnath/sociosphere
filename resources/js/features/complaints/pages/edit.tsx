@@ -10,6 +10,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type CategoryOption = { id: number; name: string };
@@ -38,6 +39,7 @@ type EditProps = {
 export default function ComplaintEdit() {
     const { complaint, categories, staffUsers } =
         usePage<PageProps<EditProps>>().props;
+    const { t } = useI18n();
 
     const form = useForm({
         title: complaint.title,
@@ -55,17 +57,17 @@ export default function ComplaintEdit() {
 
     return (
         <AppLayout>
-            <Head title={`Edit: ${complaint.title}`} />
+            <Head title={t("complaintForm.editHeadTitle", { title: complaint.title })} />
 
             <PageHeader
-                title="Edit Complaint"
+                title={t("complaintForm.editTitle")}
                 description={`#${complaint.id} · ${complaint.flat?.flat_number ?? ""} ${complaint.flat?.tower ? `(${complaint.flat.tower.name})` : ""}`}
                 icon={<MessageSquareWarning className="size-5" />}
                 actions={
                     <Button variant="outline" asChild>
                         <Link href={route("complaints.show", complaint.id)}>
                             <ArrowLeft className="size-4" />
-                            Back to Detail
+                            {t("complaintForm.backToDetail")}
                         </Link>
                     </Button>
                 }
@@ -73,14 +75,14 @@ export default function ComplaintEdit() {
 
             <Card className="mx-auto max-w-2xl border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardHeader>
-                    <CardTitle>Update Complaint</CardTitle>
+                    <CardTitle>{t("complaintForm.updateTitle")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                        <FormSection title="Complaint Information">
+                        <FormSection title={t("complaintForm.information")}>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
-                                    <Label>Category *</Label>
+                                    <Label>{t("complaintForm.category")} *</Label>
                                     <Combobox
                                         items={categories.map((c) => ({
                                             value: String(c.id),
@@ -90,8 +92,8 @@ export default function ComplaintEdit() {
                                         onValueChange={(value) =>
                                             form.setData("category_id", value)
                                         }
-                                        placeholder="Select category…"
-                                        emptyText="No categories"
+                                        placeholder={t("complaintForm.selectCategory")}
+                                        emptyText={t("complaintForm.noCategories")}
                                     />
                                     {form.errors.category_id && (
                                         <p className="text-xs text-destructive">{form.errors.category_id}</p>
@@ -99,20 +101,20 @@ export default function ComplaintEdit() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label>Priority *</Label>
+                                    <Label>{t("complaintForm.priority")} *</Label>
                                     <Combobox
                                         items={[
-                                            { value: "Low", label: "Low" },
-                                            { value: "Medium", label: "Medium" },
-                                            { value: "High", label: "High" },
-                                            { value: "Critical", label: "Critical" },
+                                            { value: "Low", label: t("complaints.priority.low") },
+                                            { value: "Medium", label: t("complaints.priority.medium") },
+                                            { value: "High", label: t("complaints.priority.high") },
+                                            { value: "Critical", label: t("complaints.priority.critical") },
                                         ]}
                                         value={form.data.priority}
                                         onValueChange={(value) =>
                                             form.setData("priority", value)
                                         }
-                                        placeholder="Select priority…"
-                                        emptyText="No match"
+                                        placeholder={t("complaintForm.selectPriority")}
+                                        emptyText={t("complaintForm.noMatch")}
                                     />
                                     {form.errors.priority && (
                                         <p className="text-xs text-destructive">{form.errors.priority}</p>
@@ -122,21 +124,21 @@ export default function ComplaintEdit() {
 
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
-                                    <Label>Status</Label>
+                                    <Label>{t("common.status")}</Label>
                                     <Combobox
                                         items={[
-                                            { value: "Open", label: "Open" },
-                                            { value: "Assigned", label: "Assigned" },
-                                            { value: "In Progress", label: "In Progress" },
-                                            { value: "Resolved", label: "Resolved" },
-                                            { value: "Closed", label: "Closed" },
+                                            { value: "Open", label: t("complaints.status.open") },
+                                            { value: "Assigned", label: t("complaints.status.assigned") },
+                                            { value: "In Progress", label: t("complaints.status.inProgress") },
+                                            { value: "Resolved", label: t("complaints.status.resolved") },
+                                            { value: "Closed", label: t("complaints.status.closed") },
                                         ]}
                                         value={form.data.status}
                                         onValueChange={(value) =>
                                             form.setData("status", value)
                                         }
-                                        placeholder="Select status…"
-                                        emptyText="No match"
+                                        placeholder={t("complaintForm.selectStatus")}
+                                        emptyText={t("complaintForm.noMatch")}
                                     />
                                     {form.errors.status && (
                                         <p className="text-xs text-destructive">{form.errors.status}</p>
@@ -144,7 +146,7 @@ export default function ComplaintEdit() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label>Assigned To</Label>
+                                    <Label>{t("common.assignedTo")}</Label>
                                     <Combobox
                                         items={staffUsers.map((u) => ({
                                             value: String(u.id),
@@ -154,8 +156,8 @@ export default function ComplaintEdit() {
                                         onValueChange={(value) =>
                                             form.setData("assigned_to", value)
                                         }
-                                        placeholder="Select staff…"
-                                        emptyText="No staff found"
+                                        placeholder={t("complaintForm.selectStaff")}
+                                        emptyText={t("complaintForm.noStaffFound")}
                                     />
                                     {form.errors.assigned_to && (
                                         <p className="text-xs text-destructive">{form.errors.assigned_to}</p>
@@ -164,11 +166,11 @@ export default function ComplaintEdit() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label>Title *</Label>
+                                <Label>{t("complaintForm.title")} *</Label>
                                 <Input
                                     value={form.data.title}
                                     onChange={(e) => form.setData("title", e.target.value)}
-                                    placeholder="Complaint title"
+                                    placeholder={t("complaintForm.editTitlePlaceholder")}
                                     required
                                 />
                                 {form.errors.title && (
@@ -177,14 +179,14 @@ export default function ComplaintEdit() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label>Description *</Label>
+                                <Label>{t("complaintForm.description")} *</Label>
                                 <textarea
                                     value={form.data.description}
                                     onChange={(e) =>
                                         form.setData("description", e.target.value)
                                     }
                                     className="min-h-[120px] w-full rounded-lg border border-input bg-transparent p-2.5 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
-                                    placeholder="Describe the issue in detail..."
+                                    placeholder={t("complaintForm.descriptionPlaceholder")}
                                     required
                                 />
                                 {form.errors.description && (
@@ -195,10 +197,10 @@ export default function ComplaintEdit() {
 
                         <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
                             <Button variant="outline" type="button" className="rounded-full px-5 text-xs font-semibold hover:bg-muted" asChild>
-                                <Link href={route("complaints.show", complaint.id)}>Cancel</Link>
+                                <Link href={route("complaints.show", complaint.id)}>{t("common.cancel")}</Link>
                             </Button>
-                            <Button type="submit" disabled={form.processing} className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all duration-200 text-white">
-                                {form.processing ? "Saving..." : "Save Changes"}
+                            <Button type="submit" disabled={form.processing} className="rounded-full bg-brand px-6 text-xs font-semibold shadow-md hover:bg-brand hover:-translate-y-0.5 transition-all duration-200 text-white">
+                                {form.processing ? t("complaintForm.saving") : t("common.saveChanges")}
                             </Button>
                         </div>
                     </form>

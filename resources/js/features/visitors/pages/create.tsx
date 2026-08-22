@@ -4,6 +4,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -25,6 +26,7 @@ type CreateProps = {
 
 export default function VisitorsCreate() {
     const { flats } = usePage<PageProps<CreateProps>>().props;
+    const { t } = useI18n();
 
     const { data, setData: rawSetData, post, processing, errors } =
         useForm<VisitorFormValues>({
@@ -62,23 +64,23 @@ export default function VisitorsCreate() {
 
     return (
         <AppLayout>
-            <Head title="New Visitor Pass" />
+            <Head title={t("visitors.add")} />
 
             <div className="flex flex-col gap-4">
                 <PageHeader
-                    title="New Visitor Pass"
-                    description="Register a visitor and raise a gate pass for approval."
+                    title={t("visitors.add")}
+                    description={t("visitors.addPageDescription")}
                     icon={<DoorOpen className="size-5" />}
                     breadcrumbs={[
-                        { label: "Gate & Access" },
-                        { label: "Visitors", href: route("visitors.index") },
-                        { label: "New Visitor Pass" },
+                        { label: t("visitors.breadcrumb.section") },
+                        { label: t("nav.visitors"), href: route("visitors.index") },
+                        { label: t("visitors.add") },
                     ]}
                     actions={
                         <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                             <Link href={route("visitors.index")}>
                                 <ArrowLeft className="size-3.5" />
-                                Back
+                                {t("common.back")}
                             </Link>
                         </Button>
                     }
@@ -87,16 +89,15 @@ export default function VisitorsCreate() {
                 <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <div className="flex size-8 items-center justify-center rounded-md bg-violet-600/10 text-violet-600">
+                            <div className="flex size-8 items-center justify-center rounded-md bg-info/10 text-info">
                                 <DoorOpen className="size-4" />
                             </div>
                             <div>
                                 <CardTitle className="text-base">
-                                    Visitor & Pass Details
+                                    {t("visitors.details")}
                                 </CardTitle>
                                 <CardDescription>
-                                    The pass is created as pending and needs
-                                    approval before check-in.
+                                    {t("visitors.createDetailsDescription")}
                                 </CardDescription>
                             </div>
                         </div>
@@ -109,7 +110,7 @@ export default function VisitorsCreate() {
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}
-                            submitLabel="Create Pass"
+                            submitLabel={t("visitors.createSubmit")}
                         />
                     </CardContent>
                 </Card>

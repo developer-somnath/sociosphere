@@ -28,6 +28,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
+import { t, useI18n } from "@/lib/i18n";
 import { toast } from "@/lib/toast";
 import type { PageProps } from "@/types";
 import type {
@@ -61,8 +62,8 @@ const statusStyles: Record<
 > = {
     Occupied: {
         badge:
-            "border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
-        dot: "bg-emerald-500",
+            "border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand",
+        dot: "bg-brand",
     },
     Vacant: {
         badge:
@@ -71,14 +72,26 @@ const statusStyles: Record<
     },
     "Self-Occupied": {
         badge:
-            "border-transparent bg-sky-600/10 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400",
-        dot: "bg-sky-500",
+            "border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info",
+        dot: "bg-info",
     },
 };
+
+function occupancyStatusLabel(status: Flat["occupancy_status"]): string {
+    switch (status) {
+        case "Occupied":
+            return t("flats.status.occupied");
+        case "Vacant":
+            return t("flats.status.vacant");
+        case "Self-Occupied":
+            return t("flats.status.selfOccupied");
+    }
+}
 
 export default function FlatsIndex() {
     const { flats, filters, towers, stats, can } =
         usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
 
     const [search, setSearch] = useState(filters.search);
     const [towerId, setTowerId] = useState(
@@ -153,23 +166,25 @@ export default function FlatsIndex() {
     const handleExport = (format: ExportFormat) => {
         if (format !== "csv") {
             toast({
-                title: "Export coming soon",
+                title: t("flats.exportComingSoon"),
                 variant: "info",
-                description: `${format.toUpperCase()} export will be available soon.`,
+                description: t("flats.exportFormatComingSoon", {
+                    format: format.toUpperCase(),
+                }),
             });
             return;
         }
         exportCsv<Flat>({
             filename: "flats.csv",
             columns: [
-                { header: "Flat No", accessor: (flat) => flat.flat_no },
-                { header: "Tower", accessor: (flat) => flat.tower?.name ?? "" },
-                { header: "Type", accessor: (flat) => flat.flat_type ?? "" },
-                { header: "Floor", accessor: (flat) => flat.floor_no ?? "" },
-                { header: "Area (sq ft)", accessor: (flat) => flat.area_sqft ?? "" },
-                { header: "Status", accessor: (flat) => flat.occupancy_status },
-                { header: "Ownership", accessor: (flat) => flat.ownership_type },
-                { header: "Residents", accessor: (flat) => flat.residents_count },
+                { header: t("flats.colFlatNo"), accessor: (flat) => flat.flat_no },
+                { header: t("flats.tower"), accessor: (flat) => flat.tower?.name ?? "" },
+                { header: t("common.type"), accessor: (flat) => flat.flat_type ?? "" },
+                { header: t("flats.colFloor"), accessor: (flat) => flat.floor_no ?? "" },
+                { header: t("flats.colArea"), accessor: (flat) => flat.area_sqft ?? "" },
+                { header: t("common.status"), accessor: (flat) => flat.occupancy_status },
+                { header: t("flats.ownership"), accessor: (flat) => flat.ownership_type },
+                { header: t("flats.residents"), accessor: (flat) => flat.residents_count },
             ],
             rows: flats.data,
         });
@@ -179,12 +194,12 @@ export default function FlatsIndex() {
         () => [
             {
                 id: "flat",
-                header: "Flat",
+                header: t("flats.colFlat"),
                 sortable: true,
                 sortKey: "flat_no",
                 cell: (flat) => (
                     <div className="flex items-center gap-3">
-                        <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-emerald-600/10 text-emerald-600">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-brand/10 text-brand">
                             <DoorOpen className="size-4" />
                         </div>
                         <div className="min-w-0">
@@ -202,7 +217,7 @@ export default function FlatsIndex() {
             },
             {
                 id: "type",
-                header: "Type",
+                header: t("common.type"),
                 cell: (flat) =>
                     flat.flat_type ?? (
                         <span className="text-muted-foreground">—</span>
@@ -210,7 +225,7 @@ export default function FlatsIndex() {
             },
             {
                 id: "floor",
-                header: "Floor",
+                header: t("flats.colFloor"),
                 sortable: true,
                 sortKey: "floor_no",
                 cell: (flat) =>
@@ -220,7 +235,7 @@ export default function FlatsIndex() {
             },
             {
                 id: "area",
-                header: "Area",
+                header: t("flats.colAreaShort"),
                 cell: (flat) =>
                     flat.area_sqft ? (
                         <span className="text-muted-foreground">
@@ -232,7 +247,7 @@ export default function FlatsIndex() {
             },
             {
                 id: "status",
-                header: "Status",
+                header: t("common.status"),
                 sortable: true,
                 sortKey: "occupancy_status",
                 cell: (flat) => (
@@ -243,46 +258,46 @@ export default function FlatsIndex() {
                         <span
                             className={`size-1.5 rounded-full ${statusStyles[flat.occupancy_status].dot}`}
                         />
-                        {flat.occupancy_status}
+                        {occupancyStatusLabel(flat.occupancy_status)}
                     </Badge>
                 ),
             },
             {
                 id: "ownership",
-                header: "Ownership",
+                header: t("flats.ownership"),
                 cell: (flat) =>
                     flat.ownership_type === "Tenant" ? (
-                        <Badge variant="outline">Tenant</Badge>
+                        <Badge variant="outline">{t("flats.ownership.tenant")}</Badge>
                     ) : (
                         <Badge
                             variant="outline"
-                            className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                            className="border-warning/30 bg-warning/10 text-warning dark:text-warning"
                         >
-                            Owner
+                            {t("flats.ownership.owner")}
                         </Badge>
                     ),
             },
             {
                 id: "residents",
-                header: "Residents",
+                header: t("flats.residents"),
                 cell: (flat) =>
                     flat.residents_count > 0 ? (
                         <Link
                             href={route("residents.index")}
                             className="font-medium text-foreground underline-offset-4 hover:underline"
                         >
-                            {flat.residents_count} resident
-                            {flat.residents_count === 1 ? "" : "s"}
+                            {flat.residents_count}{" "}
+                            {t(flat.residents_count === 1 ? "flats.residentOne" : "flats.residentMany")}
                         </Link>
                     ) : (
                         <span className="text-muted-foreground">
-                            0 residents
+                            {t("flats.zeroResidents")}
                         </span>
                     ),
             },
             {
                 id: "actions",
-                header: "Actions",
+                header: t("common.actions"),
                 align: "right",
                 cell: (flat) => (
                     <div
@@ -292,7 +307,7 @@ export default function FlatsIndex() {
                         <RowActions
                             actions={[
                                 {
-                                    label: "Edit",
+                                    label: t("common.edit"),
                                     icon: Pencil,
                                     onClick: () =>
                                         router.visit(
@@ -300,7 +315,7 @@ export default function FlatsIndex() {
                                         ),
                                 },
                                 {
-                                    label: "Remove",
+                                    label: t("flats.remove"),
                                     icon: Trash2,
                                     destructive: true,
                                     separatorBefore: true,
@@ -314,7 +329,7 @@ export default function FlatsIndex() {
             },
         ],
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [can],
+        [can, t],
     );
 
     // Debounced, URL-synced search (blueprint §8). Always reset to page 1
@@ -354,49 +369,49 @@ export default function FlatsIndex() {
 
     const statCards = [
         {
-            label: "Total Units",
+            label: t("flats.statTotalUnits"),
             value: stats.total_units,
             icon: Home,
             accent:
-                "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
+                "bg-brand text-brand dark:bg-brand/10 dark:text-brand",
         },
         {
-            label: "Occupied",
+            label: t("flats.status.occupied"),
             value: stats.occupied_units,
             icon: DoorOpen,
             accent:
-                "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400",
+                "bg-info text-info dark:bg-info/10 dark:text-info",
         },
         {
-            label: "Vacant",
+            label: t("flats.status.vacant"),
             value: stats.vacant_units,
             icon: Building2,
             accent:
-                "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
+                "bg-warning text-warning dark:bg-warning/10 dark:text-warning",
         },
         {
-            label: "Occupancy Rate",
+            label: t("flats.statOccupancyRate"),
             value: `${stats.occupancy_rate}%`,
             icon: Percent,
             accent:
-                "bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400",
+                "bg-info text-info dark:bg-info/10 dark:text-info",
         },
     ];
 
     return (
         <AppLayout>
-            <Head title="Flats" />
+            <Head title={t("flats.title")} />
 
             <PageHeader
-                title="Flats"
-                description="Manage the property units, occupancy states, and resident assignments."
+                title={t("flats.title")}
+                description={t("flats.pageDescription")}
                 icon={<Building2 className="size-5" />}
                 actions={
                     can.create && (
                         <QuickActionPill
                             href={route("flats.create")}
                             icon={Plus}
-                            label="Add Flat"
+                            label={t("flats.add")}
                             variant="teal"
                         />
                     )
@@ -428,8 +443,8 @@ export default function FlatsIndex() {
             <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search flats, towers, residents…"
-                searchLabel="Search flats"
+                searchPlaceholder={t("flats.searchPlaceholder")}
+                searchLabel={t("flats.searchLabel")}
                 activeFilters={[
                     ...(towerId
                         ? [
@@ -438,7 +453,7 @@ export default function FlatsIndex() {
                                       towers.find(
                                           (tower) =>
                                               String(tower.id) === towerId,
-                                      )?.label ?? "Tower",
+                                      )?.label ?? t("flats.tower"),
                                   onRemove: () => {
                                       setTowerId("");
                                       applyFilters({ tower_id: "" });
@@ -449,7 +464,9 @@ export default function FlatsIndex() {
                     ...(status
                         ? [
                               {
-                                  label: status,
+                                  label: occupancyStatusLabel(
+                                      status as Flat["occupancy_status"],
+                                  ),
                                   onRemove: () => {
                                       setStatus("");
                                       applyFilters({ status: "" });
@@ -462,7 +479,7 @@ export default function FlatsIndex() {
                 className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
             >
                 <select
-                    aria-label="Filter by tower"
+                    aria-label={t("flats.filterByTower")}
                     className={`${selectClasses} w-auto min-w-44`}
                     value={towerId}
                     onChange={(e) => {
@@ -470,7 +487,7 @@ export default function FlatsIndex() {
                         applyFilters({ tower_id: e.target.value });
                     }}
                 >
-                    <option value="">All towers</option>
+                    <option value="">{t("flats.allTowers")}</option>
                     {towers.map((tower) => (
                         <option key={tower.id} value={tower.id}>
                             {tower.label}
@@ -479,7 +496,7 @@ export default function FlatsIndex() {
                 </select>
 
                 <select
-                    aria-label="Filter by status"
+                    aria-label={t("flats.filterByStatus")}
                     className={`${selectClasses} w-auto min-w-40`}
                     value={status}
                     onChange={(e) => {
@@ -487,10 +504,10 @@ export default function FlatsIndex() {
                         applyFilters({ status: e.target.value });
                     }}
                 >
-                    <option value="">All statuses</option>
-                    <option value="Occupied">Occupied</option>
-                    <option value="Vacant">Vacant</option>
-                    <option value="Self-Occupied">Self-Occupied</option>
+                    <option value="">{t("flats.allStatuses")}</option>
+                    <option value="Occupied">{t("flats.status.occupied")}</option>
+                    <option value="Vacant">{t("flats.status.vacant")}</option>
+                    <option value="Self-Occupied">{t("flats.status.selfOccupied")}</option>
                 </select>
             </FilterBar>
 
@@ -512,17 +529,17 @@ export default function FlatsIndex() {
                                     filters.search ||
                                     filters.tower_id ||
                                     filters.status
-                                        ? "No flats match your filters"
-                                        : "No flats yet"
+                                        ? t("flats.emptyFilterTitle")
+                                        : t("flats.emptyTitle")
                                 }
                                 description={
                                     filters.search ||
                                     filters.tower_id ||
                                     filters.status
-                                        ? "Try adjusting your search or filters."
+                                        ? t("flats.emptyFilterDescription")
                                         : can.create
-                                          ? "Add your first flat to get started."
-                                          : "Check back later."
+                                          ? t("flats.emptyDescription")
+                                          : t("flats.emptyDescriptionNoCreate")
                                 }
                                 action={
                                     can.create &&
@@ -532,7 +549,7 @@ export default function FlatsIndex() {
                                         <Button asChild>
                                             <Link href={route("flats.create")}>
                                                 <Plus />
-                                                Add flat
+                                                {t("flats.add")}
                                             </Link>
                                         </Button>
                                     ) : undefined
@@ -552,7 +569,7 @@ export default function FlatsIndex() {
                                     { preserveState: true, replace: true },
                                 )
                             }
-                            noun="flats"
+                            noun={t("flats.nounPlural")}
                         />
                     )}
                 </CardContent>
@@ -561,10 +578,10 @@ export default function FlatsIndex() {
             <BulkActionBar
                 count={selectedIds.length}
                 onClear={() => setSelectedIds([])}
-                noun="flats"
+                noun={t("flats.nounPlural")}
                 actions={[
                     {
-                        label: "Delete",
+                        label: t("common.delete"),
                         icon: <Trash2 />,
                         destructive: true,
                         disabled: !can.delete,
@@ -580,11 +597,11 @@ export default function FlatsIndex() {
                 }}
                 title={
                     confirming
-                        ? `Remove flat ${confirming.flat_no}?`
-                        : "Remove flat?"
+                        ? t("flats.confirmRemoveTitle", { flatNo: confirming.flat_no })
+                        : t("flats.confirmRemoveTitleGeneric")
                 }
-                description="This will remove the flat from the society. Flats with residents attached cannot be removed."
-                confirmLabel="Remove"
+                description={t("flats.confirmRemoveDescription")}
+                confirmLabel={t("flats.remove")}
                 destructive
                 onConfirm={handleDelete}
             />

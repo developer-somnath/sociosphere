@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type EditProps = {
@@ -30,6 +31,7 @@ type EditProps = {
 
 export default function SocietyEdit() {
     const { society } = usePage<PageProps<EditProps>>().props;
+    const { t } = useI18n();
 
     const form = useForm({
         name: society.name,
@@ -51,22 +53,24 @@ export default function SocietyEdit() {
 
     return (
         <AppLayout>
-            <Head title={`Edit ${society.name}`} />
+            <Head title={t("societies.editTitle", { name: society.name })} />
 
             <PageHeader
-                title="Edit Society Profile"
-                description={`Update profile details for ${society.name}.`}
+                title={t("societies.editProfile")}
+                description={t("societies.editDescription", {
+                    name: society.name,
+                })}
                 icon={<Building className="size-5" />}
                 breadcrumbs={[
-                    { label: "Management" },
-                    { label: "Societies", href: route("societies.index") },
+                    { label: t("residents.breadcrumb.section") },
+                    { label: t("nav.societies"), href: route("societies.index") },
                     { label: society.name },
                 ]}
                 actions={
                     <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                         <Link href={route("societies.index")}>
                             <ArrowLeft className="size-3.5" />
-                            Back
+                            {t("common.back")}
                         </Link>
                     </Button>
                 }
@@ -74,14 +78,22 @@ export default function SocietyEdit() {
 
             <Card className="border-border/70 bg-card/80 shadow-xs">
                 <CardHeader>
-                    <CardTitle className="text-base">Edit Profile Form</CardTitle>
+                    <CardTitle className="text-base">
+                        {t("societyForm.editForm")}
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={submit} className="space-y-6">
-                        <FormSection title="Basic Details" description="Core identity information of the residential society.">
+                        <FormSection
+                            title={t("societyForm.basicDetails")}
+                            description={t("societyForm.basicDetailsDescription")}
+                        >
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5 sm:col-span-2">
-                                    <Label htmlFor="name">Society Name *</Label>
+                                    <Label htmlFor="name">
+                                        {t("societyForm.name")}{" "}
+                                        <span className="text-destructive">*</span>
+                                    </Label>
                                     <Input
                                         id="name"
                                         value={form.data.name}
@@ -92,7 +104,9 @@ export default function SocietyEdit() {
                                 </div>
 
                                 <div className="space-y-1.5 sm:col-span-2">
-                                    <Label htmlFor="registration_no">Registration Number</Label>
+                                    <Label htmlFor="registration_no">
+                                        {t("societyForm.registrationNo")}
+                                    </Label>
                                     <Input
                                         id="registration_no"
                                         value={form.data.registration_no}
@@ -102,10 +116,15 @@ export default function SocietyEdit() {
                             </div>
                         </FormSection>
 
-                        <FormSection title="Address & Location" description="Physical address parameters.">
+                        <FormSection
+                            title={t("societyForm.addressLocation")}
+                            description={t("societyForm.addressLocationDescription")}
+                        >
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5 sm:col-span-2">
-                                    <Label htmlFor="address">Street Address</Label>
+                                    <Label htmlFor="address">
+                                        {t("common.address")}
+                                    </Label>
                                     <Input
                                         id="address"
                                         value={form.data.address}
@@ -113,7 +132,9 @@ export default function SocietyEdit() {
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="city">City</Label>
+                                    <Label htmlFor="city">
+                                        {t("societyForm.city")}
+                                    </Label>
                                     <Input
                                         id="city"
                                         value={form.data.city}
@@ -121,7 +142,9 @@ export default function SocietyEdit() {
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="state">State</Label>
+                                    <Label htmlFor="state">
+                                        {t("societyForm.state")}
+                                    </Label>
                                     <Input
                                         id="state"
                                         value={form.data.state}
@@ -129,7 +152,9 @@ export default function SocietyEdit() {
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="country">Country</Label>
+                                    <Label htmlFor="country">
+                                        {t("societyForm.country")}
+                                    </Label>
                                     <Input
                                         id="country"
                                         value={form.data.country}
@@ -137,7 +162,9 @@ export default function SocietyEdit() {
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="postal_code">Postal Code</Label>
+                                    <Label htmlFor="postal_code">
+                                        {t("societyForm.postalCode")}
+                                    </Label>
                                     <Input
                                         id="postal_code"
                                         value={form.data.postal_code}
@@ -147,10 +174,15 @@ export default function SocietyEdit() {
                             </div>
                         </FormSection>
 
-                        <FormSection title="Contact Information" description="Primary society office contact credentials.">
+                        <FormSection
+                            title={t("societyForm.contactInformation")}
+                            description={t("societyForm.contactInformationDescription")}
+                        >
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="phone">Phone Number</Label>
+                                    <Label htmlFor="phone">
+                                        {t("common.phone")}
+                                    </Label>
                                     <Input
                                         id="phone"
                                         value={form.data.phone}
@@ -158,7 +190,9 @@ export default function SocietyEdit() {
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="email">Office Email</Label>
+                                    <Label htmlFor="email">
+                                        {t("societyForm.officeEmail")}
+                                    </Label>
                                     <Input
                                         id="email"
                                         type="email"
@@ -171,10 +205,12 @@ export default function SocietyEdit() {
 
                         <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
                             <Button variant="outline" type="button" className="rounded-full px-5 text-xs font-semibold hover:bg-muted" asChild>
-                                <Link href={route("societies.index")}>Cancel</Link>
+                                <Link href={route("societies.index")}>
+                                    {t("common.cancel")}
+                                </Link>
                             </Button>
-                            <Button type="submit" disabled={form.processing} className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all duration-200 text-white">
-                                {form.processing ? "Saving..." : "Update Profile"}
+                            <Button type="submit" disabled={form.processing} className="rounded-full bg-brand px-6 text-xs font-semibold shadow-md hover:bg-brand hover:-translate-y-0.5 transition-all duration-200 text-white">
+                                {form.processing ? t("common.saving") : t("societies.updateProfile")}
                             </Button>
                         </div>
                     </form>

@@ -9,10 +9,12 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export function ThemeSwitcher() {
     const [mounted, setMounted] = useState(false);
+    const { t } = useI18n();
     const { theme, setTheme, resolvedTheme } = useTheme();
 
     useEffect(() => {
@@ -22,7 +24,7 @@ export function ThemeSwitcher() {
     // Avoid hydration mismatch — render a placeholder until mounted
     if (!mounted) {
         return (
-            <Button variant="ghost" size="icon" className="size-8 rounded-lg" aria-label="Toggle theme">
+            <Button variant="ghost" size="icon" className="size-8 rounded-lg" aria-label={t("ui.toggleTheme")}>
                 <Sun className="size-4 opacity-0" />
             </Button>
         );
@@ -37,7 +39,7 @@ export function ThemeSwitcher() {
                     variant="ghost"
                     size="icon"
                     className="size-8 rounded-lg text-muted-foreground hover:text-foreground"
-                    aria-label="Toggle theme"
+                    aria-label={t("ui.toggleTheme")}
                 >
                     {isDark ? (
                         <Moon className="size-4" />
@@ -53,7 +55,7 @@ export function ThemeSwitcher() {
                     className={cn(theme === "light" && "bg-accent font-medium")}
                 >
                     <Sun className="size-4" />
-                    Light
+                    {t("ui.light")}
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
@@ -61,7 +63,7 @@ export function ThemeSwitcher() {
                     className={cn(theme === "dark" && "bg-accent font-medium")}
                 >
                     <Moon className="size-4" />
-                    Dark
+                    {t("ui.dark")}
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
@@ -69,7 +71,7 @@ export function ThemeSwitcher() {
                     className={cn(theme === "system" && "bg-accent font-medium")}
                 >
                     <Monitor className="size-4" />
-                    System
+                    {t("ui.system")}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

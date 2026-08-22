@@ -16,6 +16,7 @@ import {
     User as UserIcon,
     UserCog,
     UserRound,
+    BarChart3,
 } from "lucide-react";
 import { useState, type PropsWithChildren } from "react";
 import { route } from "ziggy-js";
@@ -98,6 +99,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                 { id: "users",         label: t("nav.users"),         icon: UserCog,    hint: t("menu.goTo", { target: t("nav.users") }),         keywords: ["accounts", "team"],        onSelect: () => router.visit(safeRoute("users.index"))          },
                 { id: "roles",         label: t("nav.roles"),         icon: ShieldCheck,hint: t("menu.goTo", { target: t("nav.roles") }),         keywords: ["permissions", "rbac"],     onSelect: () => router.visit(safeRoute("roles.index"))          },
                 { id: "activity-logs", label: t("nav.activityLog"),    icon: History,    hint: t("menu.goTo", { target: t("nav.activityLog") }),    keywords: ["audit", "history"],        onSelect: () => router.visit(safeRoute("activity-logs.index"))  },
+                { id: "reports",       label: t("nav.reports"),         icon: BarChart3, hint: t("menu.goTo", { target: t("nav.reports") }),         keywords: ["export", "pdf", "excel"],  onSelect: () => router.visit(safeRoute("reports.index"))        },
             ],
         },
         {

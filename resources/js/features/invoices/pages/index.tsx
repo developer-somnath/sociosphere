@@ -29,6 +29,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
+import { t, useI18n } from "@/lib/i18n";
 import { toast } from "@/lib/toast";
 import type { PageProps } from "@/types";
 
@@ -83,31 +84,32 @@ function invoiceStatusBadge(status: InvoiceItem["status"]) {
     switch (status) {
         case "Paid":
             return (
-                <Badge className="border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                    Paid
+                <Badge className="border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand">
+                    {t("common.paid")}
                 </Badge>
             );
         case "Partially Paid":
             return (
-                <Badge className="border-transparent bg-sky-600/10 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
-                    Partially Paid
+                <Badge className="border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info">
+                    {t("common.partiallyPaid")}
                 </Badge>
             );
         case "Unpaid":
             return (
-                <Badge className="border-transparent bg-amber-600/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
-                    Unpaid
+                <Badge className="border-transparent bg-warning/10 text-warning dark:bg-warning/10 dark:text-warning">
+                    {t("common.unpaid")}
                 </Badge>
             );
         case "Overdue":
-            return <Badge variant="destructive">Overdue</Badge>;
+            return <Badge variant="destructive">{t("common.overdue")}</Badge>;
         default:
-            return <Badge variant="secondary">Cancelled</Badge>;
+            return <Badge variant="secondary">{t("common.cancelled")}</Badge>;
     }
 }
 
 export default function InvoicesIndex() {
     const { invoices, stats, filters, can } = usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
     const [search, setSearch] = useState(filters.search);
     const [status, setStatus] = useState<string>(filters.status ?? "");
     const [period, setPeriod] = useState<string>(filters.period ?? "");
@@ -184,9 +186,11 @@ export default function InvoicesIndex() {
     const handleExport = (format: ExportFormat) => {
         if (format !== "csv") {
             toast({
-                title: "Export coming soon",
+                title: t("invoices.exportComingSoon"),
                 variant: "info",
-                description: `${format.toUpperCase()} export will be available soon.`,
+                description: t("invoices.exportFormatComingSoon", {
+                    format: format.toUpperCase(),
+                }),
             });
             return;
         }
@@ -194,20 +198,20 @@ export default function InvoicesIndex() {
             filename: "invoices.csv",
             columns: [
                 {
-                    header: "Invoice No",
+                    header: t("invoices.colInvoiceNo"),
                     accessor: (inv) => inv.invoice_number,
                 },
                 {
-                    header: "Flat",
+                    header: t("invoices.colFlat"),
                     accessor: (inv) =>
                         inv.flat
-                            ? `Flat ${inv.flat.flat_no} ${inv.flat.tower ? `(${inv.flat.tower.name})` : ""}`
+                            ? `${t("invoices.colFlat")} ${inv.flat.flat_no} ${inv.flat.tower ? `(${inv.flat.tower.name})` : ""}`
                             : "",
                 },
-                { header: "Billing Period", accessor: (inv) => inv.billing_period },
-                { header: "Total Amount", accessor: (inv) => inv.total_amount },
-                { header: "Paid Amount", accessor: (inv) => inv.paid_amount },
-                { header: "Status", accessor: (inv) => inv.status },
+                { header: t("invoices.colBillingPeriod"), accessor: (inv) => inv.billing_period },
+                { header: t("invoices.colTotalAmount"), accessor: (inv) => inv.total_amount },
+                { header: t("invoices.colPaidAmount"), accessor: (inv) => inv.paid_amount },
+                { header: t("common.status"), accessor: (inv) => inv.status },
             ],
             rows: invoices.data,
         });
@@ -217,7 +221,7 @@ export default function InvoicesIndex() {
         () => [
             {
                 id: "invoice",
-                header: "Invoice No",
+                header: t("invoices.colInvoiceNo"),
                 sortable: true,
                 sortKey: "invoice_number",
                 cell: (inv) => (
@@ -228,18 +232,18 @@ export default function InvoicesIndex() {
             },
             {
                 id: "flat",
-                header: "Flat",
+                header: t("invoices.colFlat"),
                 cell: (inv) => (
                     <span className="font-medium">
                         {inv.flat
-                            ? `Flat ${inv.flat.flat_no} ${inv.flat.tower ? `(${inv.flat.tower.name})` : ""}`
+                            ? `${t("invoices.colFlat")} ${inv.flat.flat_no} ${inv.flat.tower ? `(${inv.flat.tower.name})` : ""}`
                             : "—"}
                     </span>
                 ),
             },
             {
                 id: "period",
-                header: "Billing Period",
+                header: t("invoices.colBillingPeriod"),
                 sortable: true,
                 sortKey: "billing_period",
                 cell: (inv) => (
@@ -250,7 +254,7 @@ export default function InvoicesIndex() {
             },
             {
                 id: "total",
-                header: "Total Amount",
+                header: t("invoices.colTotalAmount"),
                 sortable: true,
                 sortKey: "total_amount",
                 align: "right",
@@ -262,7 +266,7 @@ export default function InvoicesIndex() {
             },
             {
                 id: "paid",
-                header: "Paid Amount",
+                header: t("invoices.colPaidAmount"),
                 align: "right",
                 cell: (inv) => (
                     <span className="font-mono text-xs text-muted-foreground">
@@ -272,14 +276,14 @@ export default function InvoicesIndex() {
             },
             {
                 id: "status",
-                header: "Status",
+                header: t("common.status"),
                 sortable: true,
                 sortKey: "status",
                 cell: (inv) => invoiceStatusBadge(inv.status),
             },
             {
                 id: "actions",
-                header: "Actions",
+                header: t("common.actions"),
                 align: "right",
                 cell: (inv) => (
                     <div
@@ -289,20 +293,20 @@ export default function InvoicesIndex() {
                         <RowActions
                             actions={[
                                 {
-                                    label: "View",
+                                    label: t("common.view"),
                                     icon: Eye,
                                     onClick: () =>
                                         router.visit(route("invoices.show", inv.uuid)),
                                 },
                                 {
-                                    label: "Edit",
+                                    label: t("common.edit"),
                                     icon: Pencil,
                                     disabled: !can.update,
                                     onClick: () =>
                                         router.visit(route("invoices.edit", inv.uuid)),
                                 },
                                 {
-                                    label: "Delete",
+                                    label: t("common.delete"),
                                     icon: Trash2,
                                     destructive: true,
                                     separatorBefore: true,
@@ -316,23 +320,23 @@ export default function InvoicesIndex() {
             },
         ],
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [can],
+        [can, t],
     );
 
     return (
         <AppLayout>
-            <Head title="Maintenance & Invoices" />
+            <Head title={t("invoices.title")} />
 
             <PageHeader
-                title="Maintenance & Billing Management"
-                description="Generate maintenance dues, track flat billing ledgers, and manage payment receipts."
+                title={t("invoices.pageTitle")}
+                description={t("invoices.pageDescription")}
                 icon={<Receipt className="size-5" />}
                 actions={
                     can.create && (
                         <QuickActionPill
                             href={route("invoices.create")}
                             icon={Plus}
-                            label="Issue Invoice"
+                            label={t("invoices.issueInvoice")}
                             variant="rose"
                         />
                     )
@@ -340,17 +344,17 @@ export default function InvoicesIndex() {
             />
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <MetricCard label="Total Billed Dues" value={`₹${Number(stats.total_billed).toLocaleString()}`} icon={Receipt} accent="border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400" />
-                <MetricCard label="Collected Revenue" value={`₹${Number(stats.total_collected).toLocaleString()}`} icon={CheckCircle2} accent="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
-                <MetricCard label="Overdue Dues" value={`₹${Number(stats.overdue_amount).toLocaleString()}`} icon={AlertTriangle} accent="border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400" />
-                <MetricCard label="Pending Invoices" value={stats.unpaid_count} icon={DollarSign} accent="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400" />
+                <MetricCard label={t("invoices.totalBilledDues")} value={`₹${Number(stats.total_billed).toLocaleString()}`} icon={Receipt} accent="border-info/20 bg-info/10 text-info dark:text-info" />
+                <MetricCard label={t("invoices.collectedRevenue")} value={`₹${Number(stats.total_collected).toLocaleString()}`} icon={CheckCircle2} accent="border-success/20 bg-success/10 text-success dark:text-success" />
+                <MetricCard label={t("invoices.overdueDues")} value={`₹${Number(stats.overdue_amount).toLocaleString()}`} icon={AlertTriangle} accent="border-destructive/20 bg-destructive/10 text-destructive dark:text-destructive" />
+                <MetricCard label={t("invoices.pendingInvoices")} value={stats.unpaid_count} icon={DollarSign} accent="border-warning/20 bg-warning/10 text-warning dark:text-warning" />
             </div>
 
             <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search invoice no, flat no..."
-                searchLabel="Search invoices"
+                searchPlaceholder={t("invoices.searchPlaceholder")}
+                searchLabel={t("invoices.searchLabel")}
                 className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
                 onReset={() => {
                     setSearch("");
@@ -364,11 +368,11 @@ export default function InvoicesIndex() {
                     onChange={(e) => setStatus(e.target.value)}
                     className="h-10 rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer"
                 >
-                    <option value="">All Statuses</option>
-                    <option value="Unpaid">Unpaid</option>
-                    <option value="Partially Paid">Partially Paid</option>
-                    <option value="Paid">Paid</option>
-                    <option value="Overdue">Overdue</option>
+                    <option value="">{t("invoices.allStatuses")}</option>
+                    <option value="Unpaid">{t("common.unpaid")}</option>
+                    <option value="Partially Paid">{t("common.partiallyPaid")}</option>
+                    <option value="Paid">{t("common.paid")}</option>
+                    <option value="Overdue">{t("common.overdue")}</option>
                 </select>
 
                 <input
@@ -393,8 +397,8 @@ export default function InvoicesIndex() {
                         emptyState={
                             <EmptyState
                                 icon={Receipt}
-                                title="No invoices found"
-                                description="Generate your first maintenance invoice to get started."
+                                title={t("invoices.emptyTitle")}
+                                description={t("invoices.emptyDescription")}
                             />
                         }
                     />
@@ -410,7 +414,7 @@ export default function InvoicesIndex() {
                                     { preserveState: true, replace: true },
                                 )
                             }
-                            noun="invoices"
+                            noun={t("invoices.nounPlural")}
                         />
                     )}
                 </CardContent>
@@ -419,10 +423,10 @@ export default function InvoicesIndex() {
             <BulkActionBar
                 count={selectedIds.length}
                 onClear={() => setSelectedIds([])}
-                noun="invoices"
+                noun={t("invoices.nounPlural")}
                 actions={[
                     {
-                        label: "Delete",
+                        label: t("common.delete"),
                         icon: <Trash2 />,
                         destructive: true,
                         disabled: !can.delete,
@@ -434,9 +438,11 @@ export default function InvoicesIndex() {
             <ConfirmDialog
                 open={confirming !== null}
                 onOpenChange={(open) => !open && setConfirming(null)}
-                title="Delete invoice?"
-                description={`This will permanently cancel and delete invoice ${confirming?.invoice_number ?? ""}. This action cannot be undone.`}
-                confirmLabel="Delete invoice"
+                title={t("invoices.confirmDeleteTitle")}
+                description={t("invoices.confirmDeleteDescription", {
+                    invoiceNumber: confirming?.invoice_number ?? "",
+                })}
+                confirmLabel={t("invoices.confirmDeleteLabel")}
                 destructive
                 onConfirm={handleDestroy}
             />

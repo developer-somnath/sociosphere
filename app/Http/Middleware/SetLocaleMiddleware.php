@@ -68,18 +68,24 @@ class SetLocaleMiddleware
      */
     protected function sanitize(string $locale): string
     {
-        $locale = strtolower(trim($locale));
+        $locale = trim($locale);
 
         if ($this->activeCodes === null) {
             $this->activeCodes = Language::query()
                 ->where('is_active', true)
                 ->pluck('code')
-                ->map(fn ($code) => strtolower((string) $code))
+                ->map(fn ($code) => (string) $code)
                 ->all();
         }
 
         if (in_array($locale, $this->activeCodes, true)) {
             return $locale;
+        }
+
+        foreach ($this->activeCodes as $code) {
+            if (strcasecmp($code, $locale) === 0) {
+                return $code;
+            }
         }
 
         return config('app.locale', 'en');

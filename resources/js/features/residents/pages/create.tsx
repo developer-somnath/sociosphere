@@ -87,7 +87,7 @@ export default function ResidentsCreate() {
                 <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <UserPlus className="size-5 text-emerald-600" />
+                            <UserPlus className="size-5 text-brand" />
                             Resident Details
                         </CardTitle>
                         <CardDescription>

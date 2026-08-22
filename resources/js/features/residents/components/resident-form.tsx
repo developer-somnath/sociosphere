@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 import type { FlatOption } from "@/features/residents/types";
 
 export type ResidentFormValues = {
@@ -32,10 +33,10 @@ type Props = {
 };
 
 const inputClasses =
-    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-brand/60 focus-visible:ring-[3px] focus-visible:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 const selectClasses =
-    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-brand/60 focus-visible:ring-[3px] focus-visible:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 export default function ResidentForm({
     flats,
@@ -46,20 +47,22 @@ export default function ResidentForm({
     onSubmit,
     submitLabel,
 }: Props) {
+    const { t } = useI18n();
+
     return (
         <form onSubmit={onSubmit} className="space-y-6">
             <div className="rounded-2xl border border-border/60 bg-muted/25 p-4 sm:p-5">
                 <div className="grid gap-5 sm:grid-cols-2">
                     <div className="space-y-2 sm:col-span-2">
                         <Label htmlFor="name">
-                            Full Name <span className="text-destructive">*</span>
+                            {t("residents.form.fullName")} <span className="text-destructive">*</span>
                         </Label>
                         <Input
                             id="name"
                             className={inputClasses}
                             value={data.name}
                             onChange={(e) => setData("name", e.target.value)}
-                            placeholder="e.g. Aarav Sharma"
+                            placeholder={t("residents.form.namePlaceholder")}
                             autoFocus
                         />
                         {errors.name && (
@@ -69,7 +72,7 @@ export default function ResidentForm({
 
                     <div className="space-y-2 sm:col-span-2">
                         <Label htmlFor="flat_id">
-                            Flat <span className="text-destructive">*</span>
+                            {t("residents.flat")} <span className="text-destructive">*</span>
                         </Label>
                         <Combobox
                             id="flat_id"
@@ -81,9 +84,9 @@ export default function ResidentForm({
                             onValueChange={(val) =>
                                 setData("flat_id", val === "" ? "" : Number(val))
                             }
-                            placeholder="Select flat…"
-                            searchPlaceholder="Search flats…"
-                            emptyText="No flats found"
+                            placeholder={t("residents.form.selectFlat")}
+                            searchPlaceholder={t("residents.form.searchFlats")}
+                            emptyText={t("residents.form.noFlats")}
                         />
                         {errors.flat_id && (
                             <p className="text-sm text-destructive">
@@ -94,14 +97,14 @@ export default function ResidentForm({
 
                     <div className="space-y-2">
                         <Label htmlFor="phone">
-                            Phone <span className="text-destructive">*</span>
+                            {t("common.phone")} <span className="text-destructive">*</span>
                         </Label>
                         <Input
                             id="phone"
                             className={inputClasses}
                             value={data.phone}
                             onChange={(e) => setData("phone", e.target.value)}
-                            placeholder="e.g. 9876543210"
+                            placeholder={t("residents.form.phonePlaceholder")}
                         />
                         {errors.phone && (
                             <p className="text-sm text-destructive">
@@ -111,14 +114,14 @@ export default function ResidentForm({
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">{t("common.email")}</Label>
                         <Input
                             id="email"
                             type="email"
                             className={inputClasses}
                             value={data.email}
                             onChange={(e) => setData("email", e.target.value)}
-                            placeholder="resident@example.com"
+                            placeholder={t("residents.form.emailPlaceholder")}
                         />
                         {errors.email && (
                             <p className="text-sm text-destructive">
@@ -128,7 +131,7 @@ export default function ResidentForm({
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="date_of_birth">Date of Birth</Label>
+                        <Label htmlFor="date_of_birth">{t("residents.form.dateOfBirth")}</Label>
                         <Input
                             id="date_of_birth"
                             type="date"
@@ -146,7 +149,7 @@ export default function ResidentForm({
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="gender">Gender</Label>
+                        <Label htmlFor="gender">{t("residents.gender.label")}</Label>
                         <select
                             id="gender"
                             className={selectClasses}
@@ -158,10 +161,10 @@ export default function ResidentForm({
                                 )
                             }
                         >
-                            <option value="">Select gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
+                            <option value="">{t("residents.gender.select")}</option>
+                            <option value="Male">{t("residents.gender.male")}</option>
+                            <option value="Female">{t("residents.gender.female")}</option>
+                            <option value="Other">{t("residents.gender.other")}</option>
                         </select>
                         {errors.gender && (
                             <p className="text-sm text-destructive">
@@ -171,13 +174,13 @@ export default function ResidentForm({
                     </div>
 
                     <div className="space-y-2 sm:col-span-2">
-                        <Label htmlFor="occupation">Occupation</Label>
+                        <Label htmlFor="occupation">{t("residents.occupation")}</Label>
                         <Input
                             id="occupation"
                             className={inputClasses}
                             value={data.occupation}
                             onChange={(e) => setData("occupation", e.target.value)}
-                            placeholder="e.g. Software Engineer"
+                            placeholder={t("residents.form.occupationPlaceholder")}
                         />
                         {errors.occupation && (
                             <p className="text-sm text-destructive">
@@ -201,7 +204,7 @@ export default function ResidentForm({
                         htmlFor="is_primary_contact"
                         className="cursor-pointer text-sm font-normal"
                     >
-                        Primary contact for this flat
+                        {t("residents.form.primaryContact")}
                     </Label>
                 </div>
             </div>
@@ -213,12 +216,12 @@ export default function ResidentForm({
                     onClick={() => window.history.back()}
                     className="rounded-full px-5 text-xs font-semibold hover:bg-muted"
                 >
-                    Cancel
+                    {t("common.cancel")}
                 </Button>
                 <Button
                     type="submit"
                     disabled={processing}
-                    className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all duration-200 text-white"
+                    className="rounded-full bg-brand px-6 text-xs font-semibold shadow-md hover:bg-brand hover:-translate-y-0.5 transition-all duration-200 text-white"
                 >
                     {processing && (
                         <Loader2 className="mr-2 size-3.5 animate-spin" />

@@ -1,5 +1,6 @@
 import { Head, Link, useForm, usePage } from "@inertiajs/react";
-import { ArrowLeft, Megaphone } from "lucide-react";
+import { ArrowLeft, Megaphone, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
@@ -19,6 +20,7 @@ type NoticeDetail = {
     category: string | null;
     target_audience: "All" | "Owners" | "Tenants";
     description: string | null;
+    attachments?: string[];
     is_pinned: boolean;
     publish_from: string | null;
     publish_to: string | null;
@@ -30,12 +32,25 @@ type EditProps = {
 
 export default function NoticeEdit() {
     const { notice } = usePage<PageProps<EditProps>>().props;
+    const [newAttachment, setNewAttachment] = useState("");
+
+    const addAttachment = () => {
+        const value = newAttachment.trim();
+        if (!value) return;
+        if (form.data.attachments.includes(value)) {
+            setNewAttachment("");
+            return;
+        }
+        form.setData("attachments", [...form.data.attachments, value]);
+        setNewAttachment("");
+    };
 
     const form = useForm({
         title: notice.title,
         category: notice.category ?? "",
         target_audience: notice.target_audience,
         description: notice.description ?? "",
+        attachments: notice.attachments ?? [],
         is_pinned: notice.is_pinned,
         publish_from: notice.publish_from ? notice.publish_from.slice(0, 10) : "",
         publish_to: notice.publish_to ? notice.publish_to.slice(0, 10) : "",
@@ -134,6 +149,67 @@ export default function NoticeEdit() {
                                 />
                                 {form.errors.description && (
                                     <p className="text-xs text-destructive">{form.errors.description}</p>
+                                )}
+                            </div>
+                        </FormSection>
+
+                        <FormSection title="Attachments">
+                            <div className="space-y-3">
+                                {form.data.attachments.length > 0 && (
+                                    <ul className="space-y-2">
+                                        {form.data.attachments.map((src, i) => (
+                                            <li
+                                                key={i}
+                                                className="flex items-center justify-between gap-2 rounded-xl border border-border/70 bg-muted/30 p-2.5"
+                                            >
+                                                <a
+                                                    href={src}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="line-clamp-1 flex-1 text-xs font-medium text-brand underline-offset-4 hover:underline"
+                                                >
+                                                    {src}
+                                                </a>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-7 text-destructive hover:text-destructive"
+                                                    onClick={() =>
+                                                        form.setData(
+                                                            "attachments",
+                                                            form.data.attachments.filter((_, idx) => idx !== i),
+                                                        )
+                                                    }
+                                                >
+                                                    <Trash2 className="size-3.5" />
+                                                </Button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                                <div className="flex items-end gap-2">
+                                    <div className="flex-1 space-y-1.5">
+                                        <Label>Add attachment URL</Label>
+                                        <Input
+                                            value={newAttachment}
+                                            onChange={(e) => setNewAttachment(e.target.value)}
+                                            placeholder="https://… or /storage/…"
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    e.preventDefault();
+                                                    addAttachment();
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                    <Button type="button" variant="outline" onClick={addAttachment}>
+                                        <Plus className="size-3.5" />
+                                        Add
+                                    </Button>
+                                </div>
+                                {form.errors.attachments && (
+                                    <p className="text-xs text-destructive">{form.errors.attachments}</p>
                                 )}
                             </div>
                         </FormSection>

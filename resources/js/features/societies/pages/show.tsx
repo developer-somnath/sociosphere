@@ -6,6 +6,7 @@ import AppLayout from "@/layouts/app-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type SocietyDetail = {
@@ -32,10 +33,11 @@ type ShowProps = {
 
 export default function SocietyShow() {
     const { society, can } = usePage<PageProps<ShowProps>>().props;
+    const { t } = useI18n();
 
     return (
         <AppLayout>
-            <Head title={`Society — ${society.name}`} />
+            <Head title={t("societies.showTitle", { name: society.name })} />
 
             <div className="rounded-3xl border border-border/70 bg-card/80 p-6 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.4)] backdrop-blur">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -47,15 +49,18 @@ export default function SocietyShow() {
                             <div className="flex items-center gap-2">
                                 <h1 className="text-2xl font-bold tracking-tight">{society.name}</h1>
                                 {society.status ? (
-                                    <Badge className="border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                                        Active
+                                    <Badge className="border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand">
+                                        {t("common.active")}
                                     </Badge>
                                 ) : (
-                                    <Badge variant="secondary">Inactive</Badge>
+                                    <Badge variant="secondary">
+                                        {t("common.inactive")}
+                                    </Badge>
                                 )}
                             </div>
                             <p className="text-sm font-mono text-muted-foreground mt-0.5">
-                                Registration No: {society.registration_no ?? "N/A"}
+                                {t("societies.registrationNoLabel")}:{" "}
+                                {society.registration_no ?? t("societies.na")}
                             </p>
                         </div>
                     </div>
@@ -63,7 +68,7 @@ export default function SocietyShow() {
                         <Button asChild variant="outline" className="rounded-xl">
                             <Link href={route("societies.edit", society.uuid)}>
                                 <Edit className="mr-1.5 size-4" />
-                                Edit Society Profile
+                                {t("societies.editProfile")}
                             </Link>
                         </Button>
                     )}
@@ -73,17 +78,27 @@ export default function SocietyShow() {
             <div className="grid gap-6 md:grid-cols-3">
                 <Card className="border-border/70 bg-card/80 shadow-xs md:col-span-2">
                     <CardHeader>
-                        <CardTitle className="text-base font-semibold">Society Attributes & Details</CardTitle>
+                        <CardTitle className="text-base font-semibold">
+                            {t("societies.attributesTitle")}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4 text-sm">
                         <div className="grid grid-cols-2 gap-4 rounded-xl border border-border/60 bg-muted/30 p-4">
                             <div>
-                                <span className="text-xs text-muted-foreground">Towers / Blocks</span>
-                                <p className="text-lg font-bold">{society.towers_count ?? 0}</p>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("societies.towersBlocks")}
+                                </span>
+                                <p className="text-lg font-bold">
+                                    {society.towers_count ?? 0}
+                                </p>
                             </div>
                             <div>
-                                <span className="text-xs text-muted-foreground">Registered Users</span>
-                                <p className="text-lg font-bold">{society.users_count ?? 0}</p>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("societies.registeredUsers")}
+                                </span>
+                                <p className="text-lg font-bold">
+                                    {society.users_count ?? 0}
+                                </p>
                             </div>
                         </div>
 
@@ -93,16 +108,20 @@ export default function SocietyShow() {
                                 <span>
                                     {[society.address, society.city, society.state, society.country, society.postal_code]
                                         .filter(Boolean)
-                                        .join(", ") || "No address specified"}
+                                        .join(", ") || t("societies.noAddress")}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <Phone className="size-4 shrink-0" />
-                                <span>{society.phone ?? "No phone specified"}</span>
+                                <span>
+                                    {society.phone ?? t("societies.noPhone")}
+                                </span>
                             </div>
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <Mail className="size-4 shrink-0" />
-                                <span>{society.email ?? "No email specified"}</span>
+                                <span>
+                                    {society.email ?? t("societies.noEmail")}
+                                </span>
                             </div>
                         </div>
                     </CardContent>
@@ -110,25 +129,27 @@ export default function SocietyShow() {
 
                 <Card className="border-border/70 bg-card/80 shadow-xs">
                     <CardHeader>
-                        <CardTitle className="text-base font-semibold">Quick Shortcuts</CardTitle>
+                        <CardTitle className="text-base font-semibold">
+                            {t("societies.quickShortcuts")}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
                         <Button asChild variant="outline" className="w-full justify-start rounded-xl">
                             <Link href={route("towers.index")}>
                                 <Building className="mr-2 size-4 text-muted-foreground" />
-                                View Towers
+                                {t("societies.viewTowers")}
                             </Link>
                         </Button>
                         <Button asChild variant="outline" className="w-full justify-start rounded-xl">
                             <Link href={route("flats.index")}>
                                 <Users className="mr-2 size-4 text-muted-foreground" />
-                                View Flats
+                                {t("societies.viewFlats")}
                             </Link>
                         </Button>
                         <Button asChild variant="outline" className="w-full justify-start rounded-xl">
                             <Link href={route("users.index")}>
                                 <ShieldCheck className="mr-2 size-4 text-muted-foreground" />
-                                View Assigned Users
+                                {t("societies.viewUsers")}
                             </Link>
                         </Button>
                     </CardContent>

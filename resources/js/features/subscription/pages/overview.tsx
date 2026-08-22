@@ -56,7 +56,7 @@ function statusBadge(status: string) {
     switch (status) {
         case "trialing":
             return (
-                <Badge className="border-transparent bg-sky-600/10 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
+                <Badge className="border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info">
                     Trialing
                 </Badge>
             );
@@ -165,7 +165,7 @@ export default function SubscriptionOverview() {
                                 </div>
                                 {subscription.trial_ends_at && subscription.status === "trialing" && (
                                     <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-                                        <CheckCircle2 className="size-3.5 text-sky-500" />
+                                        <CheckCircle2 className="size-3.5 text-info" />
                                         Trial ends {formatDate(subscription.trial_ends_at)} — then converts to the paid plan.
                                     </p>
                                 )}

@@ -23,6 +23,7 @@ import { FormDrawer } from "@/components/ui/form-drawer";
 import { Pagination } from "@/components/ui/pagination";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
+import { t, useI18n } from "@/lib/i18n";
 import { toast } from "@/lib/toast";
 import type { PageProps } from "@/types";
 import type {
@@ -46,7 +47,7 @@ type IndexProps = {
 };
 
 const selectClasses =
-    "h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-10 rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer";
 
 function initials(name: string): string {
     return name
@@ -57,32 +58,49 @@ function initials(name: string): string {
         .join("");
 }
 
+/** Map a raw role name to its i18n key (users module roles). */
+function roleKey(name: string): string {
+    const map: Record<string, string> = {
+        superadmin: "roles.superAdmin",
+        societyadmin: "roles.societyAdmin",
+        treasurer: "roles.treasurer",
+        securityguard: "roles.securityGuard",
+        maintenancestaff: "roles.maintenanceStaff",
+        resident: "roles.resident",
+    };
+    return map[name.toLowerCase()] ?? name;
+}
+
 function roleBadge(role: UserRole) {
     switch (role) {
         case "SuperAdmin":
             return (
-                <Badge className="border-transparent bg-purple-600/10 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400">
-                    Super Admin
+                <Badge className="border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info">
+                    {t("roles.superAdmin")}
                 </Badge>
             );
         case "SocietyAdmin":
             return (
-                <Badge className="border-transparent bg-amber-600/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
-                    Society Admin
+                <Badge className="border-transparent bg-warning/10 text-warning dark:bg-warning/10 dark:text-warning">
+                    {t("roles.societyAdmin")}
                 </Badge>
             );
         case "Treasurer":
             return (
-                <Badge className="border-transparent bg-sky-600/10 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
-                    Treasurer
+                <Badge className="border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info">
+                    {t("roles.treasurer")}
                 </Badge>
             );
         case "SecurityGuard":
-            return <Badge variant="secondary">Security Guard</Badge>;
+            return (
+                <Badge variant="secondary">{t("roles.securityGuard")}</Badge>
+            );
         case "MaintenanceStaff":
-            return <Badge variant="secondary">Maintenance</Badge>;
+            return (
+                <Badge variant="secondary">{t("roles.maintenanceStaff")}</Badge>
+            );
         case "Resident":
-            return <Badge variant="outline">Resident</Badge>;
+            return <Badge variant="outline">{t("roles.resident")}</Badge>;
         default:
             return <span className="text-muted-foreground">—</span>;
     }
@@ -91,6 +109,7 @@ function roleBadge(role: UserRole) {
 export default function UsersIndex() {
     const { users, filters, roleOptions, can } =
         usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
 
     const [search, setSearch] = useState(filters.search);
     const [role, setRole] = useState(filters.role ?? "");
@@ -220,29 +239,37 @@ export default function UsersIndex() {
     const handleExport = (format: ExportFormat) => {
         if (format !== "csv") {
             toast({
-                title: "Export coming soon",
+                title: t("users.exportComingSoon"),
                 variant: "info",
-                description: `${format.toUpperCase()} export will be available soon.`,
+                description: t("users.exportFormatComingSoon", {
+                    format: format.toUpperCase(),
+                }),
             });
             return;
         }
         exportCsv<User>({
             filename: "users.csv",
             columns: [
-                { header: "Name", accessor: (user) => user.name },
-                { header: "Email", accessor: (user) => user.email },
-                { header: "Phone", accessor: (user) => user.phone ?? "" },
+                { header: t("common.name"), accessor: (user) => user.name },
+                { header: t("common.email"), accessor: (user) => user.email },
                 {
-                    header: "Role",
+                    header: t("common.phone"),
+                    accessor: (user) => user.phone ?? "",
+                },
+                {
+                    header: t("users.colRole"),
                     accessor: (user) => user.roles[0]?.name ?? "",
                 },
                 {
-                    header: "Society",
+                    header: t("users.colSociety"),
                     accessor: (user) => user.society?.name ?? "",
                 },
                 {
-                    header: "Status",
-                    accessor: (user) => (user.is_active ? "Active" : "Inactive"),
+                    header: t("common.status"),
+                    accessor: (user) =>
+                        user.is_active
+                            ? t("common.active")
+                            : t("common.inactive"),
                 },
             ],
             rows: users.data,
@@ -253,7 +280,7 @@ export default function UsersIndex() {
         () => [
             {
                 id: "user",
-                header: "User",
+                header: t("users.colUser"),
                 sortable: true,
                 sortKey: "name",
                 cell: (user) => (
@@ -276,13 +303,13 @@ export default function UsersIndex() {
             },
             {
                 id: "role",
-                header: "Role",
+                header: t("users.colRole"),
                 cell: (user) =>
                     roleBadge((user.roles[0]?.name ?? "") as UserRole),
             },
             {
                 id: "society",
-                header: "Society",
+                header: t("users.colSociety"),
                 cell: (user) => (
                     <span className="text-muted-foreground">
                         {user.society?.name ?? "—"}
@@ -291,7 +318,7 @@ export default function UsersIndex() {
             },
             {
                 id: "contact",
-                header: "Contact",
+                header: t("users.colContact"),
                 cell: (user) => (
                     <span className="text-muted-foreground">
                         {user.phone || "—"}
@@ -300,25 +327,25 @@ export default function UsersIndex() {
             },
             {
                 id: "status",
-                header: "Status",
+                header: t("common.status"),
                 sortable: true,
                 sortKey: "is_active",
                 cell: (user) =>
                     user.is_active ? (
                         <Badge variant="secondary" className="gap-1.5">
-                            <span className="size-1.5 rounded-full bg-emerald-500" />
-                            Active
+                            <span className="size-1.5 rounded-full bg-brand" />
+                            {t("common.active")}
                         </Badge>
                     ) : (
                         <Badge variant="outline" className="gap-1.5">
                             <span className="size-1.5 rounded-full bg-muted-foreground" />
-                            Inactive
+                            {t("common.inactive")}
                         </Badge>
                     ),
             },
             {
                 id: "actions",
-                header: "Actions",
+                header: t("common.actions"),
                 align: "right",
                 cell: (user) => (
                     <div
@@ -335,12 +362,14 @@ export default function UsersIndex() {
                             }
                             className="text-xs text-muted-foreground hover:text-foreground"
                         >
-                            {user.is_active ? "Deactivate" : "Activate"}
+                            {user.is_active
+                                ? t("users.deactivate")
+                                : t("users.activate")}
                         </Button>
                         <RowActions
                             actions={[
                                 {
-                                    label: "Edit",
+                                    label: t("common.edit"),
                                     icon: Pencil,
                                     onClick: () =>
                                         router.visit(
@@ -348,7 +377,7 @@ export default function UsersIndex() {
                                         ),
                                 },
                                 {
-                                    label: "Remove",
+                                    label: t("users.remove"),
                                     icon: Trash2,
                                     destructive: true,
                                     separatorBefore: true,
@@ -362,18 +391,18 @@ export default function UsersIndex() {
             },
         ],
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [can],
+        [can, t],
     );
 
     const hasActiveFilters = search !== "" || role !== "" || status !== "";
 
     return (
         <AppLayout>
-            <Head title="Users" />
+            <Head title={t("nav.users")} />
 
             <PageHeader
-                title="Users"
-                description="Manage staff and resident accounts for your society."
+                title={t("nav.users")}
+                description={t("users.pageDescription")}
                 icon={<UserCog className="size-5" />}
                 actions={
                     can.create && (
@@ -383,12 +412,12 @@ export default function UsersIndex() {
                                 onClick={() => setInviteOpen(true)}
                             >
                                 <UserCog />
-                                Invite User
+                                {t("users.inviteUser")}
                             </Button>
                             <Button asChild>
                                 <Link href={route("users.create")}>
                                     <Plus />
-                                    Add user
+                                    {t("users.add")}
                                 </Link>
                             </Button>
                         </>
@@ -399,17 +428,20 @@ export default function UsersIndex() {
             <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search name, email, phone…"
-                searchLabel="Search users"
+                searchPlaceholder={t("users.searchPlaceholder")}
+                searchLabel={t("users.searchLabel")}
                 activeFilters={[
                     ...(role
                         ? [
                               {
-                                  label:
-                                      roleOptions.find(
-                                          (option) =>
-                                              option.name === role,
-                                      )?.label ?? role,
+                                  label: t(
+                                      roleKey(
+                                          roleOptions.find(
+                                              (option) =>
+                                                  option.name === role,
+                                          )?.label ?? role,
+                                      ),
+                                  ),
                                   onRemove: () => {
                                       setRole("");
                                       applyFilters({ role: "" });
@@ -420,7 +452,10 @@ export default function UsersIndex() {
                     ...(status
                         ? [
                               {
-                                  label: status,
+                                  label:
+                                      status === "Active"
+                                          ? t("common.active")
+                                          : t("common.inactive"),
                                   onRemove: () => {
                                       setStatus("");
                                       applyFilters({ status: "" });
@@ -439,12 +474,12 @@ export default function UsersIndex() {
                         setRole(e.target.value);
                         applyFilters({ role: e.target.value });
                     }}
-                    aria-label="Filter by role"
+                    aria-label={t("users.filterByRole")}
                 >
-                    <option value="">All roles</option>
+                    <option value="">{t("users.allRoles")}</option>
                     {roleOptions.map((option) => (
                         <option key={option.name} value={option.name}>
-                            {option.label}
+                            {t(roleKey(option.label))}
                         </option>
                     ))}
                 </select>
@@ -456,16 +491,21 @@ export default function UsersIndex() {
                         setStatus(e.target.value);
                         applyFilters({ status: e.target.value });
                     }}
-                    aria-label="Filter by status"
+                    aria-label={t("users.filterByStatus")}
                 >
-                    <option value="">All statuses</option>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                    <option value="">{t("users.allStatuses")}</option>
+                    <option value="Active">{t("common.active")}</option>
+                    <option value="Inactive">{t("common.inactive")}</option>
                 </select>
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <UserCog className="size-4" />
-                    {users.total} account{users.total === 1 ? "" : "s"}
+                    {users.total}{" "}
+                    {t(
+                        users.total === 1
+                            ? "users.accountOne"
+                            : "users.accountMany",
+                    )}
                 </div>
             </FilterBar>
 
@@ -485,22 +525,22 @@ export default function UsersIndex() {
                                 icon={Inbox}
                                 title={
                                     hasActiveFilters
-                                        ? "No users match your filters"
-                                        : "No users yet"
+                                        ? t("users.emptySearchTitle")
+                                        : t("users.emptyTitle")
                                 }
                                 description={
                                     hasActiveFilters
-                                        ? "Try different search terms or filters."
+                                        ? t("users.emptySearchDescription")
                                         : can.create
-                                          ? "Add your first user to get started."
-                                          : "Check back later."
+                                          ? t("users.emptyDescription")
+                                          : t("users.emptyDescriptionNoCreate")
                                 }
                                 action={
                                     can.create && !hasActiveFilters ? (
                                         <Button asChild>
                                             <Link href={route("users.create")}>
                                                 <Plus />
-                                                Add user
+                                                {t("users.add")}
                                             </Link>
                                         </Button>
                                     ) : undefined
@@ -520,7 +560,7 @@ export default function UsersIndex() {
                                     { preserveState: true, replace: true },
                                 )
                             }
-                            noun="users"
+                            noun={t("users.nounPlural")}
                         />
                     )}
                 </CardContent>
@@ -529,10 +569,10 @@ export default function UsersIndex() {
             <BulkActionBar
                 count={selectedIds.length}
                 onClear={() => setSelectedIds([])}
-                noun="users"
+                noun={t("users.nounPlural")}
                 actions={[
                     {
-                        label: "Delete",
+                        label: t("common.delete"),
                         icon: <Trash2 />,
                         destructive: true,
                         disabled: !can.delete,
@@ -544,8 +584,8 @@ export default function UsersIndex() {
             <FormDrawer
                 open={inviteOpen}
                 onOpenChange={setInviteOpen}
-                title="Invite user"
-                description="Send an email invitation with an initial role."
+                title={t("users.inviteTitle")}
+                description={t("users.inviteDescription")}
                 icon={<UserCog className="size-5" />}
                 footer={
                     <>
@@ -553,7 +593,7 @@ export default function UsersIndex() {
                             variant="outline"
                             onClick={() => setInviteOpen(false)}
                         >
-                            Cancel
+                            {t("common.cancel")}
                         </Button>
                         <Button
                             onClick={submitInvite}
@@ -564,18 +604,20 @@ export default function UsersIndex() {
                             }
                         >
                             <Send />
-                            Send invitation
+                            {t("users.sendInvitation")}
                         </Button>
                     </>
                 }
             >
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="invite-email">Email address</Label>
+                        <Label htmlFor="invite-email">
+                            {t("users.inviteEmail")}
+                        </Label>
                         <Input
                             id="invite-email"
                             type="email"
-                            placeholder="name@example.com"
+                            placeholder={t("users.inviteEmailPlaceholder")}
                             value={inviteEmail}
                             onChange={(event) =>
                                 setInviteEmail(event.target.value)
@@ -583,16 +625,18 @@ export default function UsersIndex() {
                         />
                     </div>
                     <div className="flex flex-col gap-2">
-                        <Label>Role</Label>
+                        <Label>{t("users.inviteRole")}</Label>
                         <Combobox
                             items={roleOptions.map((option) => ({
                                 value: option.name,
-                                label: option.label,
+                                label: t(roleKey(option.label)),
                             }))}
                             value={inviteRole}
                             onValueChange={setInviteRole}
-                            placeholder="Select a role…"
-                            searchPlaceholder="Search roles…"
+                            placeholder={t("users.inviteRolePlaceholder")}
+                            searchPlaceholder={t(
+                                "users.inviteRoleSearchPlaceholder",
+                            )}
                         />
                     </div>
                 </div>
@@ -605,11 +649,13 @@ export default function UsersIndex() {
                 }}
                 title={
                     confirming
-                        ? `Remove ${confirming.name} from the system?`
-                        : "Remove user?"
+                        ? t("users.confirmRemoveTitle", {
+                              name: confirming.name,
+                          })
+                        : t("users.confirmRemoveTitleGeneric")
                 }
-                description="This will remove the account and revoke sign-in. Historical records are kept."
-                confirmLabel="Remove"
+                description={t("users.confirmRemoveDescription")}
+                confirmLabel={t("users.remove")}
                 destructive
                 onConfirm={handleDelete}
             />

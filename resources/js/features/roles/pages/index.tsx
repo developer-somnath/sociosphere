@@ -26,6 +26,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
 import { toast } from "@/lib/toast";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 import type { Paginated, Role } from "@/features/roles/types";
 
@@ -41,6 +42,7 @@ type IndexProps = {
 
 export default function RolesIndex() {
     const { roles, filters, can } = usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
 
     const [search, setSearch] = useState(filters.search);
     const [selectedIds, setSelectedIds] = useState<Selection>([]);
@@ -118,25 +120,39 @@ export default function RolesIndex() {
     const handleExport = (format: ExportFormat) => {
         if (format !== "csv") {
             toast({
-                title: "Export coming soon",
+                title: t("roles.exportComingSoon"),
                 variant: "info",
-                description: `${format.toUpperCase()} export will be available soon.`,
+                description: t("roles.exportFormatComingSoon", {
+                    format: format.toUpperCase(),
+                }),
             });
             return;
         }
         exportCsv<Role>({
             filename: "roles.csv",
             columns: [
-                { header: "Role", accessor: (role) => role.name },
-                { header: "Description", accessor: (role) => role.description ?? "" },
-                { header: "Members", accessor: (role) => role.users_count },
                 {
-                    header: "Permissions",
+                    header: t("roles.colRole"),
+                    accessor: (role) => role.name,
+                },
+                {
+                    header: t("roles.colDescription"),
+                    accessor: (role) => role.description ?? "",
+                },
+                {
+                    header: t("roles.colMembers"),
+                    accessor: (role) => role.users_count,
+                },
+                {
+                    header: t("roles.colPermissions"),
                     accessor: (role) => role.permissions_count,
                 },
                 {
-                    header: "Type",
-                    accessor: (role) => (role.is_system ? "System" : "Custom"),
+                    header: t("roles.colType"),
+                    accessor: (role) =>
+                        role.is_system
+                            ? t("roles.system")
+                            : t("roles.custom"),
                 },
             ],
             rows: roles.data,
@@ -147,12 +163,12 @@ export default function RolesIndex() {
         () => [
             {
                 id: "role",
-                header: "Role",
+                header: t("roles.colRole"),
                 sortable: true,
                 sortKey: "name",
                 cell: (role) => (
                     <div className="flex items-center gap-2">
-                        <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-info/10 text-info dark:bg-info/10 dark:text-info">
                             <ShieldCheck className="size-4" />
                         </div>
                         <div>
@@ -170,7 +186,7 @@ export default function RolesIndex() {
             },
             {
                 id: "members",
-                header: "Members",
+                header: t("roles.colMembers"),
                 sortable: true,
                 sortKey: "users_count",
                 cell: (role) => (
@@ -182,7 +198,7 @@ export default function RolesIndex() {
             },
             {
                 id: "permissions",
-                header: "Permissions",
+                header: t("roles.colPermissions"),
                 sortable: true,
                 sortKey: "permissions_count",
                 cell: (role) => (
@@ -193,17 +209,17 @@ export default function RolesIndex() {
             },
             {
                 id: "type",
-                header: "Type",
+                header: t("roles.colType"),
                 cell: (role) =>
                     role.is_system ? (
-                        <Badge variant="secondary">System</Badge>
+                        <Badge variant="secondary">{t("roles.system")}</Badge>
                     ) : (
-                        <Badge variant="outline">Custom</Badge>
+                        <Badge variant="outline">{t("roles.custom")}</Badge>
                     ),
             },
             {
                 id: "actions",
-                header: "Actions",
+                header: t("common.actions"),
                 align: "right",
                 cell: (role) => (
                     <div
@@ -213,7 +229,7 @@ export default function RolesIndex() {
                         <RowActions
                             actions={[
                                 {
-                                    label: "Edit",
+                                    label: t("common.edit"),
                                     icon: Pencil,
                                     disabled:
                                         !can.update ||
@@ -225,7 +241,7 @@ export default function RolesIndex() {
                                         ),
                                 },
                                 {
-                                    label: "Delete",
+                                    label: t("common.delete"),
                                     icon: Trash2,
                                     destructive: true,
                                     separatorBefore: true,
@@ -239,23 +255,23 @@ export default function RolesIndex() {
             },
         ],
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [can],
+        [can, t],
     );
 
     return (
         <AppLayout>
-            <Head title="Roles" />
+            <Head title={t("roles.title")} />
 
             <PageHeader
-                title="Roles"
-                description="Create custom roles and assign feature-wise permissions."
+                title={t("roles.title")}
+                description={t("roles.pageDescription")}
                 icon={<ShieldCheck className="size-5" />}
                 actions={
                     can.create && (
                         <Button asChild>
                             <Link href={route("roles.create")}>
                                 <Plus />
-                                New role
+                                {t("roles.new")}
                             </Link>
                         </Button>
                     )
@@ -265,8 +281,8 @@ export default function RolesIndex() {
             <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search roles…"
-                searchLabel="Search roles"
+                searchPlaceholder={t("roles.searchPlaceholder")}
+                searchLabel={t("roles.searchLabel")}
                 onReset={() => {
                     setSearch("");
                     router.get(
@@ -279,7 +295,12 @@ export default function RolesIndex() {
             >
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <ShieldCheck className="size-4" />
-                    {roles.total} role{roles.total === 1 ? "" : "s"}
+                    {roles.total}{" "}
+                    {t(
+                        roles.total === 1
+                            ? "roles.countOne"
+                            : "roles.countMany",
+                    )}
                 </div>
             </FilterBar>
 
@@ -299,22 +320,22 @@ export default function RolesIndex() {
                                 icon={Inbox}
                                 title={
                                     filters.search
-                                        ? "No roles match your search"
-                                        : "No roles yet"
+                                        ? t("roles.emptySearchTitle")
+                                        : t("roles.emptyTitle")
                                 }
                                 description={
                                     filters.search
-                                        ? "Try a different search term."
+                                        ? t("roles.emptySearchDescription")
                                         : can.create
-                                          ? "Create your first role to get started."
-                                          : "Check back later."
+                                          ? t("roles.emptyDescription")
+                                          : t("roles.emptyDescriptionNoCreate")
                                 }
                                 action={
                                     can.create && !filters.search ? (
                                         <Button asChild>
                                             <Link href={route("roles.create")}>
                                                 <Plus />
-                                                New role
+                                                {t("roles.new")}
                                             </Link>
                                         </Button>
                                     ) : undefined
@@ -334,7 +355,7 @@ export default function RolesIndex() {
                                     { preserveState: true, replace: true },
                                 )
                             }
-                            noun="roles"
+                            noun={t("roles.nounPlural")}
                         />
                     )}
                 </CardContent>
@@ -343,10 +364,10 @@ export default function RolesIndex() {
             <BulkActionBar
                 count={selectedIds.length}
                 onClear={() => setSelectedIds([])}
-                noun="roles"
+                noun={t("roles.nounPlural")}
                 actions={[
                     {
-                        label: "Delete",
+                        label: t("common.delete"),
                         icon: <Trash2 />,
                         destructive: true,
                         disabled: !can.delete,
@@ -362,11 +383,13 @@ export default function RolesIndex() {
                 }}
                 title={
                     confirming
-                        ? `Remove the "${confirming.name}" role?`
-                        : "Remove role?"
+                        ? t("roles.confirmRemoveTitle", {
+                              name: confirming.name,
+                          })
+                        : t("roles.confirmRemoveTitleGeneric")
                 }
-                description="Users holding this role will lose its permissions."
-                confirmLabel="Remove"
+                description={t("roles.confirmRemoveDescription")}
+                confirmLabel={t("roles.remove")}
                 destructive
                 onConfirm={handleDelete}
             />

@@ -78,12 +78,12 @@ export function LanguageSwitcher() {
                     aria-label="Switch Language"
                 >
                     <Globe className="size-3.5 text-muted-foreground" />
-                    <span className="max-w-[80px] truncate font-semibold">
+                    <span className="max-w-[140px] truncate font-semibold">
                         {currentLang?.native_name ?? "English"}
                     </span>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2 shadow-xl">
+            <DropdownMenuContent align="end" sideOffset={6} className="w-64 rounded-2xl p-2 shadow-xl">
                 <DropdownMenuLabel className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Select Language / اللغة / ভাষা
                 </DropdownMenuLabel>
@@ -127,7 +127,7 @@ export function LanguageSwitcher() {
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                         {lang.script_dir === "rtl" && (
-                                            <span className="rounded bg-amber-500/10 px-1 py-0.5 text-[9px] font-bold text-amber-600 dark:text-amber-400">
+                                            <span className="rounded bg-warning/10 px-1 py-0.5 text-[9px] font-bold text-warning dark:text-warning">
                                                 RTL
                                             </span>
                                         )}

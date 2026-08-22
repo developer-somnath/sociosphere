@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type EditProps = {
@@ -31,6 +32,7 @@ type EditProps = {
 
 export default function ParkingEdit() {
     const { slot, towers, flats } = usePage<PageProps<EditProps>>().props;
+    const { t } = useI18n();
 
     const form = useForm({
         slot_number: slot.slot_number,
@@ -51,22 +53,22 @@ export default function ParkingEdit() {
 
     return (
         <AppLayout>
-            <Head title={`Edit Slot ${slot.slot_number}`} />
+            <Head title={t("parking.editTitle", { slotNumber: slot.slot_number })} />
 
             <PageHeader
-                title="Edit Parking Slot"
-                description={`Update details and allocation for Slot ${slot.slot_number}.`}
+                title={t("parking.edit")}
+                description={t("parking.editPageDescription", { slotNumber: slot.slot_number })}
                 icon={<ParkingMeter className="size-5" />}
                 breadcrumbs={[
-                    { label: "Management", href: "/dashboard" },
-                    { label: "Parking", href: route("parking-slots.index") },
-                    { label: `Slot ${slot.slot_number}` },
+                    { label: t("parking.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.parking"), href: route("parking-slots.index") },
+                    { label: t("parking.breadcrumbSlot", { slotNumber: slot.slot_number }) },
                 ]}
                 actions={
                     <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                         <Link href={route("parking-slots.index")}>
                             <ArrowLeft className="size-3.5" />
-                            Back
+                            {t("common.back")}
                         </Link>
                     </Button>
                 }
@@ -74,14 +76,14 @@ export default function ParkingEdit() {
 
             <Card className="border-border/70 bg-card/80 shadow-xs">
                 <CardHeader>
-                    <CardTitle className="text-base">Slot Configuration Form</CardTitle>
+                    <CardTitle className="text-base">{t("parking.configFormTitle")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={submit} className="space-y-6">
-                        <FormSection title="Slot Specifications" description="Basic location and type identifiers.">
+                        <FormSection title={t("parking.slotSpecifications")} description={t("parking.slotSpecificationsDesc")}>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="slot_number">Slot Number *</Label>
+                                    <Label htmlFor="slot_number">{t("parking.slotNumber")} *</Label>
                                     <Input
                                         id="slot_number"
                                         value={form.data.slot_number}
@@ -94,70 +96,70 @@ export default function ParkingEdit() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="type">Vehicle Type *</Label>
+                                    <Label htmlFor="type">{t("parking.vehicleType")} *</Label>
                                     <select
                                         id="type"
                                         value={form.data.type}
                                         onChange={(e) => form.setData("type", e.target.value)}
                                         className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                                     >
-                                        <option value="Four Wheeler">Four Wheeler</option>
-                                        <option value="Two Wheeler">Two Wheeler</option>
-                                        <option value="Visitor">Visitor</option>
+                                        <option value="Four Wheeler">{t("parking.type.fourWheeler")}</option>
+                                        <option value="Two Wheeler">{t("parking.type.twoWheeler")}</option>
+                                        <option value="Visitor">{t("parking.type.visitor")}</option>
                                     </select>
                                 </div>
 
                                 <div className="space-y-1.5 sm:col-span-2">
-                                    <Label htmlFor="status">Slot Status *</Label>
+                                    <Label htmlFor="status">{t("parking.slotStatus")} *</Label>
                                     <select
                                         id="status"
                                         value={form.data.status}
                                         onChange={(e) => form.setData("status", e.target.value)}
                                         className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                                     >
-                                        <option value="Available">Available</option>
-                                        <option value="Allocated">Allocated</option>
-                                        <option value="Reserved">Reserved</option>
-                                        <option value="Maintenance">Maintenance</option>
+                                        <option value="Available">{t("parking.status.available")}</option>
+                                        <option value="Allocated">{t("parking.status.allocated")}</option>
+                                        <option value="Reserved">{t("parking.status.reserved")}</option>
+                                        <option value="Maintenance">{t("parking.status.maintenance")}</option>
                                     </select>
                                 </div>
                             </div>
                         </FormSection>
 
-                        <FormSection title="Allocation Details" description="Assign this slot to a flat/resident.">
+                        <FormSection title={t("parking.allocationDetails")} description={t("parking.allocationDetailsDesc")}>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="tower_id">Tower / Block</Label>
+                                    <Label htmlFor="tower_id">{t("parking.towerBlock")}</Label>
                                     <select
                                         id="tower_id"
                                         value={form.data.tower_id}
                                         onChange={(e) => form.setData("tower_id", e.target.value)}
                                         className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                                     >
-                                        <option value="">Unassigned</option>
-                                        {towers.map((t) => (
-                                            <option key={t.id} value={t.id}>{t.name}</option>
+                                        <option value="">{t("parking.unassigned")}</option>
+                                        {towers.map((tower) => (
+                                            <option key={tower.id} value={tower.id}>{tower.name}</option>
                                         ))}
                                     </select>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="flat_id">Flat</Label>
+                                    <Label htmlFor="flat_id">{t("parking.flat")}</Label>
                                     <select
                                         id="flat_id"
                                         value={form.data.flat_id}
                                         onChange={(e) => form.setData("flat_id", e.target.value)}
                                         className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                                     >
-                                        <option value="">Unassigned</option>
+                                        <option value="">{t("parking.unassigned")}</option>
                                         {flats.map((f) => (
-                                            <option key={f.id} value={f.id}>Flat {f.flat_no}</option>
+                                            <option key={f.id} value={f.id}>{t("parking.flatLabel", { flatNo: f.flat_no })}</option>
                                         ))}
                                     </select>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="vehicle_number">Vehicle Registration No</Label>
+                                    <Label htmlFor="vehicle_number">{t("parking.vehicleNumber")}</Label>
                                     <Input
                                         id="vehicle_number"
                                         value={form.data.vehicle_number}
@@ -166,7 +168,7 @@ export default function ParkingEdit() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="vehicle_model">Vehicle Make / Model</Label>
+                                    <Label htmlFor="vehicle_model">{t("parking.vehicleModel")}</Label>
                                     <Input
                                         id="vehicle_model"
                                         value={form.data.vehicle_model}
@@ -178,10 +180,10 @@ export default function ParkingEdit() {
 
                         <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
                             <Button variant="outline" type="button" className="rounded-full px-5 text-xs font-semibold hover:bg-muted" asChild>
-                                <Link href={route("parking-slots.index")}>Cancel</Link>
+                                <Link href={route("parking-slots.index")}>{t("common.cancel")}</Link>
                             </Button>
-                            <Button type="submit" disabled={form.processing} className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all duration-200 text-white">
-                                {form.processing ? "Saving..." : "Save Changes"}
+                            <Button type="submit" disabled={form.processing} className="rounded-full bg-brand px-6 text-xs font-semibold shadow-md hover:bg-brand hover:-translate-y-0.5 transition-all duration-200 text-white">
+                                {form.processing ? t("parking.saving") : t("common.saveChanges")}
                             </Button>
                         </div>
                     </form>

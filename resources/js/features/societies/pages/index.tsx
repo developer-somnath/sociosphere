@@ -27,6 +27,7 @@ import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
 import { toast } from "@/lib/toast";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type SocietyItem = {
@@ -66,6 +67,7 @@ type IndexProps = {
 
 export default function SocietiesIndex() {
     const { societies, filters, can } = usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
     const [search, setSearch] = useState(filters.search);
     const [selectedIds, setSelectedIds] = useState<Selection>([]);
     const [confirming, setConfirming] = useState<SocietyItem | null>(null);
@@ -138,29 +140,41 @@ export default function SocietiesIndex() {
     const handleExport = (format: ExportFormat) => {
         if (format !== "csv") {
             toast({
-                title: "Export coming soon",
+                title: t("societies.exportComingSoon"),
                 variant: "info",
-                description: `${format.toUpperCase()} export will be available soon.`,
+                description: t("societies.exportFormatComingSoon", {
+                    format: format.toUpperCase(),
+                }),
             });
             return;
         }
         exportCsv<SocietyItem>({
             filename: "societies.csv",
             columns: [
-                { header: "Name", accessor: (soc) => soc.name },
-                { header: "Reg No", accessor: (soc) => soc.registration_no ?? "" },
+                { header: t("common.name"), accessor: (soc) => soc.name },
                 {
-                    header: "Location",
+                    header: t("societies.regNo"),
+                    accessor: (soc) => soc.registration_no ?? "",
+                },
+                {
+                    header: t("societies.location"),
                     accessor: (soc) =>
                         [soc.city, soc.state].filter(Boolean).join(", "),
                 },
-                { header: "Phone", accessor: (soc) => soc.phone ?? "" },
-                { header: "Email", accessor: (soc) => soc.email ?? "" },
-                { header: "Towers", accessor: (soc) => soc.towers_count ?? 0 },
-                { header: "Users", accessor: (soc) => soc.users_count ?? 0 },
+                { header: t("common.phone"), accessor: (soc) => soc.phone ?? "" },
+                { header: t("common.email"), accessor: (soc) => soc.email ?? "" },
                 {
-                    header: "Status",
-                    accessor: (soc) => (soc.status ? "Active" : "Inactive"),
+                    header: t("societies.towers"),
+                    accessor: (soc) => soc.towers_count ?? 0,
+                },
+                {
+                    header: t("societies.users"),
+                    accessor: (soc) => soc.users_count ?? 0,
+                },
+                {
+                    header: t("common.status"),
+                    accessor: (soc) =>
+                        soc.status ? t("common.active") : t("common.inactive"),
                 },
             ],
             rows: societies.data,
@@ -171,12 +185,12 @@ export default function SocietiesIndex() {
         () => [
             {
                 id: "name",
-                header: "Society Name",
+                header: t("societies.colName"),
                 sortable: true,
                 sortKey: "name",
                 cell: (soc) => (
                     <div className="flex items-center gap-2">
-                        <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-info/10 text-info dark:bg-info/10 dark:text-info">
                             <Building className="size-4" />
                         </div>
                         <Link
@@ -190,7 +204,7 @@ export default function SocietiesIndex() {
             },
             {
                 id: "regNo",
-                header: "Reg No",
+                header: t("societies.regNo"),
                 sortable: true,
                 sortKey: "registration_no",
                 cell: (soc) => (
@@ -201,7 +215,7 @@ export default function SocietiesIndex() {
             },
             {
                 id: "location",
-                header: "Location",
+                header: t("societies.location"),
                 sortable: true,
                 sortKey: "city",
                 cell: (soc) => (
@@ -213,7 +227,7 @@ export default function SocietiesIndex() {
             },
             {
                 id: "towers",
-                header: "Towers",
+                header: t("societies.towers"),
                 cell: (soc) => (
                     <Badge variant="outline" className="gap-1 font-mono">
                         <Building className="size-3" />
@@ -223,7 +237,7 @@ export default function SocietiesIndex() {
             },
             {
                 id: "users",
-                header: "Users",
+                header: t("societies.users"),
                 cell: (soc) => (
                     <Badge variant="outline" className="gap-1 font-mono">
                         <Users className="size-3" />
@@ -233,21 +247,21 @@ export default function SocietiesIndex() {
             },
             {
                 id: "status",
-                header: "Status",
+                header: t("common.status"),
                 sortable: true,
                 sortKey: "status",
                 cell: (soc) =>
                     soc.status ? (
-                        <Badge className="border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                            Active
+                        <Badge className="border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand">
+                            {t("common.active")}
                         </Badge>
                     ) : (
-                        <Badge variant="secondary">Inactive</Badge>
+                        <Badge variant="secondary">{t("common.inactive")}</Badge>
                     ),
             },
             {
                 id: "actions",
-                header: "Actions",
+                header: t("common.actions"),
                 align: "right",
                 cell: (soc) => (
                     <div
@@ -257,7 +271,7 @@ export default function SocietiesIndex() {
                         <RowActions
                             actions={[
                                 {
-                                    label: "View Profile",
+                                    label: t("societies.viewProfile"),
                                     icon: Eye,
                                     onClick: () =>
                                         router.visit(
@@ -265,7 +279,7 @@ export default function SocietiesIndex() {
                                         ),
                                 },
                                 {
-                                    label: "Edit",
+                                    label: t("common.edit"),
                                     icon: Pencil,
                                     disabled: !can.update,
                                     onClick: () =>
@@ -274,7 +288,7 @@ export default function SocietiesIndex() {
                                         ),
                                 },
                                 {
-                                    label: "Delete",
+                                    label: t("common.delete"),
                                     icon: Trash2,
                                     destructive: true,
                                     separatorBefore: true,
@@ -288,27 +302,27 @@ export default function SocietiesIndex() {
             },
         ],
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [can],
+        [can, t],
     );
 
     return (
         <AppLayout>
-            <Head title="Societies" />
+            <Head title={t("societies.title")} />
 
             <PageHeader
-                title="Society Directory"
-                description="Manage residential societies, committee members, and operational bylaws."
+                title={t("societies.directory")}
+                description={t("societies.pageDescription")}
                 icon={<Building className="size-5" />}
                 breadcrumbs={[
-                    { label: "Management", href: "/dashboard" },
-                    { label: "Societies" },
+                    { label: t("residents.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.societies") },
                 ]}
                 actions={
                     can.create && (
                         <QuickActionPill
                             href={route("societies.create")}
                             icon={Plus}
-                            label="Register Society"
+                            label={t("societies.register")}
                             variant="indigo"
                         />
                     )
@@ -318,8 +332,8 @@ export default function SocietiesIndex() {
             <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search society name, reg no, city…"
-                searchLabel="Search societies"
+                searchPlaceholder={t("societies.searchPlaceholder")}
+                searchLabel={t("societies.searchLabel")}
                 className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
                 onReset={() => {
                     setSearch("");
@@ -341,8 +355,26 @@ export default function SocietiesIndex() {
                         emptyState={
                             <EmptyState
                                 icon={Building}
-                                title="No societies found"
-                                description="Register your first society to get started."
+                                title={
+                                    filters.search
+                                        ? t("societies.emptySearchTitle")
+                                        : t("societies.emptyTitle")
+                                }
+                                description={
+                                    filters.search
+                                        ? t("societies.emptySearchDescription")
+                                        : t("societies.emptyDescription")
+                                }
+                                action={
+                                    can.create && !filters.search ? (
+                                        <Button asChild>
+                                            <Link href={route("societies.create")}>
+                                                <Plus />
+                                                {t("societies.register")}
+                                            </Link>
+                                        </Button>
+                                    ) : undefined
+                                }
                             />
                         }
                     />
@@ -358,7 +390,7 @@ export default function SocietiesIndex() {
                                     { preserveState: true, replace: true },
                                 )
                             }
-                            noun="societies"
+                            noun={t("societies.nounPlural")}
                         />
                     )}
                 </CardContent>
@@ -367,10 +399,10 @@ export default function SocietiesIndex() {
             <BulkActionBar
                 count={selectedIds.length}
                 onClear={() => setSelectedIds([])}
-                noun="societies"
+                noun={t("societies.nounPlural")}
                 actions={[
                     {
-                        label: "Delete",
+                        label: t("common.delete"),
                         icon: <Trash2 />,
                         destructive: true,
                         disabled: !can.delete,
@@ -382,9 +414,11 @@ export default function SocietiesIndex() {
             <ConfirmDialog
                 open={confirming !== null}
                 onOpenChange={(open) => !open && setConfirming(null)}
-                title="Delete society?"
-                description={`This will permanently delete ${confirming?.name ?? "this society"} and all related records. This action cannot be undone.`}
-                confirmLabel="Delete society"
+                title={t("societies.confirmDeleteTitle")}
+                description={t("societies.confirmDeleteDescription", {
+                    name: confirming?.name ?? t("societies.thisSociety"),
+                })}
+                confirmLabel={t("societies.deleteSociety")}
                 destructive
                 onConfirm={handleDestroy}
             />

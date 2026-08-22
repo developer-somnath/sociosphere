@@ -10,6 +10,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type AmenityDetail = {
@@ -29,6 +30,7 @@ type EditProps = {
 
 export default function AmenityEdit() {
     const { amenity } = usePage<PageProps<EditProps>>().props;
+    const { t } = useI18n();
 
     const form = useForm({
         name: amenity.name,
@@ -47,22 +49,22 @@ export default function AmenityEdit() {
 
     return (
         <AppLayout>
-            <Head title={`Edit: ${amenity.name}`} />
+            <Head title={t("amenities.editTitle", { name: amenity.name })} />
 
             <PageHeader
-                title="Edit Amenity"
-                description={`Update configuration for ${amenity.name}.`}
+                title={t("amenities.edit")}
+                description={t("amenities.editPageDescription", { name: amenity.name })}
                 icon={<Sparkles className="size-5" />}
                 breadcrumbs={[
-                    { label: "Operations", href: "/dashboard" },
-                    { label: "Amenities", href: route("amenities.index") },
+                    { label: t("amenities.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.amenities"), href: route("amenities.index") },
                     { label: amenity.name },
                 ]}
                 actions={
                     <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                         <Link href={route("amenities.index")}>
                             <ArrowLeft className="size-3.5" />
-                            Back
+                            {t("common.back")}
                         </Link>
                     </Button>
                 }
@@ -70,17 +72,17 @@ export default function AmenityEdit() {
 
             <Card className="mx-auto max-w-2xl border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardHeader>
-                    <CardTitle>Edit Configuration</CardTitle>
+                    <CardTitle>{t("amenities.editConfiguration")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                        <FormSection title="General Information">
+                        <FormSection title={t("amenityForm.generalInformation")}>
                             <div className="space-y-1.5">
-                                <Label>Amenity Name *</Label>
+                                <Label>{t("amenityForm.amenityName")} *</Label>
                                 <Input
                                     value={form.data.name}
                                     onChange={(e) => form.setData("name", e.target.value)}
-                                    placeholder="Amenity name"
+                                    placeholder={t("amenityForm.amenityNameEditPlaceholder")}
                                     required
                                 />
                                 {form.errors.name && (
@@ -90,19 +92,19 @@ export default function AmenityEdit() {
 
                             <div className="grid gap-4 sm:grid-cols-3">
                                 <div className="space-y-1.5">
-                                    <Label>Booking Type *</Label>
+                                    <Label>{t("amenityForm.bookingType")} *</Label>
                                     <Combobox
                                         items={[
-                                            { value: "Slot", label: "Slot-Based" },
-                                            { value: "Hourly", label: "Hourly" },
-                                            { value: "Daily", label: "Daily / Full Day" },
+                                            { value: "Slot", label: t("amenityForm.typeSlot") },
+                                            { value: "Hourly", label: t("amenityForm.typeHourly") },
+                                            { value: "Daily", label: t("amenityForm.typeDaily") },
                                         ]}
                                         value={form.data.booking_type}
                                         onValueChange={(value) =>
                                             form.setData("booking_type", value as "Slot" | "Hourly" | "Daily")
                                         }
-                                        placeholder="Select type…"
-                                        emptyText="No match"
+                                        placeholder={t("amenityForm.selectType")}
+                                        emptyText={t("amenityForm.noMatch")}
                                     />
                                     {form.errors.booking_type && (
                                         <p className="text-xs text-destructive">{form.errors.booking_type}</p>
@@ -110,7 +112,7 @@ export default function AmenityEdit() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label>Capacity (People) *</Label>
+                                    <Label>{t("amenityForm.capacity")} *</Label>
                                     <Input
                                         type="number"
                                         min={1}
@@ -124,7 +126,7 @@ export default function AmenityEdit() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label>Fee Per Slot (৳) *</Label>
+                                    <Label>{t("amenityForm.feePerSlot")} *</Label>
                                     <Input
                                         type="number"
                                         step="0.01"
@@ -140,44 +142,44 @@ export default function AmenityEdit() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label>Status</Label>
+                                <Label>{t("common.status")}</Label>
                                 <select
                                     value={form.data.is_active ? "active" : "inactive"}
                                     onChange={(e) => form.setData("is_active", e.target.value === "active")}
                                     className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                                 >
-                                    <option value="active">Active (Available for booking)</option>
-                                    <option value="inactive">Inactive / Under Maintenance</option>
+                                    <option value="active">{t("amenityForm.activeAvailable")}</option>
+                                    <option value="inactive">{t("amenityForm.inactiveMaintenance")}</option>
                                 </select>
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label>Description</Label>
+                                <Label>{t("amenityForm.description")}</Label>
                                 <textarea
                                     value={form.data.description}
                                     onChange={(e) => form.setData("description", e.target.value)}
                                     className="min-h-[80px] w-full rounded-lg border border-input bg-transparent p-2.5 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                                    placeholder="Facility description..."
+                                    placeholder={t("amenityForm.descriptionEditPlaceholder")}
                                 />
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label>Usage Rules & Guidelines</Label>
+                                <Label>{t("amenityForm.usageRules")}</Label>
                                 <textarea
                                     value={form.data.rules}
                                     onChange={(e) => form.setData("rules", e.target.value)}
                                     className="min-h-[100px] w-full rounded-lg border border-input bg-transparent p-2.5 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                                    placeholder="Usage rules..."
+                                    placeholder={t("amenityForm.usageRulesEditPlaceholder")}
                                 />
                             </div>
                         </FormSection>
 
                         <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
                             <Button variant="outline" type="button" className="rounded-full px-5 text-xs font-semibold hover:bg-muted" asChild>
-                                <Link href={route("amenities.index")}>Cancel</Link>
+                                <Link href={route("amenities.index")}>{t("common.cancel")}</Link>
                             </Button>
                             <Button type="submit" disabled={form.processing} className="rounded-full px-6 text-xs font-semibold shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                                {form.processing ? "Saving…" : "Save Changes"}
+                                {form.processing ? t("amenityForm.saving") : t("common.saveChanges")}
                             </Button>
                         </div>
                     </form>

@@ -93,7 +93,7 @@ function money(value: number | null | undefined) {
 function runStatusBadge(status: string) {
     if (status === "Completed") {
         return (
-            <Badge className="border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+            <Badge className="border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand">
                 Completed
             </Badge>
         );
@@ -166,7 +166,7 @@ export default function BatchGenerate() {
             />
 
             {!plan.is_configured && (
-                <div className="flex items-start gap-3 rounded-xl border border-amber-600/30 bg-amber-600/5 p-4 text-sm text-amber-700 dark:text-amber-400">
+                <div className="flex items-start gap-3 rounded-xl border border-warning/30 bg-warning/5 p-4 text-sm text-warning dark:text-warning">
                     <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                     <div>
                         <p className="font-semibold">Billing is not configured yet.</p>
@@ -199,24 +199,24 @@ export default function BatchGenerate() {
                     value={money(plan.totals.subtotal)}
                     hint="Before tax"
                     icon={CalendarCog}
-                    accentColor="bg-sky-500"
-                    iconColor="bg-sky-500/10 text-sky-600 border-sky-500/20"
+                    accentColor="bg-info"
+                    iconColor="bg-info/10 text-info border-info/20"
                 />
                 <MetricCard
                     label="Tax"
                     value={money(plan.totals.tax_amount)}
                     hint={`${plan.config?.tax_rate ?? 0}% GST`}
                     icon={ShieldCheck}
-                    accentColor="bg-violet-500"
-                    iconColor="bg-violet-500/10 text-violet-600 border-violet-500/20"
+                    accentColor="bg-info"
+                    iconColor="bg-info/10 text-info border-info/20"
                 />
                 <MetricCard
                     label="Total"
                     value={money(plan.totals.total_amount)}
                     hint={plan.config?.billing_mode === "fixed" ? "Fixed rate" : "Per sq.ft."}
                     icon={CheckCircle2}
-                    accentColor="bg-emerald-500"
-                    iconColor="bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                    accentColor="bg-brand"
+                    iconColor="bg-brand/10 text-brand border-brand/20"
                 />
             </div>
 
@@ -301,7 +301,7 @@ export default function BatchGenerate() {
                                                     ) : isExcluded ? (
                                                         <Badge variant="outline">Excluded</Badge>
                                                     ) : (
-                                                        <Badge className="border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                                        <Badge className="border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand">
                                                             Ready
                                                         </Badge>
                                                     )}

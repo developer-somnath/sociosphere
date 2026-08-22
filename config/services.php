@@ -35,4 +35,25 @@ return [
         ],
     ],
 
+    'webpush' => [
+        'vapid_public_key' => env('VAPID_PUBLIC_KEY'),
+        'vapid_private_key' => env('VAPID_PRIVATE_KEY'),
+        'subject' => env('VAPID_SUBJECT', 'mailto:admin@sociosphere.app'),
+    ],
+
+    // Active payment gateways (S4-2 / Phase 18). Comma-separated list of
+    // gateway names. The ledger gateway is always appended as a fallback.
+    'payments' => [
+        'gateways' => array_filter(array_map(
+            'trim',
+            explode(',', (string) env('PAYMENT_GATEWAYS', 'ledger,razorpay'))
+        )),
+    ],
+
+    'razorpay' => [
+        'key_id' => env('RAZORPAY_KEY_ID'),
+        'key_secret' => env('RAZORPAY_KEY_SECRET'),
+        'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
+    ],
+
 ];

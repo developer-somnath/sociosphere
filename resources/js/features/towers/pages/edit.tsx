@@ -13,6 +13,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 import type { SocietyOption, Tower } from "@/features/towers/types";
 import TowerForm, {
@@ -26,6 +27,7 @@ type EditProps = {
 
 export default function TowersEdit() {
     const { tower, societies } = usePage<PageProps<EditProps>>().props;
+    const { t } = useI18n();
 
     const { data, setData: rawSetData, put, processing, errors } =
         useForm<TowerFormValues>({
@@ -57,23 +59,23 @@ export default function TowersEdit() {
 
     return (
         <AppLayout>
-            <Head title={`Edit ${tower.name}`} />
+            <Head title={t("towers.editTitle", { name: tower.name })} />
 
             <div className="flex flex-col gap-4">
                 <PageHeader
-                    title="Edit Tower"
-                    description={`Update the details for ${tower.name}.`}
+                    title={t("towers.edit")}
+                    description={t("towers.editPageDescription", { name: tower.name })}
                     icon={<Pencil className="size-5" />}
                     breadcrumbs={[
-                        { label: "Management" },
-                        { label: "Towers", href: route("towers.index") },
+                        { label: t("towers.breadcrumb.section") },
+                        { label: t("nav.towers"), href: route("towers.index") },
                         { label: tower.name },
                     ]}
                     actions={
                         <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                             <Link href={route("towers.index")}>
                                 <ArrowLeft className="size-3.5" />
-                                Back
+                                {t("common.back")}
                             </Link>
                         </Button>
                     }
@@ -82,11 +84,11 @@ export default function TowersEdit() {
                 <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Pencil className="size-5 text-emerald-600" />
-                            Tower Details
+                            <Pencil className="size-5 text-brand" />
+                            {t("towers.details")}
                         </CardTitle>
                         <CardDescription>
-                            Fields marked with * are required.
+                            {t("form.requiredFields")}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -97,7 +99,7 @@ export default function TowersEdit() {
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}
-                            submitLabel="Save Changes"
+                            submitLabel={t("common.saveChanges")}
                         />
                     </CardContent>
                 </Card>

@@ -14,6 +14,7 @@ import { FormDrawer } from "@/components/ui/form-drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pagination } from "@/components/ui/pagination";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type Category = {
@@ -42,6 +43,7 @@ type CategoriesProps = {
 
 export default function ComplaintCategories() {
     const { categories, can } = usePage<PageProps<CategoriesProps>>().props;
+    const { t } = useI18n();
     const [showCreate, setShowCreate] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
@@ -84,17 +86,17 @@ export default function ComplaintCategories() {
 
     return (
         <AppLayout>
-            <Head title="Complaint Categories" />
+            <Head title={t("complaintCategories.title")} />
 
             <PageHeader
-                title="Complaint Categories"
-                description="Manage complaint types and classifications."
+                title={t("complaintCategories.title")}
+                description={t("complaintCategories.pageDescription")}
                 icon={<FolderOpen className="size-5" />}
                 actions={
                     can.create && (
                         <Button onClick={() => setShowCreate(true)}>
                             <Plus className="size-4" />
-                            Add Category
+                            {t("complaintCategories.add")}
                         </Button>
                     )
                 }
@@ -105,8 +107,8 @@ export default function ComplaintCategories() {
                     {categories.data.length === 0 ? (
                         <EmptyState
                             icon={FolderOpen}
-                            title="No categories yet"
-                            description="Create complaint categories to organize and classify issues."
+                            title={t("complaintCategories.emptyTitle")}
+                            description={t("complaintCategories.emptyDescription")}
                         />
                     ) : (
                         <div className="divide-y divide-border/50">
@@ -120,7 +122,12 @@ export default function ComplaintCategories() {
                                         <div>
                                             <p className="text-sm font-medium text-foreground">{cat.name}</p>
                                             <p className="text-xs text-muted-foreground">
-                                                {cat.complaints_count} complaint{cat.complaints_count !== 1 ? "s" : ""}
+                                                {t(
+                                                    cat.complaints_count !== 1
+                                                        ? "complaintCategories.complaintCountPlural"
+                                                        : "complaintCategories.complaintCount",
+                                                    { count: cat.complaints_count },
+                                                )}
                                             </p>
                                         </div>
                                     </div>
@@ -166,7 +173,7 @@ export default function ComplaintCategories() {
                                     { preserveState: true, replace: true },
                                 )
                             }
-                            noun="categories"
+                            noun={t("complaintCategories.nounPlural")}
                         />
                     )}
                 </CardContent>
@@ -176,27 +183,27 @@ export default function ComplaintCategories() {
             <FormDrawer
                 open={showCreate}
                 onOpenChange={(open) => !open && setShowCreate(false)}
-                title="New Category"
-                description="Add a new complaint classification."
+                title={t("complaintCategories.new")}
+                description={t("complaintCategories.newDescription")}
                 icon={<FolderOpen className="size-5" />}
                 footer={
                     <>
                         <Button variant="outline" type="button" onClick={() => setShowCreate(false)}>
-                            Cancel
+                            {t("common.cancel")}
                         </Button>
                         <Button type="submit" form="create-category-form" disabled={createForm.processing}>
-                            Create
+                            {t("common.create")}
                         </Button>
                     </>
                 }
             >
                 <form id="create-category-form" onSubmit={handleCreate} className="flex flex-col gap-4">
                     <div className="space-y-1.5">
-                        <Label>Category Name *</Label>
+                        <Label>{t("complaintCategories.name")} *</Label>
                         <Input
                             value={createForm.data.name}
                             onChange={(e) => createForm.setData("name", e.target.value)}
-                            placeholder="e.g. Plumbing"
+                            placeholder={t("complaintCategories.namePlaceholder")}
                             required
                         />
                         {createForm.errors.name && (
@@ -210,27 +217,29 @@ export default function ComplaintCategories() {
             <FormDrawer
                 open={!!editingCategory}
                 onOpenChange={(open) => !open && setEditingCategory(null)}
-                title="Edit Category"
-                description={`Rename "${editingCategory?.name ?? ""}".`}
+                title={t("complaintCategories.edit")}
+                description={t("complaintCategories.editDescription", {
+                    name: editingCategory?.name ?? "",
+                })}
                 icon={<Pencil className="size-5" />}
                 footer={
                     <>
                         <Button variant="outline" type="button" onClick={() => setEditingCategory(null)}>
-                            Cancel
+                            {t("common.cancel")}
                         </Button>
                         <Button type="submit" form="edit-category-form" disabled={editForm.processing}>
-                            Save
+                            {t("common.save")}
                         </Button>
                     </>
                 }
             >
                 <form id="edit-category-form" onSubmit={handleEdit} className="flex flex-col gap-4">
                     <div className="space-y-1.5">
-                        <Label>Category Name *</Label>
+                        <Label>{t("complaintCategories.name")} *</Label>
                         <Input
                             value={editForm.data.name}
                             onChange={(e) => editForm.setData("name", e.target.value)}
-                            placeholder="Category name"
+                            placeholder={t("complaintCategories.editNamePlaceholder")}
                             required
                         />
                         {editForm.errors.name && (
@@ -244,10 +253,12 @@ export default function ComplaintCategories() {
             <ConfirmDialog
                 open={!!deletingCategory}
                 onOpenChange={(open) => !open && setDeletingCategory(null)}
-                title="Delete Category"
-                description={`Are you sure you want to delete "${deletingCategory?.name}"? Categories with existing complaints cannot be deleted.`}
+                title={t("complaintCategories.deleteTitle")}
+                description={t("complaintCategories.confirmDeleteDescription", {
+                    name: deletingCategory?.name ?? "",
+                })}
                 destructive
-                confirmLabel="Delete"
+                confirmLabel={t("common.delete")}
                 onConfirm={handleDelete}
             />
         </AppLayout>

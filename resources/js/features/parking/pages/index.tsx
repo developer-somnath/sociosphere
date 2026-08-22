@@ -34,6 +34,7 @@ import { MetricCard } from "@/components/ui/metric-card";
 import { Pagination } from "@/components/ui/pagination";
 import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { t, useI18n } from "@/lib/i18n";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { PageProps } from "@/types";
@@ -85,31 +86,64 @@ type IndexProps = {
     can: { create: boolean; delete: boolean; allocate: boolean };
 };
 
-const STATUS_STYLES: Record<SlotStatus, { card: string; dot: string; badge: string; label: string }> = {
+const STATUS_STYLES: Record<SlotStatus, { card: string; dot: string; badge: string }> = {
     Available: {
-        card: "border-emerald-500/25 bg-emerald-500/5 hover:border-emerald-500/50",
-        dot: "bg-emerald-500",
-        badge: "border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
-        label: "Available",
+        card: "border-brand/25 bg-brand/5 hover:border-brand/50",
+        dot: "bg-brand",
+        badge: "border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand",
     },
     Allocated: {
-        card: "border-blue-500/25 bg-blue-500/5 hover:border-blue-500/50",
-        dot: "bg-blue-500",
-        badge: "border-transparent bg-blue-600/10 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",
-        label: "Allocated",
+        card: "border-info/25 bg-info/5 hover:border-info/50",
+        dot: "bg-info",
+        badge: "border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info",
     },
     Reserved: {
-        card: "border-amber-500/25 bg-amber-500/5 hover:border-amber-500/50",
-        dot: "bg-amber-500",
-        badge: "border-transparent bg-amber-600/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
-        label: "Reserved",
+        card: "border-warning/25 bg-warning/5 hover:border-warning/50",
+        dot: "bg-warning",
+        badge: "border-transparent bg-warning/10 text-warning dark:bg-warning/10 dark:text-warning",
     },
     Maintenance: {
         card: "border-zinc-400/30 bg-muted/40 hover:border-zinc-400/50",
         dot: "bg-zinc-400",
         badge: "border-transparent bg-zinc-500/10 text-zinc-500 dark:bg-zinc-400/10 dark:text-zinc-400",
-        label: "Maintenance",
     },
+};
+
+const statusLabel = (status: SlotStatus): string => {
+    switch (status) {
+        case "Available":
+            return t("parking.status.available");
+        case "Allocated":
+            return t("parking.status.allocated");
+        case "Reserved":
+            return t("parking.status.reserved");
+        case "Maintenance":
+            return t("parking.status.maintenance");
+    }
+};
+
+const typeLabel = (type: SlotType): string => {
+    switch (type) {
+        case "Four Wheeler":
+            return t("parking.type.fourWheeler");
+        case "Two Wheeler":
+            return t("parking.type.twoWheeler");
+        case "Visitor":
+            return t("parking.type.visitor");
+    }
+};
+
+const categoryLabel = (value: string): string => {
+    switch (value) {
+        case "Four Wheeler":
+            return t("parking.category.fourWheeler");
+        case "Two Wheeler":
+            return t("parking.category.twoWheeler");
+        case "Visitor":
+            return t("parking.category.visitor");
+        default:
+            return t("parking.category.all");
+    }
 };
 
 const TYPE_ICON: Record<SlotType, typeof Car> = {
@@ -119,10 +153,10 @@ const TYPE_ICON: Record<SlotType, typeof Car> = {
 };
 
 const CATEGORIES = [
-    { value: "All", label: "All" },
-    { value: "Four Wheeler", label: "4 Wheeler" },
-    { value: "Two Wheeler", label: "2 Wheeler" },
-    { value: "Visitor", label: "Visitor" },
+    { value: "All" },
+    { value: "Four Wheeler" },
+    { value: "Two Wheeler" },
+    { value: "Visitor" },
 ] as const;
 
 const formatDate = (iso: string | null): string => {
@@ -141,6 +175,7 @@ const todayISO = toISODate(new Date());
 
 export default function ParkingIndex() {
     const { slots, flats, stats, can } = usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
 
     /* View + filters ------------------------------------------------------ */
     const [category, setCategory] = useState<(typeof CATEGORIES)[number]["value"]>("All");
@@ -220,10 +255,10 @@ export default function ParkingIndex() {
         () =>
             flats.map((flat) => ({
                 value: String(flat.id),
-                label: `Flat ${flat.flat_no}`,
+                label: t("parking.flatLabel", { flatNo: flat.flat_no }),
                 description: [flat.tower_name, flat.resident_name].filter(Boolean).join(" · "),
             })),
-        [flats],
+        [flats, t],
     );
 
     const resetPagination = () => setPage(1);
@@ -267,7 +302,11 @@ export default function ParkingIndex() {
                 onSuccess: () => setAllocating(null),
                 onFinish: () => setAllocSubmitting(false),
                 onError: () =>
-                    toast({ title: "Allocation failed", variant: "error", description: "Check the form and try again." }),
+                    toast({
+                        title: t("parking.allocationFailed"),
+                        variant: "error",
+                        description: t("parking.allocationFailedDescription"),
+                    }),
             },
         );
     };
@@ -311,7 +350,17 @@ export default function ParkingIndex() {
     /* CSV export ---------------------------------------------------------- */
 
     const exportCsv = () => {
-        const header = ["Slot No", "Type", "Status", "Flat", "Tower", "Resident", "Vehicle No", "Vehicle Model", "Valid Till"];
+        const header = [
+            t("parking.colSlotNo"),
+            t("common.type"),
+            t("common.status"),
+            t("parking.flatHeader"),
+            t("parking.tower"),
+            t("parking.resident"),
+            t("parking.colVehicleNo"),
+            t("parking.colVehicleModel"),
+            t("parking.colValidTill"),
+        ];
         const rows = sorted.map((slot) => [
             slot.slot_number,
             slot.type,
@@ -340,9 +389,11 @@ export default function ParkingIndex() {
             return;
         }
         toast({
-            title: "Export coming soon",
+            title: t("parking.exportComingSoon"),
             variant: "info",
-            description: `${format.toUpperCase()} export will be available in a later phase.`,
+            description: t("parking.exportFormatComingSoon", {
+                format: format.toUpperCase(),
+            }),
         });
     };
 
@@ -352,28 +403,28 @@ export default function ParkingIndex() {
         () => [
             {
                 id: "slot_number",
-                header: "Slot No",
+                header: t("parking.colSlotNo"),
                 sortable: true,
                 cell: (slot) => <span className="font-mono font-semibold text-foreground">{slot.slot_number}</span>,
             },
             {
                 id: "type",
-                header: "Type",
+                header: t("common.type"),
                 sortable: true,
                 cell: (slot) => (
                     <Badge variant="outline" className="font-mono text-xs">
-                        {slot.type}
+                        {typeLabel(slot.type)}
                     </Badge>
                 ),
             },
             {
                 id: "flat_no",
-                header: "Assigned Flat",
+                header: t("parking.colAssignedFlat"),
                 sortable: true,
                 cell: (slot) =>
                     slot.flat ? (
                         <div className="flex flex-col">
-                            <span className="font-medium text-foreground">Flat {slot.flat.flat_no}</span>
+                            <span className="font-medium text-foreground">{t("parking.flatLabel", { flatNo: slot.flat.flat_no })}</span>
                             {slot.flat.resident && (
                                 <span className="text-[11px] text-muted-foreground">{slot.flat.resident.name}</span>
                             )}
@@ -384,7 +435,7 @@ export default function ParkingIndex() {
             },
             {
                 id: "vehicle_number",
-                header: "Vehicle",
+                header: t("parking.colVehicle"),
                 sortable: true,
                 cell: (slot) =>
                     slot.vehicle_number ? (
@@ -400,42 +451,42 @@ export default function ParkingIndex() {
             },
             {
                 id: "expires_at",
-                header: "Valid Till",
+                header: t("parking.colValidTill"),
                 sortable: true,
                 cell: (slot) => <span className="text-muted-foreground">{formatDate(slot.expires_at)}</span>,
             },
             {
                 id: "status",
-                header: "Status",
+                header: t("common.status"),
                 sortable: true,
                 cell: (slot) => (
-                    <Badge className={STATUS_STYLES[slot.status].badge}>{STATUS_STYLES[slot.status].label}</Badge>
+                    <Badge className={STATUS_STYLES[slot.status].badge}>{statusLabel(slot.status)}</Badge>
                 ),
             },
             {
                 id: "actions",
-                header: "Actions",
+                header: t("common.actions"),
                 align: "right",
                 cell: (slot) => (
                     <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                         {can.allocate && slot.status === "Available" && (
                             <Button variant="ghost" size="sm" onClick={() => openAllocation(slot)}>
                                 <KeyRound />
-                                Allocate
+                                {t("parking.allocate")}
                             </Button>
                         )}
                         {can.allocate && slot.status === "Allocated" && (
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-amber-600 hover:text-amber-700"
+                                className="text-warning hover:text-warning"
                                 onClick={() => setDeallocating(slot)}
                             >
-                                Deallocate
+                                {t("parking.deallocate")}
                             </Button>
                         )}
                         <Button variant="ghost" size="sm" asChild>
-                            <Link href={route("parking-slots.edit", slot.uuid)}>Edit</Link>
+                            <Link href={route("parking-slots.edit", slot.uuid)}>{t("common.edit")}</Link>
                         </Button>
                         {can.delete && (
                             <Button
@@ -452,28 +503,28 @@ export default function ParkingIndex() {
             },
         ],
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [can, slots],
+        [can, slots, t],
     );
 
     return (
         <AppLayout>
-            <Head title="Parking Management" />
+            <Head title={t("parking.title")} />
 
             {/* Header */}
             <PageHeader
-                title="Parking Management"
-                description="Allocate Four Wheeler, Two Wheeler, and Visitor parking slots across basement & surface bays."
+                title={t("parking.title")}
+                description={t("parking.pageDescription")}
                 icon={<ParkingMeter className="size-5" />}
                 breadcrumbs={[
-                    { label: "Management", href: "/dashboard" },
-                    { label: "Parking" },
+                    { label: t("parking.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.parking") },
                 ]}
                 actions={
                     can.create && (
                         <QuickActionPill
                             href={route("parking-slots.create")}
                             icon={Plus}
-                            label="Add Parking Slot"
+                            label={t("parking.add")}
                             variant="indigo"
                         />
                     )
@@ -482,10 +533,10 @@ export default function ParkingIndex() {
 
             {/* Stats */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <MetricCard label="Total Slots" value={stats.total} icon={ParkingMeter} accent="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
-                <MetricCard label="Four Wheeler" value={stats.four_wheeler} icon={Car} accent="border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400" />
-                <MetricCard label="Two Wheeler" value={stats.two_wheeler} icon={CarFront} accent="border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400" />
-                <MetricCard label="Visitor Parking" value={stats.visitor} icon={Clock} accent="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400" />
+                <MetricCard label={t("parking.statTotalSlots")} value={stats.total} icon={ParkingMeter} accent="border-brand/20 bg-brand/10 text-brand dark:text-brand" />
+                <MetricCard label={t("parking.type.fourWheeler")} value={stats.four_wheeler} icon={Car} accent="border-info/20 bg-info/10 text-info dark:text-info" />
+                <MetricCard label={t("parking.type.twoWheeler")} value={stats.two_wheeler} icon={CarFront} accent="border-info/20 bg-info/10 text-info dark:text-info" />
+                <MetricCard label={t("parking.statVisitorParking")} value={stats.visitor} icon={Clock} accent="border-warning/20 bg-warning/10 text-warning dark:text-warning" />
             </div>
 
             {/* Overview card: category tabs + filters + view toggle */}
@@ -503,7 +554,7 @@ export default function ParkingIndex() {
                             <TabsList>
                                 {CATEGORIES.map((item) => (
                                     <TabsTrigger key={item.value} value={item.value} className="gap-2">
-                                        {item.label}
+                                        {categoryLabel(item.value)}
                                         {item.value !== "All" && (
                                             <span className="rounded-full bg-muted px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-muted-foreground">
                                                 {item.value === "Four Wheeler"
@@ -527,11 +578,11 @@ export default function ParkingIndex() {
                             <TabsList className="w-full sm:w-auto">
                                 <TabsTrigger value="map" className="gap-1.5">
                                     <Map />
-                                    Map
+                                    {t("parking.viewMap")}
                                 </TabsTrigger>
                                 <TabsTrigger value="table" className="gap-1.5">
                                     <Table2 />
-                                    Table
+                                    {t("parking.viewTable")}
                                 </TabsTrigger>
                             </TabsList>
                         </Tabs>
@@ -543,8 +594,8 @@ export default function ParkingIndex() {
                             setSearch(value);
                             resetPagination();
                         }}
-                        searchPlaceholder="Search slot, vehicle no, resident, flat…"
-                        searchLabel="Search parking slots"
+                        searchPlaceholder={t("parking.searchPlaceholder")}
+                        searchLabel={t("parking.searchLabel")}
                         className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
                         onReset={() => {
                             setSearch("");
@@ -561,14 +612,14 @@ export default function ParkingIndex() {
                             }}
                             className="h-10 rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer"
                         >
-                            <option value="">All Statuses</option>
-                            <option value="Available">Available</option>
-                            <option value="Allocated">Allocated</option>
-                            <option value="Reserved">Reserved</option>
-                            <option value="Maintenance">Maintenance</option>
+                            <option value="">{t("parking.allStatuses")}</option>
+                            <option value="Available">{t("parking.status.available")}</option>
+                            <option value="Allocated">{t("parking.status.allocated")}</option>
+                            <option value="Reserved">{t("parking.status.reserved")}</option>
+                            <option value="Maintenance">{t("parking.status.maintenance")}</option>
                         </select>
                         <span className="inline-flex h-9 items-center rounded-xl bg-muted/60 px-3 font-mono text-xs tabular-nums text-muted-foreground">
-                            {filtered.length} slot{filtered.length === 1 ? "" : "s"}
+                            {t("parking.filteredCount", { count: filtered.length })}
                         </span>
                     </FilterBar>
 
@@ -577,14 +628,14 @@ export default function ParkingIndex() {
                         slots.length === 0 ? (
                             <EmptyState
                                 icon={ParkingMeter}
-                                title="No parking slots yet"
-                                description="Generate 4W, 2W, and visitor slots to start allocation. Use the 'Add Parking Slot' button to define your first bay."
+                                title={t("parking.emptyTitle")}
+                                description={t("parking.emptyDescription")}
                                 action={
                                     can.create ? (
                                         <Button asChild>
                                             <Link href={route("parking-slots.create")}>
                                                 <Plus />
-                                                Add first slot
+                                                {t("parking.addFirstSlot")}
                                             </Link>
                                         </Button>
                                     ) : undefined
@@ -593,8 +644,8 @@ export default function ParkingIndex() {
                         ) : filtered.length === 0 ? (
                             <EmptyState
                                 icon={CircleAlert}
-                                title="No slots match your filters"
-                                description="Try a different category, status, or search term."
+                                title={t("parking.emptyFilterTitle")}
+                                description={t("parking.emptyFilterDescription")}
                             />
                         ) : (
                             <>
@@ -621,12 +672,12 @@ export default function ParkingIndex() {
 
                                                 <div className="flex items-center gap-1.5">
                                                     <span className={cn("size-2 rounded-full", style.dot)} />
-                                                    <span className="text-xs font-medium text-foreground">{style.label}</span>
+                                                    <span className="text-xs font-medium text-foreground">{statusLabel(slot.status)}</span>
                                                 </div>
 
                                                 {slot.flat && (
                                                     <div className="min-w-0">
-                                                        <p className="truncate text-xs font-medium text-foreground">Flat {slot.flat.flat_no}</p>
+                                                        <p className="truncate text-xs font-medium text-foreground">{t("parking.flatLabel", { flatNo: slot.flat.flat_no })}</p>
                                                         {slot.flat.resident && (
                                                             <p className="truncate text-[11px] text-muted-foreground">{slot.flat.resident.name}</p>
                                                         )}
@@ -636,13 +687,13 @@ export default function ParkingIndex() {
                                                     <p className="truncate font-mono text-[11px] text-muted-foreground">{slot.vehicle_number}</p>
                                                 )}
                                                 {slot.status === "Allocated" && slot.expires_at && (
-                                                    <p className="text-[11px] text-muted-foreground">Till {formatDate(slot.expires_at)}</p>
+                                                    <p className="text-[11px] text-muted-foreground">{t("parking.validTill", { date: formatDate(slot.expires_at) })}</p>
                                                 )}
 
                                                 {clickable && (
                                                     <span className="mt-auto inline-flex items-center gap-1 text-[11px] font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
                                                         <KeyRound className="size-3" />
-                                                        Allocate
+                                                        {t("parking.allocate")}
                                                     </span>
                                                 )}
                                             </button>
@@ -655,7 +706,7 @@ export default function ParkingIndex() {
                                     {(Object.keys(STATUS_STYLES) as SlotStatus[]).map((statusKey) => (
                                         <span key={statusKey} className="inline-flex items-center gap-1.5">
                                             <span className={cn("size-2 rounded-full", STATUS_STYLES[statusKey].dot)} />
-                                            {STATUS_STYLES[statusKey].label}
+                                            {statusLabel(statusKey)}
                                         </span>
                                     ))}
                                 </div>
@@ -685,8 +736,8 @@ export default function ParkingIndex() {
                             emptyState={
                                 <EmptyState
                                     icon={CircleAlert}
-                                    title="No slots match your filters"
-                                    description="Try a different category, status, or search term."
+                                    title={t("parking.emptyFilterTitle")}
+                                    description={t("parking.emptyFilterDescription")}
                                 />
                             }
                             className="rounded-xl border border-border/50"
@@ -702,7 +753,7 @@ export default function ParkingIndex() {
                                         setPerPage(value);
                                         setPage(1);
                                     }}
-                                    noun="slots"
+                                    noun={t("parking.nounPlural")}
                                 />
                             </div>
                         )}
@@ -715,10 +766,10 @@ export default function ParkingIndex() {
             <BulkActionBar
                 count={selectedIds.length}
                 onClear={() => setSelectedIds([])}
-                noun="slots"
+                noun={t("parking.nounPlural")}
                 actions={[
                     {
-                        label: "Deallocate",
+                        label: t("parking.deallocate"),
                         icon: <KeyRound />,
                         disabled: !selectedIds.some(
                             (id) => slots.find((s) => s.uuid === id || s.id === id)?.status === "Allocated",
@@ -726,7 +777,7 @@ export default function ParkingIndex() {
                         onClick: bulkDeallocate,
                     },
                     {
-                        label: "Delete",
+                        label: t("common.delete"),
                         icon: <Trash2 />,
                         destructive: true,
                         disabled: !can.delete,
@@ -739,82 +790,86 @@ export default function ParkingIndex() {
             <FormDrawer
                 open={!!allocating}
                 onOpenChange={(open) => !open && setAllocating(null)}
-                title={allocating ? `Allocate ${allocating.slot_number}` : "Allocate slot"}
-                description="Assign this slot to a flat. The slot becomes Allocated on confirm."
+                title={
+                    allocating
+                        ? t("parking.allocateTitle", { slotNumber: allocating.slot_number })
+                        : t("parking.allocateTitleGeneric")
+                }
+                description={t("parking.allocateDescription")}
                 icon={<KeyRound className="size-5" />}
                 footer={
                     <>
                         <Button variant="outline" type="button" onClick={() => setAllocating(null)} disabled={allocSubmitting} className="rounded-full px-5 text-xs font-semibold hover:bg-muted">
-                            Cancel
+                            {t("common.cancel")}
                         </Button>
-                        <Button type="button" onClick={submitAllocation} loading={allocSubmitting} disabled={allocForm.flat_id === ""} className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all text-white">
+                        <Button type="button" onClick={submitAllocation} loading={allocSubmitting} disabled={allocForm.flat_id === ""} className="rounded-full bg-brand px-6 text-xs font-semibold shadow-md hover:bg-brand hover:-translate-y-0.5 transition-all text-white">
                             <KeyRound className="size-3.5" />
-                            Allocate slot
+                            {t("parking.allocateSlot")}
                         </Button>
                     </>
                 }
             >
                 <div className="flex flex-col gap-5">
                         <div className="space-y-1.5">
-                            <Label htmlFor="alloc-flat">Flat *</Label>
+                            <Label htmlFor="alloc-flat">{t("parking.flat")} *</Label>
                             <Combobox
                                 id="alloc-flat"
                                 items={flatOptions}
                                 value={allocForm.flat_id}
                                 onValueChange={(value) => setAllocForm((prev) => ({ ...prev, flat_id: value }))}
-                                placeholder="Select flat…"
-                                emptyText="No flats found"
+                                placeholder={t("parking.selectFlat")}
+                                emptyText={t("parking.noFlats")}
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="alloc-vehicle">Vehicle Registration No</Label>
+                            <Label htmlFor="alloc-vehicle">{t("parking.vehicleNumber")}</Label>
                             <Input
                                 id="alloc-vehicle"
                                 value={allocForm.vehicle_number}
                                 onChange={(e) => setAllocForm((prev) => ({ ...prev, vehicle_number: e.target.value }))}
-                                placeholder="e.g. MH-12-AB-1234"
+                                placeholder={t("parking.vehicleNumberPlaceholder")}
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="alloc-model">Vehicle Make / Model</Label>
+                            <Label htmlFor="alloc-model">{t("parking.vehicleModel")}</Label>
                             <Input
                                 id="alloc-model"
                                 value={allocForm.vehicle_model}
                                 onChange={(e) => setAllocForm((prev) => ({ ...prev, vehicle_model: e.target.value }))}
-                                placeholder="e.g. Honda City (White)"
+                                placeholder={t("parking.vehicleModelPlaceholder")}
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="alloc-rfid">RFID Tag</Label>
+                            <Label htmlFor="alloc-rfid">{t("parking.rfidTag")}</Label>
                             <Input
                                 id="alloc-rfid"
                                 value={allocForm.rfid_tag}
                                 onChange={(e) => setAllocForm((prev) => ({ ...prev, rfid_tag: e.target.value }))}
-                                placeholder="e.g. 0452-8871-9930"
+                                placeholder={t("parking.rfidPlaceholder")}
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="alloc-expires">Valid Till (optional)</Label>
+                            <Label htmlFor="alloc-expires">{t("parking.validTillOptional")}</Label>
                             <DatePicker
                                 id="alloc-expires"
                                 value={allocForm.expires_at}
                                 onValueChange={(value) => setAllocForm((prev) => ({ ...prev, expires_at: value }))}
                                 min={todayISO}
-                                placeholder="Permanent unless set"
+                                placeholder={t("parking.permanentUnlessSet")}
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="alloc-notes">Notes</Label>
+                            <Label htmlFor="alloc-notes">{t("common.notes")}</Label>
                             <Input
                                 id="alloc-notes"
                                 value={allocForm.notes}
                                 onChange={(e) => setAllocForm((prev) => ({ ...prev, notes: e.target.value }))}
-                                placeholder="Optional remarks"
+                                placeholder={t("parking.notesPlaceholder")}
                             />
                         </div>
                 </div>
@@ -824,9 +879,9 @@ export default function ParkingIndex() {
             <ConfirmDialog
                 open={!!deallocating}
                 onOpenChange={(open) => !open && setDeallocating(null)}
-                title={`Deallocate ${deallocating?.slot_number ?? ""}?`}
-                description="This releases the slot and clears the allocated flat, vehicle, and expiry. The slot returns to Available."
-                confirmLabel="Deallocate"
+                title={t("parking.confirmDeallocateTitle", { slotNumber: deallocating?.slot_number ?? "" })}
+                description={t("parking.confirmDeallocateDescription")}
+                confirmLabel={t("parking.deallocate")}
                 destructive
                 onConfirm={() => deallocating && deallocateOne(deallocating)}
             />
@@ -835,9 +890,9 @@ export default function ParkingIndex() {
             <ConfirmDialog
                 open={!!deleting}
                 onOpenChange={(open) => !open && setDeleting(null)}
-                title={`Remove slot ${deleting?.slot_number ?? ""}?`}
-                description="This permanently removes the parking slot record. This action cannot be undone."
-                confirmLabel="Remove"
+                title={t("parking.confirmRemoveTitle", { slotNumber: deleting?.slot_number ?? "" })}
+                description={t("parking.confirmRemoveDescription")}
+                confirmLabel={t("parking.remove")}
                 destructive
                 onConfirm={() => deleting && deleteOne(deleting)}
             />

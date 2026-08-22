@@ -37,6 +37,7 @@ class SubscriptionPlanController extends Controller
                 $query->where('name', 'ilike', "%{$search}%")
                     ->orWhere('code', 'ilike', "%{$search}%");
             })
+            ->with('features')
             ->orderBy('sort_order')
             ->paginate(12)
             ->withQueryString();

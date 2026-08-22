@@ -217,7 +217,7 @@ function NavLink({ item, url }: { item: NavItem & { href: string }; url: string 
 
 export function AppSidebar() {
     const { url } = usePage();
-    const { auth } = usePage<PageProps>().props;
+    const { auth, version, environment } = usePage<PageProps>().props;
     const { state } = useSidebar();
     const { t } = useI18n();
     const user = auth.user;
@@ -364,6 +364,28 @@ export function AppSidebar() {
                         </DropdownMenu>
                     </SidebarMenuItem>
                 </SidebarMenu>
+
+                {/* ── Version tag (blueprint §3) ─────────────────────────── */}
+                <div
+                    className="mt-1 flex items-center justify-center gap-1.5 px-2 pb-1"
+                    title={t("app.versionBadge")}
+                >
+                    <span className="truncate text-[10px] font-medium tracking-wide text-sidebar-foreground/35">
+                        {t("app.name")} {version}
+                    </span>
+                    {environment && (
+                        <span
+                            className={cn(
+                                "shrink-0 rounded-full px-1.5 py-px font-mono text-[9px] font-semibold uppercase tracking-wider",
+                                environment === "production"
+                                    ? "bg-brand/10 text-brand"
+                                    : "bg-warning/10 text-warning",
+                            )}
+                        >
+                            {environment}
+                        </span>
+                    )}
+                </div>
             </SidebarFooter>
         </Sidebar>
     );

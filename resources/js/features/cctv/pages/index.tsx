@@ -45,6 +45,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { RowActions } from "@/components/ui/row-actions";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { exportCsv } from "@/lib/export-csv";
+import { t, useI18n } from "@/lib/i18n";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { PageProps } from "@/types";
@@ -119,6 +120,7 @@ const GRID_COLS: Record<GridLayout, string> = {
 
 export default function CctvIndex() {
     const { cameras, stats, filters, can } = usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
     const [search, setSearch] = useState(filters.search);
     const [group, setGroup] = useState<string>(filters.group ?? "");
     const [status, setStatus] = useState<string>(filters.status ?? "");
@@ -234,28 +236,30 @@ export default function CctvIndex() {
     const handleExport = (format: ExportFormat) => {
         if (format !== "csv") {
             toast({
-                title: "Export coming soon",
+                title: t("cctv.exportComingSoon"),
                 variant: "info",
-                description: `${format.toUpperCase()} export will be available soon.`,
+                description: t("cctv.exportFormatComingSoon", {
+                    format: format.toUpperCase(),
+                }),
             });
             return;
         }
         exportCsv<CctvItem>({
             filename: "cctv-cameras.csv",
             columns: [
-                { header: "Name", accessor: (cam) => cam.name },
-                { header: "Camera Group", accessor: (cam) => cam.camera_group },
+                { header: t("cctv.colName"), accessor: (cam) => cam.name },
+                { header: t("cctv.colGroup"), accessor: (cam) => cam.camera_group },
                 {
-                    header: "Location",
+                    header: t("cctv.colLocation"),
                     accessor: (cam) => cam.location_details ?? "",
                 },
-                { header: "Tower", accessor: (cam) => cam.tower?.name ?? "" },
-                { header: "IP Address", accessor: (cam) => cam.ip_address ?? "" },
-                { header: "Stream URL", accessor: (cam) => cam.stream_url },
-                { header: "Status", accessor: (cam) => cam.status },
+                { header: t("cctv.colTower"), accessor: (cam) => cam.tower?.name ?? "" },
+                { header: t("cctv.colIp"), accessor: (cam) => cam.ip_address ?? "" },
+                { header: t("cctv.colStreamUrl"), accessor: (cam) => cam.stream_url },
+                { header: t("cctv.colStatus"), accessor: (cam) => cam.status },
                 {
-                    header: "Recording",
-                    accessor: (cam) => (cam.is_recording ? "Yes" : "No"),
+                    header: t("cctv.colRecording"),
+                    accessor: (cam) => (cam.is_recording ? t("common.yes") : t("common.no")),
                 },
             ],
             rows: cameras.data,
@@ -266,12 +270,12 @@ export default function CctvIndex() {
         () => [
             {
                 id: "name",
-                header: "Camera",
+                header: t("cctv.colCamera"),
                 sortable: true,
                 sortKey: "name",
                 cell: (cam) => (
                     <div className="flex items-center gap-2">
-                        <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-blue-600/10 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-info/10 text-info dark:bg-info/10 dark:text-info">
                             <Video className="size-4" />
                         </div>
                         <div className="flex flex-col">
@@ -289,7 +293,7 @@ export default function CctvIndex() {
             },
             {
                 id: "group",
-                header: "Camera Group",
+                header: t("cctv.colGroup"),
                 sortable: true,
                 sortKey: "camera_group",
                 cell: (cam) => (
@@ -300,11 +304,11 @@ export default function CctvIndex() {
             },
             {
                 id: "tower",
-                header: "Location / IP",
+                header: t("cctv.colLocationIp"),
                 cell: (cam) => (
                     <div className="flex flex-col">
                         <span className="text-sm text-foreground">
-                            {cam.tower ? cam.tower.name : "Surface Bay"}
+                            {cam.tower ? cam.tower.name : t("cctv.surfaceBay")}
                         </span>
                         <span className="font-mono text-xs text-muted-foreground">
                             {cam.ip_address ?? "—"}
@@ -314,7 +318,7 @@ export default function CctvIndex() {
             },
             {
                 id: "stream",
-                header: "Stream URL",
+                header: t("cctv.colStreamUrl"),
                 className: "hidden xl:table-cell",
                 cell: (cam) => (
                     <span className="block max-w-[260px] truncate font-mono text-xs text-muted-foreground">
@@ -324,27 +328,27 @@ export default function CctvIndex() {
             },
             {
                 id: "status",
-                header: "Status",
+                header: t("common.status"),
                 sortable: true,
                 sortKey: "status",
                 cell: (cam) => (
                     <div className="flex items-center gap-1.5">
                         {cam.status === "Online" ? (
-                            <Badge className="gap-1 border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                                <span className="size-1.5 animate-pulse rounded-full bg-emerald-500" />
-                                LIVE
+                            <Badge className="gap-1 border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand">
+                                <span className="size-1.5 animate-pulse rounded-full bg-brand" />
+                                {t("cctv.live")}
                             </Badge>
                         ) : cam.status === "Offline" ? (
-                            <Badge variant="destructive">Offline</Badge>
+                            <Badge variant="destructive">{t("cctv.offline")}</Badge>
                         ) : (
-                            <Badge className="border-transparent bg-amber-500/20 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
-                                Maintenance
+                            <Badge className="border-transparent bg-warning/20 text-warning dark:bg-warning/20 dark:text-warning">
+                                {t("cctv.maintenance")}
                             </Badge>
                         )}
                         {cam.is_recording && (
-                            <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-red-500">
-                                <span className="size-1.5 animate-pulse rounded-full bg-red-500" />
-                                REC
+                            <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-destructive">
+                                <span className="size-1.5 animate-pulse rounded-full bg-destructive" />
+                                {t("cctv.rec")}
                             </span>
                         )}
                     </div>
@@ -352,7 +356,7 @@ export default function CctvIndex() {
             },
             {
                 id: "actions",
-                header: "Actions",
+                header: t("common.actions"),
                 align: "right",
                 cell: (cam) => (
                     <div
@@ -362,7 +366,7 @@ export default function CctvIndex() {
                         <RowActions
                             actions={[
                                 {
-                                    label: "Edit",
+                                    label: t("common.edit"),
                                     icon: Pencil,
                                     disabled: !can.update,
                                     onClick: () =>
@@ -371,7 +375,7 @@ export default function CctvIndex() {
                                         ),
                                 },
                                 {
-                                    label: "Delete",
+                                    label: t("common.delete"),
                                     icon: Trash2,
                                     destructive: true,
                                     separatorBefore: true,
@@ -384,24 +388,23 @@ export default function CctvIndex() {
                 ),
             },
         ],
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [can],
+        [can, t],
     );
 
     return (
         <AppLayout>
-            <Head title="CCTV Live Feeds" />
+            <Head title={t("cctv.title")} />
 
             <PageHeader
-                title="CCTV Surveillance & Live Feeds"
-                description="Monitor live security camera feeds across Main Gate, Basement Parking, Tower Lobbies, and Perimeters."
+                title={t("cctv.pageTitle")}
+                description={t("cctv.pageDescription")}
                 icon={<Video className="size-5" />}
                 actions={
                     can.create && (
                         <Button asChild>
                             <Link href={route("cctv-cameras.create")}>
                                 <Plus />
-                                Add CCTV Stream
+                                {t("cctv.addStream")}
                             </Link>
                         </Button>
                     )
@@ -409,10 +412,10 @@ export default function CctvIndex() {
             />
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <MetricCard label="Total Cameras" value={stats.total} icon={Video} accent="border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400" />
-                <MetricCard label="Live Streams" value={stats.online} icon={Radio} accent="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
-                <MetricCard label="Offline Feeds" value={stats.offline} icon={VideoOff} accent="border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400" />
-                <MetricCard label="Maintenance" value={stats.maintenance} icon={Wrench} accent="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400" />
+                <MetricCard label={t("cctv.statTotal")} value={stats.total} icon={Video} accent="border-info/20 bg-info/10 text-info dark:text-info" />
+                <MetricCard label={t("cctv.statLive")} value={stats.online} icon={Radio} accent="border-brand/20 bg-brand/10 text-brand dark:text-brand" />
+                <MetricCard label={t("cctv.statOffline")} value={stats.offline} icon={VideoOff} accent="border-destructive/20 bg-destructive/10 text-destructive dark:text-destructive" />
+                <MetricCard label={t("cctv.statMaintenance")} value={stats.maintenance} icon={Wrench} accent="border-warning/20 bg-warning/10 text-warning dark:text-warning" />
             </div>
 
             <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
@@ -429,7 +432,7 @@ export default function CctvIndex() {
                         >
                             <TabsList className="max-w-full overflow-x-auto">
                                 <TabsTrigger value="all" className="gap-2">
-                                    All
+                                    {t("common.all")}
                                     <span className="rounded-full bg-muted px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-muted-foreground">
                                         {groupCounts.all}
                                     </span>
@@ -459,16 +462,16 @@ export default function CctvIndex() {
                                 className="w-auto"
                             >
                                 <TabsList>
-                                    <TabsTrigger value="1" title="Single camera">
+                                    <TabsTrigger value="1" title={t("cctv.gridSingle")}>
                                         1×1
                                     </TabsTrigger>
-                                    <TabsTrigger value="2" title="2 by 2 grid">
+                                    <TabsTrigger value="2" title={t("cctv.grid2x2")}>
                                         2×2
                                     </TabsTrigger>
-                                    <TabsTrigger value="3" title="3 by 3 grid">
+                                    <TabsTrigger value="3" title={t("cctv.grid3x3")}>
                                         3×3
                                     </TabsTrigger>
-                                    <TabsTrigger value="4" title="4 by 4 grid">
+                                    <TabsTrigger value="4" title={t("cctv.grid4x4")}>
                                         4×4
                                     </TabsTrigger>
                                 </TabsList>
@@ -484,7 +487,7 @@ export default function CctvIndex() {
                                 }
                             >
                                 <RefreshCw />
-                                Refresh
+                                {t("cctv.refresh")}
                             </Button>
 
                             <Tabs
@@ -499,11 +502,11 @@ export default function CctvIndex() {
                                 <TabsList className="w-full sm:w-auto">
                                     <TabsTrigger value="grid" className="gap-1.5">
                                         <LayoutGrid />
-                                        Wall
+                                        {t("cctv.wall")}
                                     </TabsTrigger>
                                     <TabsTrigger value="table" className="gap-1.5">
                                         <Table2 />
-                                        Table
+                                        {t("cctv.table")}
                                     </TabsTrigger>
                                 </TabsList>
                             </Tabs>
@@ -513,8 +516,8 @@ export default function CctvIndex() {
                     <FilterBar
                         searchValue={search}
                         onSearchChange={setSearch}
-                        searchPlaceholder="Search camera name or location..."
-                        searchLabel="Search cameras"
+                        searchPlaceholder={t("cctv.searchPlaceholder")}
+                        searchLabel={t("cctv.searchLabel")}
                         className="mt-4 rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
                         onReset={() => {
                             setSearch("");
@@ -528,14 +531,18 @@ export default function CctvIndex() {
                             onChange={(e) => setStatus(e.target.value)}
                             className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
                         >
-                            <option value="">All Statuses</option>
-                            <option value="Online">Online</option>
-                            <option value="Offline">Offline</option>
-                            <option value="Maintenance">Maintenance</option>
+                            <option value="">{t("cctv.allStatuses")}</option>
+                            <option value="Online">{t("cctv.online")}</option>
+                            <option value="Offline">{t("cctv.offline")}</option>
+                            <option value="Maintenance">{t("cctv.maintenance")}</option>
                         </select>
                         <span className="inline-flex h-9 items-center rounded-xl bg-muted/60 px-3 font-mono text-xs tabular-nums text-muted-foreground">
-                            {cameras.data.length} camera
-                            {cameras.data.length === 1 ? "" : "s"}
+                            {t(
+                                cameras.data.length === 1
+                                    ? "cctv.cameraCount"
+                                    : "cctv.cameraCountPlural",
+                                { count: cameras.data.length },
+                            )}
                         </span>
                     </FilterBar>
 
@@ -544,8 +551,8 @@ export default function CctvIndex() {
                         stats.total === 0 ? (
                             <EmptyState
                                 icon={Video}
-                                title="No CCTV cameras configured"
-                                description="Add an RTSP / HLS camera feed to start building your surveillance wall."
+                                title={t("cctv.emptyTitle")}
+                                description={t("cctv.emptyDescription")}
                                 action={
                                     can.create ? (
                                         <Button asChild>
@@ -555,7 +562,7 @@ export default function CctvIndex() {
                                                 )}
                                             >
                                                 <Plus />
-                                                Add first camera
+                                                {t("cctv.addFirstCamera")}
                                             </Link>
                                         </Button>
                                     ) : undefined
@@ -564,8 +571,8 @@ export default function CctvIndex() {
                         ) : cameras.data.length === 0 ? (
                             <EmptyState
                                 icon={CircleAlert}
-                                title="No cameras match your filters"
-                                description="Try a different camera group, status, or search term."
+                                title={t("cctv.noMatchTitle")}
+                                description={t("cctv.noMatchDescription")}
                             />
                         ) : (
                             <>
@@ -595,19 +602,19 @@ export default function CctvIndex() {
                                 {/* Wall status strip */}
                                 <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-border/40 pt-4 text-xs text-muted-foreground">
                                     <span className="inline-flex items-center gap-1.5">
-                                        <span className="size-2 animate-pulse rounded-full bg-emerald-500" />
-                                        {wallStats.online} live
+                                        <span className="size-2 animate-pulse rounded-full bg-brand" />
+                                        {t("cctv.liveCount", { count: wallStats.online })}
                                     </span>
                                     <span className="inline-flex items-center gap-1.5">
-                                        <span className="size-2 rounded-full bg-red-500" />
-                                        {wallStats.offline} offline
+                                        <span className="size-2 rounded-full bg-destructive" />
+                                        {t("cctv.offlineCount", { count: wallStats.offline })}
                                     </span>
                                     <span className="inline-flex items-center gap-1.5">
-                                        <span className="size-2 rounded-full bg-amber-500" />
-                                        {wallStats.maintenance} maintenance
+                                        <span className="size-2 rounded-full bg-warning" />
+                                        {t("cctv.maintenanceCount", { count: wallStats.maintenance })}
                                     </span>
                                     <span className="ml-auto inline-flex items-center gap-1.5 font-mono tabular-nums">
-                                        <span className="size-1.5 animate-pulse rounded-full bg-red-500" />
+                                        <span className="size-1.5 animate-pulse rounded-full bg-destructive" />
                                         {now.toLocaleTimeString([], {
                                             hour12: false,
                                         })}
@@ -632,8 +639,8 @@ export default function CctvIndex() {
                                 emptyState={
                                     <EmptyState
                                         icon={Video}
-                                        title="No CCTV cameras configured"
-                                        description="Add a new RTSP / HLS camera feed to start monitoring."
+                                        title={t("cctv.emptyTitle")}
+                                        description={t("cctv.tableEmptyDescription")}
                                     />
                                 }
                                 className="mt-4 rounded-xl border border-border/50"
@@ -651,7 +658,7 @@ export default function CctvIndex() {
                                                 { preserveState: true, replace: true },
                                             )
                                         }
-                                        noun="cameras"
+                                        noun={t("cctv.nounPlural")}
                                     />
                                 </div>
                             )}
@@ -663,10 +670,10 @@ export default function CctvIndex() {
             <BulkActionBar
                 count={selectedIds.length}
                 onClear={() => setSelectedIds([])}
-                noun="cameras"
+                noun={t("cctv.nounPlural")}
                 actions={[
                     {
-                        label: "Delete",
+                        label: t("common.delete"),
                         icon: <Trash2 />,
                         destructive: true,
                         disabled: !can.delete,
@@ -678,9 +685,11 @@ export default function CctvIndex() {
             <ConfirmDialog
                 open={confirming !== null}
                 onOpenChange={(open) => !open && setConfirming(null)}
-                title="Delete camera?"
-                description={`This will permanently remove ${confirming?.name ?? "this camera"} and its configuration. This action cannot be undone.`}
-                confirmLabel="Delete camera"
+                title={t("cctv.confirmDeleteTitle")}
+                description={t("cctv.confirmDeleteDescription", {
+                    name: confirming?.name ?? "",
+                })}
+                confirmLabel={t("cctv.confirmDeleteLabel")}
                 destructive
                 onConfirm={handleDestroy}
             />
@@ -701,6 +710,7 @@ function CameraCard({
     onToggleFocus: () => void;
     now: Date;
 }) {
+    const { t } = useI18n();
     const boxRef = useRef<HTMLDivElement | null>(null);
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const [muted, setMuted] = useState(true);
@@ -772,10 +782,9 @@ function CameraCard({
             link.click();
         } catch {
             toast({
-                title: "Snapshot unavailable",
+                title: t("cctv.snapshotUnavailable"),
                 variant: "info",
-                description:
-                    "The feed could not be captured (CORS or DRM restricted).",
+                description: t("cctv.snapshotError"),
             });
         }
     };
@@ -793,18 +802,18 @@ function CameraCard({
 
     const statusChip =
         cam.status === "Online" ? (
-            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-md bg-brand/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
                 <span className="size-1.5 animate-pulse rounded-full bg-white" />
-                Live
+                {t("cctv.live")}
             </span>
         ) : cam.status === "Offline" ? (
             <span className="inline-flex items-center gap-1 rounded-md bg-zinc-600/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
-                Offline
+                {t("cctv.offline")}
             </span>
         ) : (
-            <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-md bg-warning/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
                 <Wrench className="size-2.5" />
-                Maintenance
+                {t("cctv.maintenance")}
             </span>
         );
 
@@ -812,7 +821,7 @@ function CameraCard({
         <div
             ref={boxRef}
             onClick={onToggleFocus}
-            title={focused ? "Click to collapse" : "Click to zoom"}
+            title={focused ? t("cctv.clickToCollapse") : t("cctv.clickToZoom")}
             className={cn(
                 "group relative cursor-pointer overflow-hidden rounded-2xl border bg-[#0a0a0c] shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)] transition-all",
                 focused
@@ -837,11 +846,11 @@ function CameraCard({
                         <span className="max-w-[80%] text-center text-xs font-medium">
                             {!isOnline
                                 ? cam.status === "Maintenance"
-                                    ? "Camera under maintenance"
-                                    : "Reconnecting…"
+                                    ? t("cctv.underMaintenance")
+                                    : t("cctv.reconnecting")
                                 : playError
-                                  ? "Feed unavailable"
-                                  : "Stream not playable in browser"}
+                                  ? t("cctv.feedUnavailable")
+                                  : t("cctv.notPlayable")}
                         </span>
                     </div>
                 )}
@@ -861,9 +870,9 @@ function CameraCard({
                 <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
                     {statusChip}
                     {cam.is_recording && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-red-600/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-destructive/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
                             <span className="size-1.5 animate-pulse rounded-full bg-white" />
-                            Rec
+                            {t("cctv.rec")}
                         </span>
                     )}
                 </div>
@@ -880,7 +889,7 @@ function CameraCard({
                             type="button"
                             onClick={toggleMute}
                             disabled={!playable || playError}
-                            title={muted ? "Unmute" : "Mute"}
+                            title={muted ? t("cctv.unmute") : t("cctv.mute")}
                             className="flex size-7 items-center justify-center rounded-md bg-black/50 text-white/85 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             {muted ? (
@@ -893,7 +902,7 @@ function CameraCard({
                             type="button"
                             onClick={takeSnapshot}
                             disabled={!playable || playError}
-                            title="Snapshot"
+                            title={t("cctv.snapshot")}
                             className="flex size-7 items-center justify-center rounded-md bg-black/50 text-white/85 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             <Camera className="size-3.5" />
@@ -901,7 +910,7 @@ function CameraCard({
                         <button
                             type="button"
                             onClick={toggleFullscreen}
-                            title="Fullscreen"
+                            title={t("cctv.fullscreen")}
                             className="flex size-7 items-center justify-center rounded-md bg-black/50 text-white/85 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white"
                         >
                             <Maximize2 className="size-3.5" />
@@ -912,7 +921,7 @@ function CameraCard({
                                 stop(event);
                                 onToggleFocus();
                             }}
-                            title={focused ? "Collapse" : "Zoom"}
+                            title={focused ? t("cctv.collapse") : t("cctv.zoom")}
                             className="flex size-7 items-center justify-center rounded-md bg-black/50 text-white/85 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white"
                         >
                             {focused ? (

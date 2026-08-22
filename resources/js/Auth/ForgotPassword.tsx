@@ -29,7 +29,7 @@ export default function ForgotPassword() {
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">
                         {t("auth.resetPasswordSubtitle")}
                     </p>
-                    {status && <p className="mt-5 rounded-xl bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-400">{status}</p>}
+                    {status && <p className="mt-5 rounded-xl bg-brand/10 p-3 text-sm text-brand dark:text-brand">{status}</p>}
                     <form onSubmit={submit} className="mt-6 space-y-5">
                         <div className="space-y-2">
                             <Label htmlFor="email">{t("auth.email")}</Label>

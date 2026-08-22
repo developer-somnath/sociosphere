@@ -17,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Combobox } from "@/components/ui/combobox";
 import { DataTableFull } from "@/components/ui/data-table";
 import type { ColumnDef } from "@/components/ui/data-table";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { FormDrawer } from "@/components/ui/form-drawer";
@@ -24,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MetricCard } from "@/components/ui/metric-card";
 import { Pagination } from "@/components/ui/pagination";
+import { t, useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type AmenityOption = { id: number; name: string };
@@ -39,6 +41,8 @@ type BookingItem = {
     total_fee: string;
     status: "Pending" | "Approved" | "Rejected" | "Cancelled";
     payment_status: "Unpaid" | "Paid";
+    refunded_at: string | null;
+    refund_reference: string | null;
     remarks: string | null;
     created_at: string;
     amenity?: { id: number; name: string };
@@ -85,34 +89,53 @@ function statusBadge(status: BookingItem["status"]) {
     switch (status) {
         case "Pending":
             return (
-                <Badge className="border-transparent bg-amber-500/20 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
-                    Pending Approval
+                <Badge className="border-transparent bg-warning/20 text-warning dark:bg-warning/20 dark:text-warning">
+                    {t("amenityBookings.statusPendingApproval")}
                 </Badge>
             );
         case "Approved":
             return (
-                <Badge className="border-transparent bg-emerald-500/20 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
-                    Approved
+                <Badge className="border-transparent bg-brand/20 text-brand dark:bg-brand/20 dark:text-brand">
+                    {t("common.approved")}
                 </Badge>
             );
         case "Rejected":
-            return <Badge variant="destructive">Rejected</Badge>;
+            return <Badge variant="destructive">{t("common.rejected")}</Badge>;
         case "Cancelled":
-            return <Badge variant="secondary">Cancelled</Badge>;
+            return <Badge variant="secondary">{t("common.cancelled")}</Badge>;
         default:
             return <Badge variant="outline">{status}</Badge>;
     }
 }
 
+function paymentBadge(b: BookingItem) {
+    if (b.status === "Cancelled" && b.refunded_at) {
+        return (
+            <Badge variant="success" className="gap-1">
+                {t("amenityBookings.refunded")}
+                {b.refund_reference ? ` · ${b.refund_reference}` : ""}
+            </Badge>
+        );
+    }
+
+    if (b.payment_status === "Paid") {
+        return <Badge variant="info">{t("amenityBookings.paid")}</Badge>;
+    }
+
+    return <Badge variant="outline">{t("amenityBookings.unpaid")}</Badge>;
+}
+
 export default function AmenityBookingsIndex() {
     const { bookings, stats, amenities, flats, residents, filters, can } =
         usePage<PageProps<BookingsProps>>().props;
+    const { t } = useI18n();
 
     const [search, setSearch] = useState(filters.search);
     const [status, setStatus] = useState<string>(filters.status ?? "");
     const [amenityId, setAmenityId] = useState<string>(filters.amenity_id ?? "");
     const [bookingDate, setBookingDate] = useState<string>(filters.booking_date ?? "");
     const [showNewModal, setShowNewModal] = useState(false);
+    const [cancellingBooking, setCancellingBooking] = useState<BookingItem | null>(null);
     const isFirstRender = useRef(true);
 
     const form = useForm({
@@ -183,7 +206,15 @@ export default function AmenityBookingsIndex() {
     };
 
     const handleCancel = (id: number) => {
-        router.post(route("amenity-bookings.cancel", id));
+        const booking = bookings.data.find((b) => b.id === id) ?? null;
+        setCancellingBooking(booking);
+    };
+
+    const confirmCancel = () => {
+        if (!cancellingBooking) return;
+        router.post(route("amenity-bookings.cancel", cancellingBooking.id), {}, {
+            onFinish: () => setCancellingBooking(null),
+        });
     };
 
     const handleSort = (next: { key: string; direction: "asc" | "desc" }) => {
@@ -198,21 +229,21 @@ export default function AmenityBookingsIndex() {
         () => [
             {
                 id: "amenity",
-                header: "Amenity",
+                header: t("amenityBookings.colAmenity"),
                 cell: (b) => (
                     <div className="flex flex-col">
                         <span className="font-semibold text-foreground">
                             {b.amenity?.name ?? "—"}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                            Flat {b.flat?.flat_number ?? "—"} ({b.resident?.name ?? "—"})
+                            {t("amenityBookings.flat")} {b.flat?.flat_number ?? "—"} ({b.resident?.name ?? "—"})
                         </span>
                     </div>
                 ),
             },
             {
                 id: "booking_date",
-                header: "Date & Time",
+                header: t("amenityBookings.colDateTime"),
                 sortable: true,
                 sortKey: "booking_date",
                 cell: (b) => (
@@ -228,25 +259,30 @@ export default function AmenityBookingsIndex() {
             },
             {
                 id: "total_fee",
-                header: "Fee",
+                header: t("amenityBookings.colFee"),
                 sortable: true,
                 sortKey: "total_fee",
                 cell: (b) => (
                     <span className="font-medium text-foreground">
-                        {Number(b.total_fee) > 0 ? `৳${b.total_fee}` : "Free"}
+                        {Number(b.total_fee) > 0 ? `৳${b.total_fee}` : t("amenityBookings.free")}
                     </span>
                 ),
             },
             {
+                id: "payment_status",
+                header: t("amenityBookings.colPayment"),
+                cell: (b) => paymentBadge(b),
+            },
+            {
                 id: "status",
-                header: "Status",
+                header: t("common.status"),
                 sortable: true,
                 sortKey: "status",
                 cell: (b) => statusBadge(b.status),
             },
             {
                 id: "actions",
-                header: "Actions",
+                header: t("common.actions"),
                 align: "right",
                 cell: (b) => (
                     <div className="flex items-center justify-end gap-1.5">
@@ -255,10 +291,10 @@ export default function AmenityBookingsIndex() {
                                 <Button
                                     size="sm"
                                     variant="outline"
-                                    className="h-7 text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                                    className="h-7 text-xs text-brand hover:text-brand dark:text-brand"
                                     onClick={() => handleApprove(b.id)}
                                 >
-                                    Approve
+                                    {t("amenityBookings.approve")}
                                 </Button>
                                 <Button
                                     size="sm"
@@ -266,7 +302,7 @@ export default function AmenityBookingsIndex() {
                                     className="h-7 text-xs text-destructive hover:text-destructive"
                                     onClick={() => handleReject(b.id)}
                                 >
-                                    Reject
+                                    {t("amenityBookings.reject")}
                                 </Button>
                             </>
                         )}
@@ -277,29 +313,29 @@ export default function AmenityBookingsIndex() {
                                 className="h-7 text-xs text-muted-foreground hover:text-foreground"
                                 onClick={() => handleCancel(b.id)}
                             >
-                                Cancel
+                                {t("common.cancel")}
                             </Button>
                         )}
                     </div>
                 ),
             },
         ],
-        [can],
+        [can, t],
     );
 
     return (
         <AppLayout>
-            <Head title="Facility Bookings" />
+            <Head title={t("amenityBookings.title")} />
 
             <PageHeader
-                title="Amenity & Facility Bookings"
-                description="Manage booking requests, time slots, and resident facility reservations."
+                title={t("amenityBookings.pageTitle")}
+                description={t("amenityBookings.pageDescription")}
                 icon={<CalendarDays className="size-5" />}
                 actions={
                     can.book && (
                         <Button onClick={() => setShowNewModal(true)}>
                             <Plus className="size-4" />
-                            Book Facility
+                            {t("amenityBookings.bookFacility")}
                         </Button>
                     )
                 }
@@ -307,36 +343,36 @@ export default function AmenityBookingsIndex() {
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <MetricCard
-                    label="Total Bookings"
+                    label={t("amenityBookings.statTotal")}
                     value={stats.total}
                     icon={CalendarDays}
-                    accent="border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                    accent="border-info/20 bg-info/10 text-info dark:text-info"
                 />
                 <MetricCard
-                    label="Pending Approval"
+                    label={t("amenityBookings.statPending")}
                     value={stats.pending}
                     icon={Clock}
-                    accent="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    accent="border-warning/20 bg-warning/10 text-warning dark:text-warning"
                 />
                 <MetricCard
-                    label="Approved Bookings"
+                    label={t("amenityBookings.statApproved")}
                     value={stats.approved}
                     icon={CheckCircle2}
-                    accent="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    accent="border-brand/20 bg-brand/10 text-brand dark:text-brand"
                 />
                 <MetricCard
-                    label="Cancelled / Rejected"
+                    label={t("amenityBookings.statCancelledRejected")}
                     value={stats.cancelled}
                     icon={XCircle}
-                    accent="border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400"
+                    accent="border-destructive/20 bg-destructive/10 text-destructive dark:text-destructive"
                 />
             </div>
 
             <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search amenity or resident..."
-                searchLabel="Search bookings"
+                searchPlaceholder={t("amenityBookings.searchPlaceholder")}
+                searchLabel={t("amenityBookings.searchLabel")}
                 className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
                 onReset={() => {
                     setSearch("");
@@ -351,11 +387,11 @@ export default function AmenityBookingsIndex() {
                     onChange={(e) => setStatus(e.target.value)}
                     className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
                 >
-                    <option value="">All Statuses</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Rejected">Rejected</option>
-                    <option value="Cancelled">Cancelled</option>
+                    <option value="">{t("amenityBookings.allStatuses")}</option>
+                    <option value="Pending">{t("common.pending")}</option>
+                    <option value="Approved">{t("common.approved")}</option>
+                    <option value="Rejected">{t("common.rejected")}</option>
+                    <option value="Cancelled">{t("common.cancelled")}</option>
                 </select>
 
                 <select
@@ -363,7 +399,7 @@ export default function AmenityBookingsIndex() {
                     onChange={(e) => setAmenityId(e.target.value)}
                     className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
                 >
-                    <option value="">All Amenities</option>
+                    <option value="">{t("amenityBookings.allAmenities")}</option>
                     {amenities.map((a) => (
                         <option key={a.id} value={String(a.id)}>
                             {a.name}
@@ -390,8 +426,8 @@ export default function AmenityBookingsIndex() {
                         emptyState={
                             <EmptyState
                                 icon={CalendarDays}
-                                title="No bookings found"
-                                description="Facility reservation requests will appear here."
+                                title={t("amenityBookings.emptyTitle")}
+                                description={t("amenityBookings.emptyDescription")}
                             />
                         }
                     />
@@ -407,7 +443,7 @@ export default function AmenityBookingsIndex() {
                                     { preserveState: true, replace: true },
                                 )
                             }
-                            noun="bookings"
+                            noun={t("amenityBookings.nounPlural")}
                         />
                     )}
                 </CardContent>
@@ -417,23 +453,23 @@ export default function AmenityBookingsIndex() {
             <FormDrawer
                 open={showNewModal}
                 onOpenChange={(open) => !open && setShowNewModal(false)}
-                title="Book Amenity / Facility"
-                description="Select a facility, flat, date and time slot."
+                title={t("amenityBookings.drawerTitle")}
+                description={t("amenityBookings.drawerDescription")}
                 icon={<CalendarDays className="size-5" />}
                 footer={
                     <>
                         <Button variant="outline" type="button" onClick={() => setShowNewModal(false)}>
-                            Cancel
+                            {t("common.cancel")}
                         </Button>
                         <Button type="submit" form="booking-form" disabled={form.processing}>
-                            Submit Booking Request
+                            {t("amenityBookings.submitBooking")}
                         </Button>
                     </>
                 }
             >
                 <form id="booking-form" onSubmit={handleCreateBooking} className="flex flex-col gap-4">
                     <div className="space-y-1.5">
-                        <Label>Facility / Amenity *</Label>
+                        <Label>{t("amenityBookings.facility")} *</Label>
                         <Combobox
                             items={amenities.map((a) => ({
                                 value: String(a.id),
@@ -441,8 +477,8 @@ export default function AmenityBookingsIndex() {
                             }))}
                             value={form.data.amenity_id}
                             onValueChange={(value) => form.setData("amenity_id", value)}
-                            placeholder="Select facility…"
-                            emptyText="No active facilities"
+                            placeholder={t("amenityBookings.selectFacility")}
+                            emptyText={t("amenityBookings.noActiveFacilities")}
                         />
                         {form.errors.amenity_id && (
                             <p className="text-xs text-destructive">{form.errors.amenity_id}</p>
@@ -451,7 +487,7 @@ export default function AmenityBookingsIndex() {
 
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <Label>Flat *</Label>
+                            <Label>{t("amenityBookings.flat")} *</Label>
                             <Combobox
                                 items={flats.map((f) => ({
                                     value: String(f.id),
@@ -462,8 +498,8 @@ export default function AmenityBookingsIndex() {
                                     form.setData("flat_id", value);
                                     form.setData("resident_id", "");
                                 }}
-                                placeholder="Select flat…"
-                                emptyText="No flats"
+                                placeholder={t("amenityBookings.selectFlat")}
+                                emptyText={t("amenityBookings.noFlats")}
                             />
                             {form.errors.flat_id && (
                                 <p className="text-xs text-destructive">{form.errors.flat_id}</p>
@@ -471,7 +507,7 @@ export default function AmenityBookingsIndex() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label>Resident *</Label>
+                            <Label>{t("amenityBookings.resident")} *</Label>
                             <Combobox
                                 items={filteredResidents.map((r) => ({
                                     value: String(r.id),
@@ -479,8 +515,8 @@ export default function AmenityBookingsIndex() {
                                 }))}
                                 value={form.data.resident_id}
                                 onValueChange={(value) => form.setData("resident_id", value)}
-                                placeholder="Select resident…"
-                                emptyText="No resident selected"
+                                placeholder={t("amenityBookings.selectResident")}
+                                emptyText={t("amenityBookings.noResidentSelected")}
                             />
                             {form.errors.resident_id && (
                                 <p className="text-xs text-destructive">{form.errors.resident_id}</p>
@@ -489,7 +525,7 @@ export default function AmenityBookingsIndex() {
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label>Booking Date *</Label>
+                        <Label>{t("amenityBookings.bookingDate")} *</Label>
                         <Input
                             type="date"
                             min={new Date().toISOString().split("T")[0]}
@@ -504,7 +540,7 @@ export default function AmenityBookingsIndex() {
 
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <Label>Start Time *</Label>
+                            <Label>{t("amenityBookings.startTime")} *</Label>
                             <Input
                                 type="time"
                                 value={form.data.start_time}
@@ -517,7 +553,7 @@ export default function AmenityBookingsIndex() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label>End Time *</Label>
+                            <Label>{t("amenityBookings.endTime")} *</Label>
                             <Input
                                 type="time"
                                 value={form.data.end_time}
@@ -531,16 +567,37 @@ export default function AmenityBookingsIndex() {
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label>Remarks / Special Requests</Label>
+                        <Label>{t("amenityBookings.remarks")}</Label>
                         <textarea
                             value={form.data.remarks}
                             onChange={(e) => form.setData("remarks", e.target.value)}
                             className="min-h-[80px] w-full rounded-lg border border-input bg-transparent p-2.5 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                            placeholder="Provide any additional notes or event requirements..."
+                            placeholder={t("amenityBookings.remarksPlaceholder")}
                         />
                     </div>
                 </form>
             </FormDrawer>
+
+            <ConfirmDialog
+                open={cancellingBooking !== null}
+                onOpenChange={(open) => !open && setCancellingBooking(null)}
+                title={t("amenityBookings.cancelTitle")}
+                description={
+                    cancellingBooking?.payment_status === "Paid" && Number(cancellingBooking.total_fee) > 0 ? (
+                        <span>
+                            {t("amenityBookings.cancelRefundHint")}{" "}
+                            <strong className="text-foreground">৳{cancellingBooking.total_fee}</strong>{" "}
+                            {t("amenityBookings.cancelRefundHintSuffix")}
+                        </span>
+                    ) : (
+                        t("amenityBookings.cancelHint")
+                    )
+                }
+                confirmLabel={t("common.cancel")}
+                cancelLabel={t("common.keep")}
+                destructive
+                onConfirm={confirmCancel}
+            />
         </AppLayout>
     );
 }

@@ -20,6 +20,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
+import { t, useI18n } from "@/lib/i18n";
 import { toast } from "@/lib/toast";
 import type { PageProps } from "@/types";
 import type { Paginated, Resident } from "@/features/residents/types";
@@ -42,11 +43,11 @@ function initials(name: string): string {
 function genderBadge(gender: Resident["gender"]) {
     switch (gender) {
         case "Male":
-            return <Badge variant="secondary">Male</Badge>;
+            return <Badge variant="secondary">{t("residents.gender.male")}</Badge>;
         case "Female":
-            return <Badge variant="secondary">Female</Badge>;
+            return <Badge variant="secondary">{t("residents.gender.female")}</Badge>;
         case "Other":
-            return <Badge variant="outline">Other</Badge>;
+            return <Badge variant="outline">{t("residents.gender.other")}</Badge>;
         default:
             return <span className="text-muted-foreground">—</span>;
     }
@@ -55,6 +56,7 @@ function genderBadge(gender: Resident["gender"]) {
 export default function ResidentsIndex() {
     const { residents, filters, can } =
         usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
 
     const [search, setSearch] = useState(filters.search);
     const [selectedIds, setSelectedIds] = useState<Selection>([]);
@@ -94,22 +96,24 @@ export default function ResidentsIndex() {
     const handleExport = (format: ExportFormat) => {
         if (format !== "csv") {
             toast({
-                title: "Export coming soon",
+                title: t("residents.exportComingSoon"),
                 variant: "info",
-                description: `${format.toUpperCase()} export will be available soon.`,
+                description: t("residents.exportFormatComingSoon", {
+                    format: format.toUpperCase(),
+                }),
             });
             return;
         }
         exportCsv<Resident>({
             filename: "residents.csv",
             columns: [
-                { header: "Name", accessor: (r) => r.name },
-                { header: "Flat", accessor: (r) => r.flat?.flat_no ?? "" },
-                { header: "Tower", accessor: (r) => r.flat?.tower?.name ?? "" },
-                { header: "Phone", accessor: (r) => r.phone },
-                { header: "Email", accessor: (r) => r.email },
-                { header: "Occupation", accessor: (r) => r.occupation },
-                { header: "Primary Contact", accessor: (r) => (r.is_primary_contact ? "Yes" : "No") },
+                { header: t("common.name"), accessor: (r) => r.name },
+                { header: t("residents.flat"), accessor: (r) => r.flat?.flat_no ?? "" },
+                { header: t("residents.tower"), accessor: (r) => r.flat?.tower?.name ?? "" },
+                { header: t("common.phone"), accessor: (r) => r.phone },
+                { header: t("common.email"), accessor: (r) => r.email },
+                { header: t("residents.occupation"), accessor: (r) => r.occupation },
+                { header: t("residents.primaryContact"), accessor: (r) => (r.is_primary_contact ? t("common.yes") : t("common.no")) },
             ],
             rows: residents.data,
         });
@@ -119,7 +123,7 @@ export default function ResidentsIndex() {
         () => [
             {
                 id: "name",
-                header: "Resident",
+                header: t("residents.colResident"),
                 sortable: true,
                 cell: (resident) => (
                     <div className="flex items-center gap-3">
@@ -137,7 +141,7 @@ export default function ResidentsIndex() {
             },
             {
                 id: "flat",
-                header: "Flat",
+                header: t("residents.flat"),
                 cell: (resident) =>
                     resident.flat ? (
                         <div className="flex flex-col">
@@ -152,7 +156,7 @@ export default function ResidentsIndex() {
             },
             {
                 id: "contact",
-                header: "Contact",
+                header: t("residents.colContact"),
                 cell: (resident) => (
                     <div className="flex flex-col">
                         <span className="font-mono text-xs text-foreground">{resident.phone}</span>
@@ -164,36 +168,36 @@ export default function ResidentsIndex() {
             },
             {
                 id: "gender",
-                header: "Gender",
+                header: t("residents.colGender"),
                 cell: (resident) => genderBadge(resident.gender),
             },
             {
                 id: "status",
-                header: "Status",
+                header: t("common.status"),
                 cell: (resident) =>
                     resident.is_primary_contact ? (
-                        <Badge className="border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                            Primary
+                        <Badge className="border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand">
+                            {t("residents.status.primary")}
                         </Badge>
                     ) : (
-                        <Badge variant="outline">Resident</Badge>
+                        <Badge variant="outline">{t("residents.status.resident")}</Badge>
                     ),
             },
             {
                 id: "actions",
-                header: "Actions",
+                header: t("common.actions"),
                 align: "right",
                 cell: (resident) => (
                     <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
                         <RowActions
                             actions={[
                                 {
-                                    label: "Edit",
+                                    label: t("common.edit"),
                                     icon: Pencil,
                                     onClick: () => router.visit(route("residents.edit", resident.uuid)),
                                 },
                                 {
-                                    label: "Remove",
+                                    label: t("residents.remove"),
                                     icon: Trash2,
                                     destructive: true,
                                     separatorBefore: true,
@@ -206,8 +210,7 @@ export default function ResidentsIndex() {
                 ),
             },
         ],
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [can],
+        [can, t],
     );
 
     // Debounced, URL-synced search (blueprint §8). Always reset to page 1
@@ -241,18 +244,18 @@ export default function ResidentsIndex() {
 
     return (
         <AppLayout>
-            <Head title="Residents" />
+            <Head title={t("residents.title")} />
 
             <PageHeader
-                title="Residents"
-                description="Manage resident profiles, contact details, and occupancy relationships."
+                title={t("residents.title")}
+                description={t("residents.pageDescription")}
                 icon={<Users className="size-5" />}
                 actions={
                     can.create && (
                         <QuickActionPill
                             href={route("residents.create")}
                             icon={Plus}
-                            label="Add Resident"
+                            label={t("residents.add")}
                             variant="teal"
                         />
                     )
@@ -262,13 +265,13 @@ export default function ResidentsIndex() {
             <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search name, phone, email, flat…"
-                searchLabel="Search residents"
+                searchPlaceholder={t("residents.searchPlaceholder")}
+                searchLabel={t("residents.searchLabel")}
                 className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
             >
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="size-4" />
-                    {residents.total} resident{residents.total === 1 ? "" : "s"} registered
+                    {t("residents.registeredCount", { count: residents.total })}
                 </div>
             </FilterBar>
 
@@ -286,20 +289,24 @@ export default function ResidentsIndex() {
                         emptyState={
                             <EmptyState
                                 icon={Users}
-                                title={filters.search ? "No residents match your search" : "No residents yet"}
+                                title={
+                                    filters.search
+                                        ? t("residents.emptySearchTitle")
+                                        : t("residents.emptyTitle")
+                                }
                                 description={
                                     filters.search
-                                        ? "Try a different search term."
+                                        ? t("residents.emptySearchDescription")
                                         : can.create
-                                          ? "Add your first resident to get started."
-                                          : "Check back later."
+                                          ? t("residents.emptyDescription")
+                                          : t("residents.emptyDescriptionNoCreate")
                                 }
                                 action={
                                     can.create && !filters.search ? (
                                         <Button asChild>
                                             <Link href={route("residents.create")}>
                                                 <Plus />
-                                                Add resident
+                                                {t("residents.add")}
                                             </Link>
                                         </Button>
                                     ) : undefined
@@ -319,7 +326,7 @@ export default function ResidentsIndex() {
                                     { preserveState: true, replace: true },
                                 )
                             }
-                            noun="residents"
+                            noun={t("residents.nounPlural")}
                         />
                     )}
                 </CardContent>
@@ -328,10 +335,10 @@ export default function ResidentsIndex() {
             <BulkActionBar
                 count={selectedIds.length}
                 onClear={() => setSelectedIds([])}
-                noun="residents"
+                noun={t("residents.nounPlural")}
                 actions={[
                     {
-                        label: "Delete",
+                        label: t("common.delete"),
                         icon: <Trash2 />,
                         destructive: true,
                         disabled: !can.delete,
@@ -347,11 +354,11 @@ export default function ResidentsIndex() {
                 }}
                 title={
                     confirming
-                        ? `Remove ${confirming.name}?`
-                        : "Remove resident?"
+                        ? t("residents.confirmRemoveTitle", { name: confirming.name })
+                        : t("residents.confirmRemoveTitleGeneric")
                 }
-                description="This will remove the resident from the society. This action can be undone by an administrator."
-                confirmLabel="Remove"
+                description={t("residents.confirmRemoveDescription")}
+                confirmLabel={t("residents.remove")}
                 destructive
                 onConfirm={handleDelete}
             />

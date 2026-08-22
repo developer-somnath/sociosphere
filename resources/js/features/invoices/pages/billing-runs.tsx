@@ -56,7 +56,7 @@ function money(value: number | null | undefined) {
 function runStatusBadge(status: string) {
     if (status === "Completed") {
         return (
-            <Badge className="border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+            <Badge className="border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand">
                 Completed
             </Badge>
         );
@@ -66,7 +66,7 @@ function runStatusBadge(status: string) {
     }
     if (status === "Running") {
         return (
-            <Badge className="border-transparent bg-sky-600/10 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
+            <Badge className="border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info">
                 Running
             </Badge>
         );

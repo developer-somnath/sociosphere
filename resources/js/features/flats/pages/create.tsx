@@ -13,6 +13,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 import type { TowerOption } from "@/features/flats/types";
 import FlatForm, {
@@ -25,6 +26,7 @@ type CreateProps = {
 
 export default function FlatsCreate() {
     const { towers } = usePage<PageProps<CreateProps>>().props;
+    const { t } = useI18n();
 
     const { data, setData: rawSetData, post, processing, errors } =
         useForm<FlatFormValues>({
@@ -61,23 +63,23 @@ export default function FlatsCreate() {
 
     return (
         <AppLayout>
-            <Head title="Add Flat" />
+            <Head title={t("flats.add")} />
 
             <div className="flex flex-col gap-4">
                 <PageHeader
-                    title="Add Flat"
-                    description="Add a new property unit to a tower."
+                    title={t("flats.add")}
+                    description={t("flats.addPageDescription")}
                     icon={<DoorOpen className="size-5" />}
                     breadcrumbs={[
-                        { label: "Management" },
-                        { label: "Flats", href: route("flats.index") },
-                        { label: "Add Flat" },
+                        { label: t("flats.breadcrumb.section") },
+                        { label: t("nav.flats"), href: route("flats.index") },
+                        { label: t("flats.add") },
                     ]}
                     actions={
                         <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                             <Link href={route("flats.index")}>
                                 <ArrowLeft className="size-3.5" />
-                                Back
+                                {t("common.back")}
                             </Link>
                         </Button>
                     }
@@ -86,15 +88,15 @@ export default function FlatsCreate() {
                 <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <div className="flex size-8 items-center justify-center rounded-md bg-emerald-600/10 text-emerald-600">
+                            <div className="flex size-8 items-center justify-center rounded-md bg-brand/10 text-brand">
                                 <DoorOpen className="size-4" />
                             </div>
                             <div>
                                 <CardTitle className="text-base">
-                                    Flat Details
+                                    {t("flats.details")}
                                 </CardTitle>
                                 <CardDescription>
-                                    Enter the details of the new property unit.
+                                    {t("flats.addDetailsDescription")}
                                 </CardDescription>
                             </div>
                         </div>
@@ -107,7 +109,7 @@ export default function FlatsCreate() {
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}
-                            submitLabel="Add Flat"
+                            submitLabel={t("flats.add")}
                         />
                     </CardContent>
                 </Card>

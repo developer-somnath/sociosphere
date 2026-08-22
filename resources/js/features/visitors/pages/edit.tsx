@@ -4,6 +4,7 @@ import { route } from "ziggy-js";
 
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
+import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -26,6 +27,7 @@ type EditProps = {
 
 export default function VisitorsEdit() {
     const { pass, flats } = usePage<PageProps<EditProps>>().props;
+    const { t } = useI18n();
 
     const { data, setData: rawSetData, put, processing, errors } =
         useForm<VisitorFormValues>({
@@ -65,22 +67,22 @@ export default function VisitorsEdit() {
 
     return (
         <AppLayout>
-            <Head title="Edit Visitor Pass" />
+            <Head title={t("visitors.edit")} />
 
             <PageHeader
-                title="Edit Visitor Pass"
-                description="Update visitor and pass details."
+                title={t("visitors.edit")}
+                description={t("visitors.editPageDescription")}
                 icon={<DoorOpen className="size-5" />}
                 breadcrumbs={[
-                    { label: "Gate & Access", href: "/dashboard" },
-                    { label: "Visitors", href: route("visitors.index") },
-                    { label: "Edit Pass" },
+                    { label: t("visitors.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.visitors"), href: route("visitors.index") },
+                    { label: t("visitors.editPass") },
                 ]}
                 actions={
                     <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                         <Link href={route("visitors.index")}>
                             <ArrowLeft className="size-3.5" />
-                            Back
+                            {t("common.back")}
                         </Link>
                     </Button>
                 }
@@ -89,16 +91,15 @@ export default function VisitorsEdit() {
                 <Card className="border-border/60 bg-card/80 shadow-xs">
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <div className="flex size-8 items-center justify-center rounded-md bg-violet-600/10 text-violet-600">
+                            <div className="flex size-8 items-center justify-center rounded-md bg-info/10 text-info">
                                 <DoorOpen className="size-4" />
                             </div>
                             <div>
                                 <CardTitle className="text-base">
-                                    Visitor & Pass Details
+                                    {t("visitors.details")}
                                 </CardTitle>
                                 <CardDescription>
-                                    Status cannot be changed here — use the
-                                    register actions.
+                                    {t("visitors.editDetailsDescription")}
                                 </CardDescription>
                             </div>
                         </div>
@@ -111,7 +112,7 @@ export default function VisitorsEdit() {
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}
-                            submitLabel="Save Changes"
+                            submitLabel={t("common.saveChanges")}
                         />
                     </CardContent>
                 </Card>

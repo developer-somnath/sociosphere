@@ -6,8 +6,15 @@ import { route } from "ziggy-js";
 import AppLayout from "@/layouts/app-layout";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { useI18n } from "@/lib/i18n";
 import UserForm, {
     type UserFormValues,
 } from "@/features/users/components/user-form";
@@ -21,6 +28,7 @@ type CreateProps = {
 
 export default function UsersCreate() {
     const { roleOptions, societies } = usePage<PageProps<CreateProps>>().props;
+    const { t } = useI18n();
 
     const { data, setData: rawSetData, post, errors, processing } =
         useForm<UserFormValues>({
@@ -58,22 +66,22 @@ export default function UsersCreate() {
 
     return (
         <AppLayout>
-            <Head title="Add User" />
+            <Head title={t("users.add")} />
 
             <PageHeader
-                title="Add User"
-                description="Create a staff or resident account."
+                title={t("users.add")}
+                description={t("users.addPageDescription")}
                 icon={<UserPlus className="size-5" />}
                 breadcrumbs={[
-                    { label: "Admin", href: "/dashboard" },
-                    { label: "Users", href: route("users.index") },
-                    { label: "Add User" },
+                    { label: t("residents.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.users"), href: route("users.index") },
+                    { label: t("users.add") },
                 ]}
                 actions={
                     <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                         <Link href={route("users.index")}>
                             <ArrowLeft className="size-3.5" />
-                            Back
+                            {t("common.back")}
                         </Link>
                     </Button>
                 }
@@ -82,9 +90,12 @@ export default function UsersCreate() {
             <Card className="border-border/60 bg-card/80 shadow-xs">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
-                            <UserPlus className="size-5 text-sky-600" />
-                            Account details
+                            <UserPlus className="size-5 text-info" />
+                            {t("users.accountDetails")}
                         </CardTitle>
+                        <CardDescription>
+                            {t("form.requiredFields")}
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <UserForm
@@ -95,7 +106,7 @@ export default function UsersCreate() {
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}
-                            submitLabel="Add User"
+                            submitLabel={t("users.add")}
                         />
                     </CardContent>
                 </Card>

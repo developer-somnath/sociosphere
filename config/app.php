@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | The running platform version (SemVer + release codename) displayed in
+    | the app footer / system info. Keep in sync with the release roadmap.
+    |
+    */
+
+    'version' => env('APP_VERSION', 'v2.1.0 — Eagle'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

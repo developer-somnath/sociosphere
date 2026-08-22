@@ -1,5 +1,5 @@
 import { Head, router, useForm, usePage } from "@inertiajs/react";
-import { CheckCircle2, CreditCard, DollarSign, Receipt } from "lucide-react";
+import { CheckCircle2, CreditCard, DollarSign, Download, Receipt } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { route } from "ziggy-js";
 
@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { MetricCard } from "@/components/ui/metric-card";
 import { Pagination } from "@/components/ui/pagination";
 import { exportCsv } from "@/lib/export-csv";
+import { t, useI18n } from "@/lib/i18n";
 import { toast } from "@/lib/toast";
 import type { PageProps } from "@/types";
 
@@ -70,20 +71,20 @@ function methodBadge(method: PaymentItem["payment_method"]) {
     const online = ["UPI", "NetBanking", "Credit Card"].includes(method);
     if (online) {
         return (
-            <Badge className="border-transparent bg-sky-600/10 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
+            <Badge className="border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info">
                 {method}
             </Badge>
         );
     }
     if (method === "Cash") {
         return (
-            <Badge className="border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+            <Badge className="border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand">
                 {method}
             </Badge>
         );
     }
     return (
-        <Badge className="border-transparent bg-amber-600/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+        <Badge className="border-transparent bg-warning/10 text-warning dark:bg-warning/10 dark:text-warning">
             {method}
         </Badge>
     );
@@ -91,6 +92,7 @@ function methodBadge(method: PaymentItem["payment_method"]) {
 
 export default function PaymentsIndex() {
     const { payments, stats, filters, can } = usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
     const [search, setSearch] = useState(filters.search);
     const [method, setMethod] = useState<string>(filters.method ?? "");
     const [showNewModal, setShowNewModal] = useState(false);
@@ -158,31 +160,31 @@ export default function PaymentsIndex() {
     const handleExport = (format: ExportFormat) => {
         if (format !== "csv") {
             toast({
-                title: "Export coming soon",
+                title: t("payments.exportComingSoon"),
                 variant: "info",
-                description: `${format.toUpperCase()} export will be available soon.`,
+                description: t("payments.exportFormatComingSoon", { format: format.toUpperCase() }),
             });
             return;
         }
         exportCsv<PaymentItem>({
             filename: "payments.csv",
             columns: [
-                { header: "Receipt No", accessor: (pay) => pay.payment_number },
+                { header: t("payments.colReceiptNo"), accessor: (pay) => pay.payment_number },
                 {
-                    header: "Invoice No",
+                    header: t("payments.colInvoiceNo"),
                     accessor: (pay) => pay.invoice?.invoice_number ?? "",
                 },
                 {
-                    header: "Flat",
-                    accessor: (pay) => (pay.flat ? `Flat ${pay.flat.flat_no}` : ""),
+                    header: t("payments.colFlat"),
+                    accessor: (pay) => (pay.flat ? `${t("payments.colFlat")} ${pay.flat.flat_no}` : ""),
                 },
-                { header: "Amount", accessor: (pay) => pay.amount },
-                { header: "Method", accessor: (pay) => pay.payment_method },
+                { header: t("payments.colAmount"), accessor: (pay) => pay.amount },
+                { header: t("payments.colMethod"), accessor: (pay) => pay.payment_method },
                 {
-                    header: "Reference",
+                    header: t("payments.colReference"),
                     accessor: (pay) => pay.transaction_reference ?? "",
                 },
-                { header: "Date", accessor: (pay) => pay.paid_at },
+                { header: t("payments.colDate"), accessor: (pay) => pay.paid_at },
             ],
             rows: payments.data,
         });
@@ -192,7 +194,7 @@ export default function PaymentsIndex() {
         () => [
             {
                 id: "receipt",
-                header: "Receipt No",
+                header: t("payments.colReceiptNo"),
                 sortable: true,
                 sortKey: "payment_number",
                 cell: (pay) => (
@@ -203,7 +205,7 @@ export default function PaymentsIndex() {
             },
             {
                 id: "invoice",
-                header: "Invoice No",
+                header: t("payments.colInvoiceNo"),
                 cell: (pay) => (
                     <span className="font-mono text-xs text-muted-foreground">
                         {pay.invoice ? pay.invoice.invoice_number : "—"}
@@ -212,35 +214,35 @@ export default function PaymentsIndex() {
             },
             {
                 id: "flat",
-                header: "Flat",
+                header: t("payments.colFlat"),
                 cell: (pay) => (
                     <span className="font-medium">
-                        {pay.flat ? `Flat ${pay.flat.flat_no}` : "—"}
+                        {pay.flat ? `${t("payments.colFlat")} ${pay.flat.flat_no}` : "—"}
                     </span>
                 ),
             },
             {
                 id: "amount",
-                header: "Amount",
+                header: t("payments.colAmount"),
                 sortable: true,
                 sortKey: "amount",
                 align: "right",
                 cell: (pay) => (
-                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                    <span className="font-mono font-bold text-brand dark:text-brand">
                         ₹{Number(pay.amount).toLocaleString()}
                     </span>
                 ),
             },
             {
                 id: "method",
-                header: "Method",
+                header: t("payments.colMethod"),
                 sortable: true,
                 sortKey: "payment_method",
                 cell: (pay) => methodBadge(pay.payment_method),
             },
             {
                 id: "reference",
-                header: "Ref / Trx ID",
+                header: t("payments.colRefTrxId"),
                 cell: (pay) => (
                     <span className="font-mono text-xs text-muted-foreground">
                         {pay.transaction_reference || "—"}
@@ -249,7 +251,7 @@ export default function PaymentsIndex() {
             },
             {
                 id: "date",
-                header: "Date",
+                header: t("payments.colDate"),
                 sortable: true,
                 sortKey: "paid_at",
                 align: "right",
@@ -259,40 +261,60 @@ export default function PaymentsIndex() {
                     </span>
                 ),
             },
+            {
+                id: "receipt",
+                header: t("payments.receiptTitle"),
+                align: "right",
+                cell: (pay) => (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                            window.open(
+                                route("payments.receipt", pay.uuid),
+                                "_blank",
+                            )
+                        }
+                    >
+                        <Download />
+                        {t("payments.downloadReceipt")}
+                    </Button>
+                ),
+            },
         ],
-        [],
+        [t],
     );
 
     return (
         <AppLayout>
-            <Head title="Payment Collections Ledger" />
+            <Head title={t("payments.pageTitle")} />
 
             <PageHeader
-                title="Payment Collections Ledger"
-                description="Record and track maintenance payments across UPI, NetBanking, Cheques, and Cash."
+                title={t("payments.pageTitle")}
+                description={t("payments.pageDescription")}
                 icon={<CreditCard className="size-5" />}
                 actions={
                     can.create && (
                         <Button onClick={() => setShowNewModal(true)}>
                             <CreditCard />
-                            Record Collection
+                            {t("payments.recordCollection")}
                         </Button>
                     )
                 }
             />
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <MetricCard label="Total Collection" value={`₹${Number(stats.total_collected).toLocaleString()}`} icon={CheckCircle2} accent="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
-                <MetricCard label="Online Payments" value={`₹${Number(stats.online_collected).toLocaleString()}`} icon={CreditCard} accent="border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400" />
-                <MetricCard label="Cash Collected" value={`₹${Number(stats.cash_collected).toLocaleString()}`} icon={DollarSign} accent="border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400" />
-                <MetricCard label="Cheque Clearing" value={`₹${Number(stats.cheque_collected).toLocaleString()}`} icon={Receipt} accent="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400" />
+                <MetricCard label={t("payments.totalCollection")} value={`₹${Number(stats.total_collected).toLocaleString()}`} icon={CheckCircle2} accent="border-success/20 bg-success/10 text-success dark:text-success" />
+                <MetricCard label={t("payments.onlinePayments")} value={`₹${Number(stats.online_collected).toLocaleString()}`} icon={CreditCard} accent="border-info/20 bg-info/10 text-info dark:text-info" />
+                <MetricCard label={t("payments.cashCollected")} value={`₹${Number(stats.cash_collected).toLocaleString()}`} icon={DollarSign} accent="border-info/20 bg-info/10 text-info dark:text-info" />
+                <MetricCard label={t("payments.chequeClearing")} value={`₹${Number(stats.cheque_collected).toLocaleString()}`} icon={Receipt} accent="border-warning/20 bg-warning/10 text-warning dark:text-warning" />
             </div>
 
             <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search payment no, ref..."
-                searchLabel="Search payments"
+                searchPlaceholder={t("payments.searchPlaceholder")}
+                searchLabel={t("payments.searchLabel")}
                 className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
                 onReset={() => {
                     setSearch("");
@@ -305,12 +327,12 @@ export default function PaymentsIndex() {
                     onChange={(e) => setMethod(e.target.value)}
                     className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
                 >
-                    <option value="">All Payment Methods</option>
-                    <option value="UPI">UPI</option>
-                    <option value="NetBanking">NetBanking</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Cheque">Cheque</option>
-                    <option value="Cash">Cash</option>
+                    <option value="">{t("payments.allMethods")}</option>
+                    <option value="UPI">{t("payments.method.upi")}</option>
+                    <option value="NetBanking">{t("payments.method.netBanking")}</option>
+                    <option value="Credit Card">{t("payments.method.creditCard")}</option>
+                    <option value="Cheque">{t("payments.method.cheque")}</option>
+                    <option value="Cash">{t("payments.method.cash")}</option>
                 </select>
             </FilterBar>
 
@@ -326,8 +348,8 @@ export default function PaymentsIndex() {
                         emptyState={
                             <EmptyState
                                 icon={CreditCard}
-                                title="No payments recorded yet"
-                                description="Recorded collections will be logged here."
+                                title={t("payments.emptyTitle")}
+                                description={t("payments.emptyDescription")}
                             />
                         }
                     />
@@ -343,7 +365,7 @@ export default function PaymentsIndex() {
                                     { preserveState: true, replace: true },
                                 )
                             }
-                            noun="payments"
+                            noun={t("payments.nounPlural")}
                         />
                     )}
                 </CardContent>
@@ -353,8 +375,8 @@ export default function PaymentsIndex() {
             <FormDrawer
                 open={showNewModal}
                 onOpenChange={(open) => !open && setShowNewModal(false)}
-                title="Record Payment Collection"
-                description="Log a maintenance payment against an invoice."
+                title={t("payments.drawerTitle")}
+                description={t("payments.drawerDescription")}
                 icon={<CreditCard className="size-5" />}
                 footer={
                     <>
@@ -363,14 +385,14 @@ export default function PaymentsIndex() {
                             type="button"
                             onClick={() => setShowNewModal(false)}
                         >
-                            Cancel
+                            {t("common.cancel")}
                         </Button>
                         <Button
                             type="submit"
                             form="record-payment-form"
                             disabled={form.processing}
                         >
-                            Record Payment
+                            {t("payments.recordPayment")}
                         </Button>
                     </>
                 }
@@ -381,19 +403,19 @@ export default function PaymentsIndex() {
                     className="flex flex-col gap-5"
                 >
                     <div className="space-y-1.5">
-                        <Label>Invoice ID *</Label>
+                        <Label>{t("payments.invoiceId")} *</Label>
                         <Input
                             value={form.data.invoice_id}
                             onChange={(e) =>
                                 form.setData("invoice_id", e.target.value)
                             }
-                            placeholder="Invoice ID (e.g. 1)"
+                            placeholder={t("payments.invoiceIdPlaceholder")}
                             required
                         />
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label>Amount Paid (₹) *</Label>
+                        <Label>{t("payments.amountPaid")} *</Label>
                         <Input
                             type="number"
                             step="0.01"
@@ -407,14 +429,14 @@ export default function PaymentsIndex() {
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label>Payment Method *</Label>
+                        <Label>{t("payments.paymentMethod")} *</Label>
                         <Combobox
                             items={[
-                                { value: "UPI", label: "UPI" },
-                                { value: "NetBanking", label: "NetBanking" },
-                                { value: "Credit Card", label: "Credit Card" },
-                                { value: "Cheque", label: "Cheque" },
-                                { value: "Cash", label: "Cash" },
+                                { value: "UPI", label: t("payments.method.upi") },
+                                { value: "NetBanking", label: t("payments.method.netBanking") },
+                                { value: "Credit Card", label: t("payments.method.creditCard") },
+                                { value: "Cheque", label: t("payments.method.cheque") },
+                                { value: "Cash", label: t("payments.method.cash") },
                             ]}
                             value={form.data.payment_method}
                             onValueChange={(value) =>
@@ -423,13 +445,13 @@ export default function PaymentsIndex() {
                                     value as PaymentItem["payment_method"],
                                 )
                             }
-                            placeholder="Select payment method…"
-                            emptyText="No matching method"
+                            placeholder={t("payments.selectMethod")}
+                            emptyText={t("payments.noMatchingMethod")}
                         />
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label>Transaction Reference / Cheque No</Label>
+                        <Label>{t("payments.transactionRef")}</Label>
                         <Input
                             value={form.data.transaction_reference}
                             onChange={(e) =>
@@ -438,7 +460,7 @@ export default function PaymentsIndex() {
                                     e.target.value,
                                 )
                             }
-                            placeholder="e.g. UPI/123456789"
+                            placeholder={t("payments.refPlaceholder")}
                         />
                     </div>
                 </form>

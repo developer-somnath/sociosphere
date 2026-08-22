@@ -40,8 +40,8 @@ export function MetricCard({
         trendDir === "down" ? TrendingDown : Minus;
 
     const trendClass =
-        trendDir === "up"   ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20" :
-        trendDir === "down" ? "text-rose-600    dark:text-rose-400    bg-rose-500/10    border-rose-500/20"    :
+        trendDir === "up"   ? "text-success dark:text-success bg-success/10 border-success/20" :
+        trendDir === "down" ? "text-destructive    dark:text-destructive    bg-destructive/10    border-destructive/20"    :
                               "text-muted-foreground bg-muted border-border/40";
 
     return (

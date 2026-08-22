@@ -25,6 +25,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { RowActions } from "@/components/ui/row-actions";
 import { exportCsv } from "@/lib/export-csv";
+import { t, useI18n } from "@/lib/i18n";
 import { toast } from "@/lib/toast";
 import type { PageProps } from "@/types";
 
@@ -81,21 +82,21 @@ type IndexProps = {
 function priorityBadge(priority: ComplaintItem["priority"]) {
     switch (priority) {
         case "Critical":
-            return <Badge variant="destructive">Critical</Badge>;
+            return <Badge variant="destructive">{t("complaints.priority.critical")}</Badge>;
         case "High":
             return (
-                <Badge className="border-transparent bg-orange-500/20 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">
-                    High
+                <Badge className="border-transparent bg-warning/20 text-warning dark:bg-warning/20 dark:text-warning">
+                    {t("complaints.priority.high")}
                 </Badge>
             );
         case "Medium":
             return (
-                <Badge className="border-transparent bg-amber-500/20 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
-                    Medium
+                <Badge className="border-transparent bg-warning/20 text-warning dark:bg-warning/20 dark:text-warning">
+                    {t("complaints.priority.medium")}
                 </Badge>
             );
         default:
-            return <Badge variant="secondary">Low</Badge>;
+            return <Badge variant="secondary">{t("complaints.priority.low")}</Badge>;
     }
 }
 
@@ -103,30 +104,30 @@ function statusBadge(status: ComplaintItem["status"]) {
     switch (status) {
         case "Open":
             return (
-                <Badge className="border-transparent bg-blue-500/20 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
-                    Open
+                <Badge className="border-transparent bg-info/20 text-info dark:bg-info/20 dark:text-info">
+                    {t("complaints.status.open")}
                 </Badge>
             );
         case "Assigned":
             return (
-                <Badge className="border-transparent bg-purple-500/20 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400">
-                    Assigned
+                <Badge className="border-transparent bg-info/20 text-info dark:bg-info/20 dark:text-info">
+                    {t("complaints.status.assigned")}
                 </Badge>
             );
         case "In Progress":
             return (
-                <Badge className="border-transparent bg-amber-500/20 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
-                    In Progress
+                <Badge className="border-transparent bg-warning/20 text-warning dark:bg-warning/20 dark:text-warning">
+                    {t("complaints.status.inProgress")}
                 </Badge>
             );
         case "Resolved":
             return (
-                <Badge className="border-transparent bg-emerald-500/20 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
-                    Resolved
+                <Badge className="border-transparent bg-brand/20 text-brand dark:bg-brand/20 dark:text-brand">
+                    {t("complaints.status.resolved")}
                 </Badge>
             );
         case "Closed":
-            return <Badge variant="secondary">Closed</Badge>;
+            return <Badge variant="secondary">{t("complaints.status.closed")}</Badge>;
         default:
             return <Badge variant="outline">{status}</Badge>;
     }
@@ -135,6 +136,7 @@ function statusBadge(status: ComplaintItem["status"]) {
 export default function ComplaintsIndex() {
     const { complaints, stats, categories, filters, can } =
         usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
     const [search, setSearch] = useState(filters.search);
     const [status, setStatus] = useState<string>(filters.status ?? "");
     const [priority, setPriority] = useState<string>(filters.priority ?? "");
@@ -187,25 +189,27 @@ export default function ComplaintsIndex() {
     const handleExport = (format: ExportFormat) => {
         if (format !== "csv") {
             toast({
-                title: "Export coming soon",
+                title: t("complaints.exportComingSoon"),
                 variant: "info",
-                description: `${format.toUpperCase()} export will be available soon.`,
+                description: t("complaints.exportFormatComingSoon", {
+                    format: format.toUpperCase(),
+                }),
             });
             return;
         }
         exportCsv<ComplaintItem>({
             filename: "complaints.csv",
             columns: [
-                { header: "ID", accessor: (c) => String(c.id) },
-                { header: "Title", accessor: (c) => c.title },
-                { header: "Category", accessor: (c) => c.category?.name ?? "" },
-                { header: "Flat", accessor: (c) => c.flat?.flat_number ?? "" },
-                { header: "Resident", accessor: (c) => c.resident?.name ?? "" },
-                { header: "Priority", accessor: (c) => c.priority },
-                { header: "Status", accessor: (c) => c.status },
-                { header: "Assigned To", accessor: (c) => c.assignee?.name ?? "Unassigned" },
-                { header: "Created", accessor: (c) => c.created_at },
-                { header: "Resolved", accessor: (c) => c.resolved_at ?? "" },
+                { header: t("complaints.colId"), accessor: (c) => String(c.id) },
+                { header: t("complaints.colTitle"), accessor: (c) => c.title },
+                { header: t("common.category"), accessor: (c) => c.category?.name ?? "" },
+                { header: t("complaints.colFlat"), accessor: (c) => c.flat?.flat_number ?? "" },
+                { header: t("complaints.colResident"), accessor: (c) => c.resident?.name ?? "" },
+                { header: t("common.priority"), accessor: (c) => c.priority },
+                { header: t("common.status"), accessor: (c) => c.status },
+                { header: t("common.assignedTo"), accessor: (c) => c.assignee?.name ?? t("complaints.unassigned") },
+                { header: t("complaints.colCreated"), accessor: (c) => c.created_at },
+                { header: t("complaints.colResolved"), accessor: (c) => c.resolved_at ?? "" },
             ],
             rows: complaints.data,
         });
@@ -215,7 +219,7 @@ export default function ComplaintsIndex() {
         () => [
             {
                 id: "title",
-                header: "Complaint",
+                header: t("complaints.colComplaint"),
                 sortable: true,
                 sortKey: "title",
                 cell: (c) => (
@@ -227,7 +231,7 @@ export default function ComplaintsIndex() {
                             {c.title}
                         </Link>
                         <span className="text-xs text-muted-foreground line-clamp-1">
-                            {c.category?.name ?? "Uncategorized"} · {c.flat?.flat_number ?? "—"}
+                            {c.category?.name ?? t("complaints.uncategorized")} · {c.flat?.flat_number ?? "—"}
                             {c.flat?.tower ? ` (${c.flat.tower.name})` : ""}
                         </span>
                     </div>
@@ -235,7 +239,7 @@ export default function ComplaintsIndex() {
             },
             {
                 id: "resident",
-                header: "Reported By",
+                header: t("complaints.colReportedBy"),
                 cell: (c) => (
                     <span className="text-sm text-foreground">
                         {c.resident?.name ?? "—"}
@@ -244,30 +248,30 @@ export default function ComplaintsIndex() {
             },
             {
                 id: "priority",
-                header: "Priority",
+                header: t("common.priority"),
                 sortable: true,
                 sortKey: "priority",
                 cell: (c) => priorityBadge(c.priority),
             },
             {
                 id: "status",
-                header: "Status",
+                header: t("common.status"),
                 sortable: true,
                 sortKey: "status",
                 cell: (c) => statusBadge(c.status),
             },
             {
                 id: "assignee",
-                header: "Assigned To",
+                header: t("common.assignedTo"),
                 cell: (c) => (
                     <span className="text-sm text-muted-foreground">
-                        {c.assignee?.name ?? "Unassigned"}
+                        {c.assignee?.name ?? t("complaints.unassigned")}
                     </span>
                 ),
             },
             {
                 id: "created_at",
-                header: "Raised",
+                header: t("complaints.colRaised"),
                 sortable: true,
                 sortKey: "created_at",
                 align: "right",
@@ -278,23 +282,23 @@ export default function ComplaintsIndex() {
                 ),
             },
         ],
-        [],
+        [t],
     );
 
     return (
         <AppLayout>
-            <Head title="Complaints & Helpdesk" />
+            <Head title={t("complaints.title")} />
 
             <PageHeader
-                title="Complaints & Helpdesk"
-                description="Track, manage and resolve resident complaints and service requests."
+                title={t("complaints.title")}
+                description={t("complaints.pageDescription")}
                 icon={<MessageSquareWarning className="size-5" />}
                 actions={
                     can.create && (
                         <QuickActionPill
                             href={route("complaints.create")}
                             icon={Plus}
-                            label="Raise Complaint"
+                            label={t("complaints.raiseComplaint")}
                             variant="amber"
                         />
                     )
@@ -303,36 +307,36 @@ export default function ComplaintsIndex() {
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <MetricCard
-                    label="Total Complaints"
+                    label={t("complaints.statTotal")}
                     value={stats.total}
                     icon={MessageSquareWarning}
-                    accent="border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                    accent="border-info/20 bg-info/10 text-info dark:text-info"
                 />
                 <MetricCard
-                    label="Open"
+                    label={t("complaints.statOpen")}
                     value={stats.open}
                     icon={AlertTriangle}
-                    accent="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    accent="border-warning/20 bg-warning/10 text-warning dark:text-warning"
                 />
                 <MetricCard
-                    label="In Progress"
+                    label={t("complaints.statInProgress")}
                     value={stats.in_progress}
                     icon={Clock}
-                    accent="border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                    accent="border-info/20 bg-info/10 text-info dark:text-info"
                 />
                 <MetricCard
-                    label="Resolved / Closed"
+                    label={t("complaints.statResolvedClosed")}
                     value={stats.resolved}
                     icon={CheckCircle2}
-                    accent="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    accent="border-brand/20 bg-brand/10 text-brand dark:text-brand"
                 />
             </div>
 
             <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search complaints..."
-                searchLabel="Search complaints"
+                searchPlaceholder={t("complaints.searchPlaceholder")}
+                searchLabel={t("complaints.searchLabel")}
                 className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
                 onReset={() => {
                     setSearch("");
@@ -347,12 +351,12 @@ export default function ComplaintsIndex() {
                     onChange={(e) => setStatus(e.target.value)}
                     className="h-10 rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer"
                 >
-                    <option value="">All Statuses</option>
-                    <option value="Open">Open</option>
-                    <option value="Assigned">Assigned</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Resolved">Resolved</option>
-                    <option value="Closed">Closed</option>
+                    <option value="">{t("complaints.allStatuses")}</option>
+                    <option value="Open">{t("complaints.status.open")}</option>
+                    <option value="Assigned">{t("complaints.status.assigned")}</option>
+                    <option value="In Progress">{t("complaints.status.inProgress")}</option>
+                    <option value="Resolved">{t("complaints.status.resolved")}</option>
+                    <option value="Closed">{t("complaints.status.closed")}</option>
                 </select>
 
                 <select
@@ -360,11 +364,11 @@ export default function ComplaintsIndex() {
                     onChange={(e) => setPriority(e.target.value)}
                     className="h-10 rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer"
                 >
-                    <option value="">All Priorities</option>
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                    <option value="Critical">Critical</option>
+                    <option value="">{t("complaints.allPriorities")}</option>
+                    <option value="Low">{t("complaints.priority.low")}</option>
+                    <option value="Medium">{t("complaints.priority.medium")}</option>
+                    <option value="High">{t("complaints.priority.high")}</option>
+                    <option value="Critical">{t("complaints.priority.critical")}</option>
                 </select>
 
                 <select
@@ -372,7 +376,7 @@ export default function ComplaintsIndex() {
                     onChange={(e) => setCategoryId(e.target.value)}
                     className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
                 >
-                    <option value="">All Categories</option>
+                    <option value="">{t("complaints.allCategories")}</option>
                     {categories.map((cat) => (
                         <option key={cat.id} value={String(cat.id)}>
                             {cat.name}
@@ -393,8 +397,8 @@ export default function ComplaintsIndex() {
                         emptyState={
                             <EmptyState
                                 icon={MessageSquareWarning}
-                                title="No complaints found"
-                                description="Complaints raised by residents will appear here."
+                                title={t("complaints.emptyTitle")}
+                                description={t("complaints.emptyDescription")}
                             />
                         }
                     />
@@ -410,7 +414,7 @@ export default function ComplaintsIndex() {
                                     { preserveState: true, replace: true },
                                 )
                             }
-                            noun="complaints"
+                            noun={t("complaints.nounPlural")}
                         />
                     )}
                 </CardContent>

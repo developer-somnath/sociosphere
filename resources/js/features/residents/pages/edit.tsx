@@ -13,11 +13,14 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 import type { FlatOption, Resident } from "@/features/residents/types";
 import ResidentForm, {
     type ResidentFormValues,
 } from "@/features/residents/components/resident-form";
+import { FamilyMemberSection } from "@/features/residents/components/family-member-section";
+import { VehicleSection } from "@/features/residents/components/vehicle-section";
 
 type EditProps = {
     resident: Resident;
@@ -26,6 +29,7 @@ type EditProps = {
 
 export default function ResidentsEdit() {
     const { resident, flats } = usePage<PageProps<EditProps>>().props;
+    const { t } = useI18n();
 
     const { data, setData: rawSetData, put, processing, errors } =
         useForm<ResidentFormValues>({
@@ -63,23 +67,23 @@ export default function ResidentsEdit() {
 
     return (
         <AppLayout>
-            <Head title={`Edit ${resident.name}`} />
+            <Head title={t("residents.editTitle", { name: resident.name })} />
 
             <div className="flex flex-col gap-4">
                 <PageHeader
-                    title="Edit Resident"
-                    description={`Update the details for ${resident.name}.`}
+                    title={t("residents.edit")}
+                    description={t("residents.editPageDescription", { name: resident.name })}
                     icon={<Pencil className="size-5" />}
                     breadcrumbs={[
-                        { label: "Management" },
-                        { label: "Residents", href: route("residents.index") },
+                        { label: t("residents.breadcrumb.section") },
+                        { label: t("nav.residents"), href: route("residents.index") },
                         { label: resident.name },
                     ]}
                     actions={
                         <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                             <Link href={route("residents.index")}>
                                 <ArrowLeft className="size-3.5" />
-                                Back
+                                {t("common.back")}
                             </Link>
                         </Button>
                     }
@@ -88,11 +92,11 @@ export default function ResidentsEdit() {
                 <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Pencil className="size-5 text-emerald-600" />
-                            Resident Details
+                            <Pencil className="size-5 text-brand" />
+                            {t("residents.details")}
                         </CardTitle>
                         <CardDescription>
-                            Fields marked with * are required.
+                            {t("form.requiredFields")}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -103,10 +107,20 @@ export default function ResidentsEdit() {
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}
-                            submitLabel="Save Changes"
+                            submitLabel={t("common.saveChanges")}
                         />
                     </CardContent>
                 </Card>
+
+                <FamilyMemberSection
+                    residentUuid={resident.uuid}
+                    members={resident.family_members ?? []}
+                />
+
+                <VehicleSection
+                    residentUuid={resident.uuid}
+                    vehicles={resident.vehicles ?? []}
+                />
             </div>
         </AppLayout>
     );

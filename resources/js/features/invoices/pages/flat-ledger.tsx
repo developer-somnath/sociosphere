@@ -71,19 +71,19 @@ function invoiceStatusBadge(status: LedgerInvoice["status"]) {
     switch (status) {
         case "Paid":
             return (
-                <Badge className="border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                <Badge className="border-transparent bg-success/10 text-success dark:bg-success/10 dark:text-success">
                     Paid
                 </Badge>
             );
         case "Partially Paid":
             return (
-                <Badge className="border-transparent bg-sky-600/10 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
+                <Badge className="border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info">
                     Partially Paid
                 </Badge>
             );
         case "Unpaid":
             return (
-                <Badge className="border-transparent bg-amber-600/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+                <Badge className="border-transparent bg-warning/10 text-warning dark:bg-warning/10 dark:text-warning">
                     Unpaid
                 </Badge>
             );
@@ -152,27 +152,27 @@ export default function FlatLedger() {
                         value={money(totalBilled)}
                         hint={`${invoices.length} invoice(s)`}
                         icon={Wallet}
-                        accentColor="bg-sky-500"
-                        iconColor="bg-sky-500/10 text-sky-600 border-sky-500/20"
+                        accentColor="bg-info"
+                        iconColor="bg-info/10 text-info border-info/20"
                     />
                     <MetricCard
                         label="Total Paid"
                         value={money(totalPaid)}
                         hint="Across all payments"
                         icon={Wallet}
-                        accentColor="bg-emerald-500"
-                        iconColor="bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                        accentColor="bg-success"
+                        iconColor="bg-success/10 text-success border-success/20"
                     />
                     <MetricCard
                         label="Outstanding"
                         value={money(balance)}
                         hint={balance > 0 ? "Balance due" : "All settled"}
                         icon={Wallet}
-                        accentColor={balance > 0 ? "bg-amber-500" : "bg-emerald-500"}
+                        accentColor={balance > 0 ? "bg-warning" : "bg-success"}
                         iconColor={
                             balance > 0
-                                ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                                : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                                ? "bg-warning/10 text-warning border-warning/20"
+                                : "bg-success/10 text-success border-success/20"
                         }
                     />
                 </div>
@@ -234,7 +234,7 @@ export default function FlatLedger() {
                                             {Number(invoice.penalty) > 0 && <> · Penalty {money(invoice.penalty)}</>}
                                         </p>
                                         <p>
-                                            Paid <span className="font-semibold text-emerald-600 dark:text-emerald-400">{money(invoice.paid_amount)}</span>
+                                            Paid <span className="font-semibold text-success dark:text-success">{money(invoice.paid_amount)}</span>
                                         </p>
                                     </div>
                                     {invoice.payments.length > 0 && (
@@ -248,7 +248,7 @@ export default function FlatLedger() {
                                                             {payment.payment_method} · {new Date(payment.paid_at).toLocaleDateString()}
                                                         </p>
                                                     </div>
-                                                    <p className="font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+                                                    <p className="font-semibold tabular-nums text-success dark:text-success">
                                                         {money(payment.amount)}
                                                     </p>
                                                 </div>

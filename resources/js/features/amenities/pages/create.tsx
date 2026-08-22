@@ -10,6 +10,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 
 export default function AmenityCreate() {
     const form = useForm({
@@ -27,24 +28,26 @@ export default function AmenityCreate() {
         form.post(route("amenities.store"));
     };
 
+    const { t } = useI18n();
+
     return (
         <AppLayout>
-            <Head title="Add Amenity" />
+            <Head title={t("amenities.add")} />
 
             <PageHeader
-                title="Add New Amenity"
-                description="Configure a new society facility available for resident booking."
+                title={t("amenities.addPageTitle")}
+                description={t("amenities.addPageDescription")}
                 icon={<Sparkles className="size-5" />}
                 breadcrumbs={[
-                    { label: "Operations", href: "/dashboard" },
-                    { label: "Amenities", href: route("amenities.index") },
-                    { label: "Add Amenity" },
+                    { label: t("amenities.breadcrumb.section"), href: "/dashboard" },
+                    { label: t("nav.amenities"), href: route("amenities.index") },
+                    { label: t("amenities.add") },
                 ]}
                 actions={
                     <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                         <Link href={route("amenities.index")}>
                             <ArrowLeft className="size-3.5" />
-                            Back
+                            {t("common.back")}
                         </Link>
                     </Button>
                 }
@@ -52,17 +55,17 @@ export default function AmenityCreate() {
 
             <Card className="mx-auto max-w-2xl border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardHeader>
-                    <CardTitle>Amenity Configuration</CardTitle>
+                    <CardTitle>{t("amenities.configuration")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                        <FormSection title="General Information">
+                        <FormSection title={t("amenityForm.generalInformation")}>
                             <div className="space-y-1.5">
-                                <Label>Amenity Name *</Label>
+                                <Label>{t("amenityForm.amenityName")} *</Label>
                                 <Input
                                     value={form.data.name}
                                     onChange={(e) => form.setData("name", e.target.value)}
-                                    placeholder="e.g. Swimming Pool, Community Hall"
+                                    placeholder={t("amenityForm.amenityNamePlaceholder")}
                                     required
                                 />
                                 {form.errors.name && (
@@ -72,19 +75,19 @@ export default function AmenityCreate() {
 
                             <div className="grid gap-4 sm:grid-cols-3">
                                 <div className="space-y-1.5">
-                                    <Label>Booking Type *</Label>
+                                    <Label>{t("amenityForm.bookingType")} *</Label>
                                     <Combobox
                                         items={[
-                                            { value: "Slot", label: "Slot-Based" },
-                                            { value: "Hourly", label: "Hourly" },
-                                            { value: "Daily", label: "Daily / Full Day" },
+                                            { value: "Slot", label: t("amenityForm.typeSlot") },
+                                            { value: "Hourly", label: t("amenityForm.typeHourly") },
+                                            { value: "Daily", label: t("amenityForm.typeDaily") },
                                         ]}
                                         value={form.data.booking_type}
                                         onValueChange={(value) =>
                                             form.setData("booking_type", value as "Slot" | "Hourly" | "Daily")
                                         }
-                                        placeholder="Select type…"
-                                        emptyText="No match"
+                                        placeholder={t("amenityForm.selectType")}
+                                        emptyText={t("amenityForm.noMatch")}
                                     />
                                     {form.errors.booking_type && (
                                         <p className="text-xs text-destructive">{form.errors.booking_type}</p>
@@ -92,7 +95,7 @@ export default function AmenityCreate() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label>Capacity (People) *</Label>
+                                    <Label>{t("amenityForm.capacity")} *</Label>
                                     <Input
                                         type="number"
                                         min={1}
@@ -106,7 +109,7 @@ export default function AmenityCreate() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label>Fee Per Slot (৳) *</Label>
+                                    <Label>{t("amenityForm.feePerSlot")} *</Label>
                                     <Input
                                         type="number"
                                         step="0.01"
@@ -122,32 +125,32 @@ export default function AmenityCreate() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label>Description</Label>
+                                <Label>{t("amenityForm.description")}</Label>
                                 <textarea
                                     value={form.data.description}
                                     onChange={(e) => form.setData("description", e.target.value)}
                                     className="min-h-[80px] w-full rounded-lg border border-input bg-transparent p-2.5 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                                    placeholder="Brief description of the facility..."
+                                    placeholder={t("amenityForm.descriptionPlaceholder")}
                                 />
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label>Usage Rules & Guidelines</Label>
+                                <Label>{t("amenityForm.usageRules")}</Label>
                                 <textarea
                                     value={form.data.rules}
                                     onChange={(e) => form.setData("rules", e.target.value)}
                                     className="min-h-[100px] w-full rounded-lg border border-input bg-transparent p-2.5 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                                    placeholder="e.g. Proper swimwear required. No loud music after 10 PM."
+                                    placeholder={t("amenityForm.usageRulesPlaceholder")}
                                 />
                             </div>
                         </FormSection>
 
                         <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
                             <Button variant="outline" type="button" className="rounded-full px-5 text-xs font-semibold hover:bg-muted" asChild>
-                                <Link href={route("amenities.index")}>Cancel</Link>
+                                <Link href={route("amenities.index")}>{t("common.cancel")}</Link>
                             </Button>
                             <Button type="submit" disabled={form.processing} className="rounded-full px-6 text-xs font-semibold shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                                {form.processing ? "Creating…" : "Create Amenity"}
+                                {form.processing ? t("amenityForm.creating") : t("amenities.createSubmit")}
                             </Button>
                         </div>
                     </form>

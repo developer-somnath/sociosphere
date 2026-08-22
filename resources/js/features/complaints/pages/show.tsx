@@ -20,6 +20,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { t, useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type ComplaintDetail = {
@@ -49,21 +50,21 @@ type ShowProps = {
 function priorityBadge(priority: ComplaintDetail["priority"]) {
     switch (priority) {
         case "Critical":
-            return <Badge variant="destructive">Critical</Badge>;
+            return <Badge variant="destructive">{t("complaints.priority.critical")}</Badge>;
         case "High":
             return (
-                <Badge className="border-transparent bg-orange-500/20 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">
-                    High
+                <Badge className="border-transparent bg-warning/20 text-warning dark:bg-warning/20 dark:text-warning">
+                    {t("complaints.priority.high")}
                 </Badge>
             );
         case "Medium":
             return (
-                <Badge className="border-transparent bg-amber-500/20 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
-                    Medium
+                <Badge className="border-transparent bg-warning/20 text-warning dark:bg-warning/20 dark:text-warning">
+                    {t("complaints.priority.medium")}
                 </Badge>
             );
         default:
-            return <Badge variant="secondary">Low</Badge>;
+            return <Badge variant="secondary">{t("complaints.priority.low")}</Badge>;
     }
 }
 
@@ -71,32 +72,49 @@ function statusBadge(status: ComplaintDetail["status"]) {
     switch (status) {
         case "Open":
             return (
-                <Badge className="border-transparent bg-blue-500/20 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
-                    Open
+                <Badge className="border-transparent bg-info/20 text-info dark:bg-info/20 dark:text-info">
+                    {t("complaints.status.open")}
                 </Badge>
             );
         case "Assigned":
             return (
-                <Badge className="border-transparent bg-purple-500/20 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400">
-                    Assigned
+                <Badge className="border-transparent bg-info/20 text-info dark:bg-info/20 dark:text-info">
+                    {t("complaints.status.assigned")}
                 </Badge>
             );
         case "In Progress":
             return (
-                <Badge className="border-transparent bg-amber-500/20 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
-                    In Progress
+                <Badge className="border-transparent bg-warning/20 text-warning dark:bg-warning/20 dark:text-warning">
+                    {t("complaints.status.inProgress")}
                 </Badge>
             );
         case "Resolved":
             return (
-                <Badge className="border-transparent bg-emerald-500/20 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
-                    Resolved
+                <Badge className="border-transparent bg-brand/20 text-brand dark:bg-brand/20 dark:text-brand">
+                    {t("complaints.status.resolved")}
                 </Badge>
             );
         case "Closed":
-            return <Badge variant="secondary">Closed</Badge>;
+            return <Badge variant="secondary">{t("complaints.status.closed")}</Badge>;
         default:
             return <Badge variant="outline">{status}</Badge>;
+    }
+}
+
+function statusLabel(status: string): string {
+    switch (status) {
+        case "Open":
+            return t("complaints.status.open");
+        case "Assigned":
+            return t("complaints.status.assigned");
+        case "In Progress":
+            return t("complaints.status.inProgress");
+        case "Resolved":
+            return t("complaints.status.resolved");
+        case "Closed":
+            return t("complaints.status.closed");
+        default:
+            return status;
     }
 }
 
@@ -110,6 +128,7 @@ const STATUS_FLOW: Record<string, string[]> = {
 
 export default function ComplaintShow() {
     const { complaint, staffUsers, can } = usePage<PageProps<ShowProps>>().props;
+    const { t } = useI18n();
     const [showDelete, setShowDelete] = useState(false);
 
     const assignForm = useForm({
@@ -135,25 +154,25 @@ export default function ComplaintShow() {
 
     return (
         <AppLayout>
-            <Head title={`Complaint: ${complaint.title}`} />
+            <Head title={t("complaints.showHead", { title: complaint.title })} />
 
             <PageHeader
                 title={complaint.title}
-                description={`#${complaint.id} · ${complaint.category?.name ?? "Uncategorized"}`}
+                description={`#${complaint.id} · ${complaint.category?.name ?? t("complaints.uncategorized")}`}
                 icon={<MessageSquareWarning className="size-5" />}
                 actions={
                     <div className="flex items-center gap-2">
                         {can.update && (
                             <Button variant="outline" asChild>
                                 <Link href={route("complaints.edit", complaint.id)}>
-                                    Edit
+                                    {t("common.edit")}
                                 </Link>
                             </Button>
                         )}
                         <Button variant="outline" asChild>
                             <Link href={route("complaints.index")}>
                                 <ArrowLeft className="size-4" />
-                                Back
+                                {t("common.back")}
                             </Link>
                         </Button>
                     </div>
@@ -184,7 +203,7 @@ export default function ComplaintShow() {
                                 <div className="flex items-start gap-3">
                                     <MapPin className="mt-0.5 size-4 text-muted-foreground" />
                                     <div>
-                                        <p className="text-xs font-medium text-muted-foreground">Flat / Tower</p>
+                                        <p className="text-xs font-medium text-muted-foreground">{t("complaints.flatTower")}</p>
                                         <p className="text-sm text-foreground">
                                             {complaint.flat?.flat_number ?? "—"}
                                             {complaint.flat?.tower ? ` · ${complaint.flat.tower.name}` : ""}
@@ -194,7 +213,7 @@ export default function ComplaintShow() {
                                 <div className="flex items-start gap-3">
                                     <UserIcon className="mt-0.5 size-4 text-muted-foreground" />
                                     <div>
-                                        <p className="text-xs font-medium text-muted-foreground">Reported By</p>
+                                        <p className="text-xs font-medium text-muted-foreground">{t("complaints.colReportedBy")}</p>
                                         <p className="text-sm text-foreground">
                                             {complaint.resident?.name ?? "—"}
                                         </p>
@@ -203,7 +222,7 @@ export default function ComplaintShow() {
                                 <div className="flex items-start gap-3">
                                     <Calendar className="mt-0.5 size-4 text-muted-foreground" />
                                     <div>
-                                        <p className="text-xs font-medium text-muted-foreground">Raised On</p>
+                                        <p className="text-xs font-medium text-muted-foreground">{t("complaints.raisedOn")}</p>
                                         <p className="text-sm text-foreground">
                                             {new Date(complaint.created_at).toLocaleString()}
                                         </p>
@@ -211,9 +230,9 @@ export default function ComplaintShow() {
                                 </div>
                                 {complaint.resolved_at && (
                                     <div className="flex items-start gap-3">
-                                        <CheckCircle2 className="mt-0.5 size-4 text-emerald-500" />
+                                        <CheckCircle2 className="mt-0.5 size-4 text-brand" />
                                         <div>
-                                            <p className="text-xs font-medium text-muted-foreground">Resolved On</p>
+                                            <p className="text-xs font-medium text-muted-foreground">{t("complaints.resolvedOn")}</p>
                                             <p className="text-sm text-foreground">
                                                 {new Date(complaint.resolved_at).toLocaleString()}
                                             </p>
@@ -233,7 +252,7 @@ export default function ComplaintShow() {
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-sm font-semibold">
                                     <Clock className="mr-1.5 inline size-4" />
-                                    Update Status
+                                    {t("complaints.updateStatus")}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="flex flex-wrap gap-2">
@@ -244,7 +263,7 @@ export default function ComplaintShow() {
                                         size="sm"
                                         onClick={() => handleTransition(s)}
                                     >
-                                        {s}
+                                        {statusLabel(s)}
                                     </Button>
                                 ))}
                             </CardContent>
@@ -257,7 +276,7 @@ export default function ComplaintShow() {
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-sm font-semibold">
                                     <UserIcon className="mr-1.5 inline size-4" />
-                                    Assign To Staff
+                                    {t("complaints.assignToStaff")}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -271,8 +290,8 @@ export default function ComplaintShow() {
                                         onValueChange={(value) =>
                                             assignForm.setData("assigned_to", value)
                                         }
-                                        placeholder="Select staff member…"
-                                        emptyText="No staff found"
+                                        placeholder={t("complaints.selectStaffMember")}
+                                        emptyText={t("complaintForm.noStaffFound")}
                                     />
                                     <Button
                                         type="submit"
@@ -280,7 +299,7 @@ export default function ComplaintShow() {
                                         className="w-full"
                                         disabled={assignForm.processing || !assignForm.data.assigned_to}
                                     >
-                                        {complaint.assignee ? "Reassign" : "Assign"}
+                                        {complaint.assignee ? t("complaints.reassign") : t("complaints.assign")}
                                     </Button>
                                 </form>
                             </CardContent>
@@ -291,7 +310,7 @@ export default function ComplaintShow() {
                     {complaint.assignee && (
                         <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                             <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold">Currently Assigned</CardTitle>
+                                <CardTitle className="text-sm font-semibold">{t("complaints.currentlyAssigned")}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-sm font-medium text-foreground">{complaint.assignee.name}</p>
@@ -305,7 +324,7 @@ export default function ComplaintShow() {
                         <Card className="border-destructive/30 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-sm font-semibold text-destructive">
-                                    Danger Zone
+                                    {t("complaints.dangerZone")}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -315,7 +334,7 @@ export default function ComplaintShow() {
                                     className="w-full"
                                     onClick={() => setShowDelete(true)}
                                 >
-                                    Delete Complaint
+                                    {t("complaints.deleteComplaint")}
                                 </Button>
                             </CardContent>
                         </Card>
@@ -326,10 +345,12 @@ export default function ComplaintShow() {
             <ConfirmDialog
                 open={showDelete}
                 onOpenChange={setShowDelete}
-                title="Delete Complaint"
-                description={`Are you sure you want to delete "${complaint.title}"? This action cannot be undone.`}
+                title={t("complaints.deleteComplaint")}
+                description={t("complaints.confirmDeleteDescription", {
+                    title: complaint.title,
+                })}
                 destructive
-                confirmLabel="Delete"
+                confirmLabel={t("common.delete")}
                 onConfirm={handleDelete}
             />
         </AppLayout>

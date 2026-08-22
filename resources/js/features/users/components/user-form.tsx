@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 import type { RoleOption, SocietyOption } from "@/features/users/types";
 
 export type UserFormValues = {
@@ -33,10 +34,10 @@ type Props = {
 };
 
 const inputClasses =
-    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-brand/60 focus-visible:ring-[3px] focus-visible:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 const selectClasses =
-    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-brand/60 focus-visible:ring-[3px] focus-visible:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 const isSuperAdminRole = (role: string) => role === "SuperAdmin";
 
@@ -51,6 +52,7 @@ export default function UserForm({
     submitLabel,
     isEdit = false,
 }: Props) {
+    const { t } = useI18n();
     const showSocietySelect =
         societies.length > 0 && !isSuperAdminRole(data.role);
 
@@ -60,14 +62,15 @@ export default function UserForm({
                 <div className="grid gap-5 sm:grid-cols-2">
                     <div className="space-y-2 sm:col-span-2">
                         <Label htmlFor="name">
-                            Full Name <span className="text-destructive">*</span>
+                            {t("userForm.fullName")}{" "}
+                            <span className="text-destructive">*</span>
                         </Label>
                         <Input
                             id="name"
                             className={inputClasses}
                             value={data.name}
                             onChange={(e) => setData("name", e.target.value)}
-                            placeholder="e.g. Priya Sharma"
+                            placeholder={t("userForm.namePlaceholder")}
                             autoFocus
                         />
                         {errors.name && (
@@ -77,7 +80,7 @@ export default function UserForm({
 
                     <div className="space-y-2">
                         <Label htmlFor="email">
-                            Email <span className="text-destructive">*</span>
+                            {t("common.email")} <span className="text-destructive">*</span>
                         </Label>
                         <Input
                             id="email"
@@ -85,7 +88,7 @@ export default function UserForm({
                             className={inputClasses}
                             value={data.email}
                             onChange={(e) => setData("email", e.target.value)}
-                            placeholder="user@example.com"
+                            placeholder={t("userForm.emailPlaceholder")}
                         />
                         {errors.email && (
                             <p className="text-sm text-destructive">{errors.email}</p>
@@ -93,13 +96,13 @@ export default function UserForm({
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="phone">Phone</Label>
+                        <Label htmlFor="phone">{t("common.phone")}</Label>
                         <Input
                             id="phone"
                             className={inputClasses}
                             value={data.phone}
                             onChange={(e) => setData("phone", e.target.value)}
-                            placeholder="e.g. 9876543210"
+                            placeholder={t("userForm.phonePlaceholder")}
                         />
                         {errors.phone && (
                             <p className="text-sm text-destructive">{errors.phone}</p>
@@ -108,7 +111,8 @@ export default function UserForm({
 
                     <div className="space-y-2">
                         <Label htmlFor="role">
-                            Role <span className="text-destructive">*</span>
+                            {t("userForm.role")}{" "}
+                            <span className="text-destructive">*</span>
                         </Label>
                         <select
                             id="role"
@@ -122,7 +126,9 @@ export default function UserForm({
                                 }
                             }}
                         >
-                            <option value="">Select a role</option>
+                            <option value="">
+                                {t("userForm.selectRole")}
+                            </option>
                             {roles.map((role) => (
                                 <option key={role.name} value={role.name}>
                                     {role.label}
@@ -137,7 +143,8 @@ export default function UserForm({
                     {showSocietySelect && (
                         <div className="space-y-2">
                             <Label htmlFor="society_id">
-                                Society <span className="text-destructive">*</span>
+                                {t("userForm.society")}{" "}
+                                <span className="text-destructive">*</span>
                             </Label>
                             <select
                                 id="society_id"
@@ -152,7 +159,9 @@ export default function UserForm({
                                     )
                                 }
                             >
-                                <option value="">Select a society</option>
+                                <option value="">
+                                    {t("userForm.selectSociety")}
+                                </option>
                                 {societies.map((society) => (
                                     <option key={society.id} value={society.id}>
                                         {society.label}
@@ -169,7 +178,7 @@ export default function UserForm({
 
                     <div className="space-y-2">
                         <Label htmlFor="password">
-                            Password{" "}
+                            {t("userForm.password")}{" "}
                             {!isEdit && <span className="text-destructive">*</span>}
                         </Label>
                         <Input
@@ -179,7 +188,11 @@ export default function UserForm({
                             className={inputClasses}
                             value={data.password}
                             onChange={(e) => setData("password", e.target.value)}
-                            placeholder={isEdit ? "Leave blank to keep current" : "Min. 8 characters"}
+                            placeholder={
+                                isEdit
+                                    ? t("userForm.passwordKeepPlaceholder")
+                                    : t("userForm.passwordMinPlaceholder")
+                            }
                         />
                         {errors.password && (
                             <p className="text-sm text-destructive">
@@ -190,7 +203,7 @@ export default function UserForm({
 
                     <div className="space-y-2">
                         <Label htmlFor="password_confirmation">
-                            Confirm Password{" "}
+                            {t("userForm.confirmPassword")}{" "}
                             {!isEdit && <span className="text-destructive">*</span>}
                         </Label>
                         <Input
@@ -202,7 +215,7 @@ export default function UserForm({
                             onChange={(e) =>
                                 setData("password_confirmation", e.target.value)
                             }
-                            placeholder="Repeat password"
+                            placeholder={t("userForm.repeatPassword")}
                         />
                     </div>
 
@@ -215,7 +228,7 @@ export default function UserForm({
                             }
                         />
                         <Label htmlFor="is_active" className="font-normal">
-                            Account is active (can sign in)
+                            {t("userForm.accountActive")}
                         </Label>
                     </div>
                 </div>

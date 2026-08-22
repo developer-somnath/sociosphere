@@ -23,6 +23,7 @@ import {
 import { EmptyState } from "@/components/ui/empty-state";
 import { ExportMenu, type ExportFormat } from "@/components/ui/export-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export function DataTable({ children, className }: { children: ReactNode; className?: string }) {
@@ -103,8 +104,9 @@ export function DataTableSkeleton({ columns, rows = 6 }: { columns: number; rows
 type PaginationProps = { from: number | null; to: number | null; total: number; previous?: string | null; next?: string | null; onNavigate: (url: string) => void; noun: string };
 
 export function DataTablePagination({ from, to, total, previous, next, onNavigate, noun }: PaginationProps) {
+    const { t } = useI18n();
     if (total === 0) return null;
-    return <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm text-muted-foreground">Showing <span className="font-medium text-foreground">{from ?? 0}–{to ?? 0}</span> of <span className="font-medium text-foreground">{total}</span> {noun}</p><div className="flex gap-2"><Button variant="outline" size="sm" disabled={!previous} onClick={() => previous && onNavigate(previous)}><ChevronLeft />Previous</Button><Button variant="outline" size="sm" disabled={!next} onClick={() => next && onNavigate(next)}>Next<ChevronRight /></Button></div></div>;
+    return <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm text-muted-foreground">{t("ui.showingFromTo", { from: from ?? 0, to: to ?? 0, total, noun })}</p><div className="flex gap-2"><Button variant="outline" size="sm" disabled={!previous} onClick={() => previous && onNavigate(previous)}><ChevronLeft />{t("ui.previous")}</Button><Button variant="outline" size="sm" disabled={!next} onClick={() => next && onNavigate(next)}>{t("ui.next")}<ChevronRight /></Button></div></div>;
 }
 
 /* ------------------------------------------------------------------ */
@@ -206,6 +208,7 @@ export function DataTableFull<T>({
     tableClassName,
     caption,
 }: DataTableProps<T>) {
+    const { t } = useI18n();
     const selectable = !!onSelectionChange;
 
     const [widths, setWidths] = React.useState<Record<string, number>>({});
@@ -313,8 +316,8 @@ export function DataTableFull<T>({
     const emptyContent = emptyState ?? (
         <EmptyState
             icon={Inbox}
-            title="Nothing here yet"
-            description="No records match the current filters. Adjust your search or clear filters to see more."
+            title={t("ui.nothingHereYet")}
+            description={t("ui.noRecordsMatch")}
         />
     );
 
@@ -327,11 +330,9 @@ export function DataTableFull<T>({
                 <div className="flex items-center justify-between gap-3 border-b border-border/40 px-5 py-2.5">
                     <p className="text-sm text-muted-foreground" aria-live="polite">
                         {selectedIds.length > 0 ? (
-                            <>
-                                <span className="font-medium text-foreground">{selectedIds.length}</span> selected
-                            </>
+                            <>{t("ui.xSelected", { count: selectedIds.length })}</>
                         ) : (
-                            <span className="sr-only">Table toolbar</span>
+                            <span className="sr-only">{t("ui.tableToolbar")}</span>
                         )}
                     </p>
                     <div className="flex items-center gap-2">
@@ -339,13 +340,13 @@ export function DataTableFull<T>({
                         {onColumnVisibilityChange && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="sm" aria-label="Toggle column visibility">
+                                    <Button variant="outline" size="sm" aria-label={t("ui.toggleColumnVisibility")}>
                                         <Columns3 />
-                                        Columns
+                                        {t("ui.columns")}
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Visible columns</DropdownMenuLabel>
+                                    <DropdownMenuLabel>{t("ui.visibleColumns")}</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     {columns.map((column) => (
                                         <DropdownMenuCheckboxItem
@@ -380,7 +381,7 @@ export function DataTableFull<T>({
                                     <Checkbox
                                         checked={someVisibleSelected ? "indeterminate" : allVisibleSelected}
                                         onCheckedChange={toggleAll}
-                                        aria-label="Select all rows"
+                                        aria-label={t("ui.selectAllRows")}
                                     />
                                 </th>
                             )}

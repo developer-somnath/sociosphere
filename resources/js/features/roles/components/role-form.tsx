@@ -3,6 +3,7 @@ import { CheckSquare2, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 import type {
     PermissionGroup,
     RoleFormValues,
@@ -23,7 +24,32 @@ type Props = {
 };
 
 const inputClasses =
-    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-emerald-500/60 focus-visible:ring-[3px] focus-visible:ring-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 py-2.5 text-sm shadow-sm outline-none transition focus-visible:border-brand/60 focus-visible:ring-[3px] focus-visible:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50";
+
+// Maps server-provided permission feature slugs to i18n keys.
+const GROUP_KEYS: Record<string, string> = {
+    society: "roleForm.groups.society",
+    dashboard: "roleForm.groups.dashboard",
+    resident: "roleForm.groups.resident",
+    tower: "roleForm.groups.tower",
+    flat: "roleForm.groups.flat",
+    parking: "roleForm.groups.parking",
+    cctv: "roleForm.groups.cctv",
+    security_log: "roleForm.groups.securityLog",
+    user: "roleForm.groups.user",
+    visitor: "roleForm.groups.visitor",
+    maintenance: "roleForm.groups.maintenance",
+    invoice: "roleForm.groups.invoice",
+    collection: "roleForm.groups.collection",
+    notice: "roleForm.groups.notice",
+    complaint: "roleForm.groups.complaint",
+    amenity: "roleForm.groups.amenity",
+    document: "roleForm.groups.document",
+    "activity-log": "roleForm.groups.activityLog",
+    role: "roleForm.groups.role",
+    permission: "roleForm.groups.permission",
+    other: "roleForm.groups.other",
+};
 
 export default function RoleForm({
     groups,
@@ -35,6 +61,11 @@ export default function RoleForm({
     submitLabel,
     disabled = false,
 }: Props) {
+    const { t } = useI18n();
+
+    const groupLabel = (group: PermissionGroup) =>
+        t(GROUP_KEYS[group.feature] ?? "roleForm.groups.other");
+
     const togglePermission = (id: number) => {
         if (disabled) return;
 
@@ -45,55 +76,56 @@ export default function RoleForm({
         setData("permissions", next);
     };
 
-    const toggleGroup = (group: PermissionGroup) => {
-        if (disabled) return;
-
-        const ids = group.permissions.map((p) => p.id);
-        const allSelected = ids.every((id) => data.permissions.includes(id));
-
-        const next = allSelected
-            ? data.permissions.filter((id) => !ids.includes(id))
-            : Array.from(new Set([...data.permissions, ...ids]));
-
-        setData("permissions", next);
-    };
-
     const groupState = (group: PermissionGroup) => {
         const ids = group.permissions.map((p) => p.id);
         const selected = ids.filter((id) => data.permissions.includes(id)).length;
 
         if (selected === 0) return "none";
         if (selected === ids.length) return "all";
-
         return "partial";
+    };
+
+    const toggleGroup = (group: PermissionGroup) => {
+        if (disabled) return;
+
+        const ids = group.permissions.map((p) => p.id);
+        const state = groupState(group);
+
+        const next =
+            state === "all"
+                ? data.permissions.filter((id) => !ids.includes(id))
+                : Array.from(new Set([...data.permissions, ...ids]));
+
+        setData("permissions", next);
     };
 
     return (
         <form onSubmit={onSubmit} className="space-y-6">
-            <div className="rounded-2xl border border-border/60 bg-muted/25 p-4 sm:p-5">
+            <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5">
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                         <Label htmlFor="name">
-                            Role Name <span className="text-destructive">*</span>
+                            {t("roleForm.name")}{" "}
+                            <span className="text-destructive">*</span>
                         </Label>
                         <Input
                             id="name"
                             className={inputClasses}
                             value={data.name}
                             onChange={(e) => setData("name", e.target.value)}
-                            placeholder="e.g. Gate Manager"
+                            placeholder={t("roleForm.namePlaceholder")}
                             disabled={disabled}
                             autoFocus
                         />
                         {errors.name && (
-                            <p className="text-sm text-destructive">
-                                {errors.name}
-                            </p>
+                            <p className="text-sm text-destructive">{errors.name}</p>
                         )}
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description">
+                            {t("roleForm.description")}
+                        </Label>
                         <Input
                             id="description"
                             className={inputClasses}
@@ -101,7 +133,7 @@ export default function RoleForm({
                             onChange={(e) =>
                                 setData("description", e.target.value)
                             }
-                            placeholder="What is this role responsible for?"
+                            placeholder={t("roleForm.descriptionPlaceholder")}
                             disabled={disabled}
                         />
                         {errors.description && (
@@ -113,17 +145,7 @@ export default function RoleForm({
                 </div>
             </div>
 
-            <div className="space-y-3">
-                <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
-                    <h2 className="text-sm font-semibold">
-                        Feature Permissions
-                    </h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        Grant feature-wise access. Select the permissions this
-                        role should have.
-                    </p>
-                </div>
-
+            <div className="space-y-4">
                 {groups.map((group) => {
                     const state = groupState(group);
 
@@ -140,21 +162,21 @@ export default function RoleForm({
                             >
                                 <div className="flex items-center gap-2">
                                     {state === "all" ? (
-                                        <CheckSquare2 className="size-4 text-emerald-600" />
+                                        <CheckSquare2 className="size-4 text-brand" />
                                     ) : (
                                         <Square className="size-4 text-muted-foreground" />
                                     )}
                                     <span className="text-sm font-medium">
-                                        {group.label}
+                                        {groupLabel(group)}
                                     </span>
                                     {state === "partial" && (
                                         <span className="text-xs text-muted-foreground">
-                                            partial
+                                            ({t("roleForm.partial")})
                                         </span>
                                     )}
                                 </div>
                                 <span className="text-xs text-muted-foreground">
-                                    Select all
+                                    {t("roleForm.selectAll")}
                                 </span>
                             </button>
 
@@ -169,7 +191,7 @@ export default function RoleForm({
                                             key={permission.id}
                                             className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition-colors ${
                                                 checked
-                                                    ? "border-emerald-600/40 bg-emerald-600/5"
+                                                    ? "border-brand/40 bg-brand/5"
                                                     : "border-border/60 hover:bg-muted/40"
                                             } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
                                         >
@@ -177,17 +199,12 @@ export default function RoleForm({
                                                 type="checkbox"
                                                 checked={checked}
                                                 onChange={() =>
-                                                    togglePermission(
-                                                        permission.id,
-                                                    )
+                                                    togglePermission(permission.id)
                                                 }
                                                 disabled={disabled}
                                                 className="size-4 accent-emerald-600"
                                             />
-                                            <span className="font-medium">
-                                                {permission.action}
-                                            </span>
-                                            <span className="truncate text-xs text-muted-foreground">
+                                            <span className="truncate">
                                                 {permission.name}
                                             </span>
                                         </label>
@@ -197,21 +214,15 @@ export default function RoleForm({
                         </div>
                     );
                 })}
-
-                {errors.permissions && (
-                    <p className="text-sm text-destructive">
-                        {errors.permissions}
-                    </p>
-                )}
             </div>
 
-            <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
+            <div className="flex items-center justify-end gap-3">
                 <Button
                     type="submit"
                     disabled={processing || disabled}
-                    className="rounded-full px-6 text-xs font-semibold shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                    className="rounded-xl px-6"
                 >
-                    {processing ? "Saving…" : submitLabel}
+                    {processing ? t("common.loading") : submitLabel}
                 </Button>
             </div>
         </form>

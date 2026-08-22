@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface Props {
     branding: ReactNode;
@@ -7,14 +7,27 @@ interface Props {
 
 export default function AuthLayout({ branding, children }: Props) {
     return (
-        <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.14),_transparent_40%),linear-gradient(135deg,_#f8fafc_0%,_#f1f5f9_100%)]">
-            <div className="grid min-h-screen lg:grid-cols-[52%_48%]">
-                <aside className="hidden lg:block">{branding}</aside>
+        <div className="relative min-h-screen overflow-hidden bg-background text-foreground antialiased selection:bg-brand selection:text-white transition-colors duration-300">
+            {/* Background ambient lighting orbs & grid lines */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                <div className="absolute -left-20 -top-20 size-[500px] rounded-full bg-brand/15 blur-[120px] dark:bg-brand/10" />
+                <div className="absolute right-0 top-1/3 size-[450px] rounded-full bg-info/10 blur-[140px] dark:bg-info/10" />
+                <div className="absolute bottom-0 left-1/3 size-[600px] rounded-full bg-info/10 blur-[160px] dark:bg-info/10" />
+                
+                {/* Subtle radial dot matrix overlay */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,var(--color-border)_1px,transparent_0)] [background-size:32px_32px] opacity-40 dark:opacity-20" />
+            </div>
 
-                <main className="relative flex items-center justify-center px-6 py-8 sm:px-8 lg:px-10">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,#cbd5e1_1px,transparent_0)] [background-size:24px_24px] opacity-25" />
+            {/* Split Screen Grid */}
+            <div className="relative z-10 grid min-h-screen lg:grid-cols-12">
+                {/* Left Branding Panel (5 Columns on Desktop) */}
+                <aside className="hidden lg:col-span-5 lg:block xl:col-span-6">
+                    {branding}
+                </aside>
 
-                    <div className="relative z-10 w-full max-w-xl">
+                {/* Right Form Main (7 Columns on Desktop) */}
+                <main className="flex min-h-screen items-center justify-center p-4 sm:p-8 lg:col-span-7 xl:col-span-6 lg:p-12">
+                    <div className="w-full max-w-xl">
                         {children}
                     </div>
                 </main>

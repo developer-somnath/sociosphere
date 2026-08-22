@@ -95,7 +95,7 @@ export default function SubscriptionUsage() {
                         <CardContent className="pt-6">
                             <p className="text-xs uppercase tracking-wide text-muted-foreground">Unlimited Resources</p>
                             <p className="mt-1 flex items-center gap-2 text-lg font-bold">
-                                <InfinityIcon className="size-4 text-emerald-500" />
+                                <InfinityIcon className="size-4 text-brand" />
                                 {usage.filter((row) => row.limit === null).length}
                             </p>
                             <p className="mt-0.5 text-xs text-muted-foreground">resources with no cap</p>
@@ -129,7 +129,7 @@ export default function SubscriptionUsage() {
                                             <span className="text-sm tabular-nums text-muted-foreground">
                                                 {row.limit === null ? (
                                                     <span className="inline-flex items-center gap-1">
-                                                        <InfinityIcon className="size-3.5 text-emerald-500" />
+                                                        <InfinityIcon className="size-3.5 text-brand" />
                                                         Unlimited
                                                     </span>
                                                 ) : (

@@ -4,7 +4,9 @@
     "type": "module",
     "scripts": {
         "build": "tsc && vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "check:routes": "node scripts/check-routes.cjs",
+        "check:i18n": "node scripts/check-i18n-keys.cjs"
     },
     "devDependencies": {
         "@headlessui/react": "^2.0.0",

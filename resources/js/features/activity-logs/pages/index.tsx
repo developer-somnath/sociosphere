@@ -60,7 +60,7 @@ function actionBadge(action: string) {
         case "store":
         case "registered":
             return (
-                <Badge className="border-transparent bg-emerald-600/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                <Badge className="border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand">
                     {action}
                 </Badge>
             );
@@ -68,7 +68,7 @@ function actionBadge(action: string) {
         case "update":
         case "restored":
             return (
-                <Badge className="border-transparent bg-amber-600/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+                <Badge className="border-transparent bg-warning/10 text-warning dark:bg-warning/10 dark:text-warning">
                     {action}
                 </Badge>
             );
@@ -77,14 +77,14 @@ function actionBadge(action: string) {
         case "destroy":
         case "failed":
             return (
-                <Badge className="border-transparent bg-red-600/10 text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                <Badge className="border-transparent bg-destructive/10 text-destructive dark:bg-destructive/10 dark:text-destructive">
                     {action}
                 </Badge>
             );
         case "login":
         case "logout":
             return (
-                <Badge className="border-transparent bg-sky-600/10 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
+                <Badge className="border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info">
                     {action}
                 </Badge>
             );
@@ -605,16 +605,16 @@ export default function ActivityLogsIndex() {
 
                                 {selectedLog.old_values && selectedLog.new_values ? (
                                     <div className="grid gap-3">
-                                        <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3">
-                                            <p className="text-xs font-semibold text-red-600 dark:text-red-400 mb-1.5">
+                                        <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-3">
+                                            <p className="text-xs font-semibold text-destructive dark:text-destructive mb-1.5">
                                                 Before (Previous Attributes)
                                             </p>
                                             <pre className="overflow-x-auto rounded-lg bg-background/80 p-3 font-mono text-[11px] text-foreground border border-border/50">
                                                 {JSON.stringify(selectedLog.old_values, null, 2)}
                                             </pre>
                                         </div>
-                                        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
-                                            <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1.5">
+                                        <div className="rounded-xl border border-brand/20 bg-brand/5 p-3">
+                                            <p className="text-xs font-semibold text-brand dark:text-brand mb-1.5">
                                                 After (Updated Attributes)
                                             </p>
                                             <pre className="overflow-x-auto rounded-lg bg-background/80 p-3 font-mono text-[11px] text-foreground border border-border/50">
@@ -623,8 +623,8 @@ export default function ActivityLogsIndex() {
                                         </div>
                                     </div>
                                 ) : selectedLog.new_values ? (
-                                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
-                                        <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1.5">
+                                    <div className="rounded-xl border border-brand/20 bg-brand/5 p-3">
+                                        <p className="text-xs font-semibold text-brand dark:text-brand mb-1.5">
                                             Created Payload
                                         </p>
                                         <pre className="overflow-x-auto rounded-lg bg-background/80 p-3 font-mono text-[11px] text-foreground border border-border/50">

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Concerns\EnforcesEntitlements;
 use App\Http\Requests\ResidentRequest;
 use App\Models\Flat;
 use App\Models\Resident;
@@ -14,8 +13,6 @@ use Inertia\Response;
 
 class ResidentController extends Controller
 {
-    use EnforcesEntitlements;
-
     public function __construct(private readonly ModuleQueryService $moduleQueryService)
     {
     }
@@ -28,11 +25,6 @@ class ResidentController extends Controller
 
         $search = trim((string) $request->query('search', ''));
 
-        $sortBy = in_array($request->string('sort_by', 'id'), ['name', 'created_at'], true)
-            ? (string) $request->string('sort_by')
-            : 'id';
-        $sortDir = $request->string('sort_dir', 'desc') === 'asc' ? 'asc' : 'desc';
-
         $residents = Resident::query()
             ->with(['flat', 'flat.tower'])
             ->when($search !== '', function ($query) use ($search) {
@@ -43,7 +35,7 @@ class ResidentController extends Controller
                         ->orWhereHas('flat', fn ($query) => $query->whereLike('flat_no', $search));
                 });
             })
-            ->orderBy($sortBy, $sortDir)
+            ->latest('id')
             ->paginate(10)
             ->withQueryString();
 
@@ -51,8 +43,6 @@ class ResidentController extends Controller
             'residents' => $residents,
             'filters' => [
                 'search' => $search,
-                'sort_by' => $sortBy,
-                'sort_dir' => $sortDir,
             ],
             'can' => [
                 'create' => $request->user()->hasPermissionTo('resident.create'),
@@ -80,8 +70,6 @@ class ResidentController extends Controller
     {
         $this->authorize('create', Resident::class);
 
-        $this->enforceEntitlement('residents');
-
         $flat = Flat::findOrFail($request->integer('flat_id'));
 
         Resident::create([
@@ -103,7 +91,7 @@ class ResidentController extends Controller
         $this->authorize('update', $resident);
 
         return Inertia::render('features/residents/pages/edit', [
-            'resident' => $resident->load('flat', 'flat.tower'),
+            'resident' => $resident->load('flat', 'flat.tower', 'familyMembers', 'vehicles'),
             'flats' => $this->moduleQueryService->flatOptions($request->user()),
         ]);
     }

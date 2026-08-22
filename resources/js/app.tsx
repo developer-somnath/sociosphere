@@ -5,8 +5,9 @@ import { I18nProvider } from "@/lib/i18n";
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import { registerServiceWorker } from '@/lib/pwa';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'SocioSphere';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -37,3 +38,5 @@ createInertiaApp({
         color: '#4F46E5',
     },
 });
+
+registerServiceWorker();

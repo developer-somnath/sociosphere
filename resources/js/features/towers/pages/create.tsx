@@ -13,6 +13,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 import type { SocietyOption } from "@/features/towers/types";
 import TowerForm, {
@@ -25,6 +26,7 @@ type CreateProps = {
 
 export default function TowersCreate() {
     const { societies } = usePage<PageProps<CreateProps>>().props;
+    const { t } = useI18n();
 
     const { data, setData: rawSetData, post, processing, errors } =
         useForm<TowerFormValues>({
@@ -56,23 +58,23 @@ export default function TowersCreate() {
 
     return (
         <AppLayout>
-            <Head title="Add Tower" />
+            <Head title={t("towers.add")} />
 
             <div className="flex flex-col gap-4">
                 <PageHeader
-                    title="Add Tower"
-                    description="Add a new tower to your society."
+                    title={t("towers.add")}
+                    description={t("towers.addPageDescription")}
                     icon={<Building2 className="size-5" />}
                     breadcrumbs={[
-                        { label: "Management" },
-                        { label: "Towers", href: route("towers.index") },
-                        { label: "Add Tower" },
+                        { label: t("towers.breadcrumb.section") },
+                        { label: t("nav.towers"), href: route("towers.index") },
+                        { label: t("towers.add") },
                     ]}
                     actions={
                         <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                             <Link href={route("towers.index")}>
                                 <ArrowLeft className="size-3.5" />
-                                Back
+                                {t("common.back")}
                             </Link>
                         </Button>
                     }
@@ -81,11 +83,11 @@ export default function TowersCreate() {
                 <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Building2 className="size-5 text-emerald-600" />
-                            Tower Details
+                            <Building2 className="size-5 text-brand" />
+                            {t("towers.details")}
                         </CardTitle>
                         <CardDescription>
-                            Fields marked with * are required.
+                            {t("form.requiredFields")}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -96,7 +98,7 @@ export default function TowersCreate() {
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}
-                            submitLabel="Add Tower"
+                            submitLabel={t("towers.add")}
                         />
                     </CardContent>
                 </Card>

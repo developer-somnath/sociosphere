@@ -13,6 +13,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 import type { Flat, TowerOption } from "@/features/flats/types";
 import FlatForm, {
@@ -26,6 +27,7 @@ type EditProps = {
 
 export default function FlatsEdit() {
     const { flat, towers } = usePage<PageProps<EditProps>>().props;
+    const { t } = useI18n();
 
     const { data, setData: rawSetData, put, processing, errors } =
         useForm<FlatFormValues>({
@@ -62,23 +64,23 @@ export default function FlatsEdit() {
 
     return (
         <AppLayout>
-            <Head title={`Edit ${flat.flat_no}`} />
+            <Head title={t("flats.editTitle", { flatNo: flat.flat_no })} />
 
             <div className="flex flex-col gap-4">
                 <PageHeader
-                    title="Edit Flat"
-                    description={`Update the details of flat ${flat.flat_no}.`}
+                    title={t("flats.edit")}
+                    description={t("flats.editPageDescription", { flatNo: flat.flat_no })}
                     icon={<DoorOpen className="size-5" />}
                     breadcrumbs={[
-                        { label: "Management" },
-                        { label: "Flats", href: route("flats.index") },
-                        { label: `Flat ${flat.flat_no}` },
+                        { label: t("flats.breadcrumb.section") },
+                        { label: t("nav.flats"), href: route("flats.index") },
+                        { label: t("flats.flatLabel", { flatNo: flat.flat_no }) },
                     ]}
                     actions={
                         <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                             <Link href={route("flats.index")}>
                                 <ArrowLeft className="size-3.5" />
-                                Back
+                                {t("common.back")}
                             </Link>
                         </Button>
                     }
@@ -87,15 +89,15 @@ export default function FlatsEdit() {
                 <Card className="border-border/60 bg-background/70 shadow-sm">
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <div className="flex size-8 items-center justify-center rounded-md bg-emerald-600/10 text-emerald-600">
+                            <div className="flex size-8 items-center justify-center rounded-md bg-brand/10 text-brand">
                                 <DoorOpen className="size-4" />
                             </div>
                             <div>
                                 <CardTitle className="text-base">
-                                    Flat Details
+                                    {t("flats.details")}
                                 </CardTitle>
                                 <CardDescription>
-                                    Update the details of this property unit.
+                                    {t("flats.editDetailsDescription")}
                                 </CardDescription>
                             </div>
                         </div>
@@ -108,7 +110,7 @@ export default function FlatsEdit() {
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}
-                            submitLabel="Save Changes"
+                            submitLabel={t("common.saveChanges")}
                         />
                     </CardContent>
                 </Card>

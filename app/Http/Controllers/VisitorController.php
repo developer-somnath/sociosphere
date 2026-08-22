@@ -4,14 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\VisitorRequest;
 use App\Models\Flat;
-use App\Models\User;
 use App\Models\Visitor;
 use App\Models\VisitorPass;
-use App\Notifications\NewVisitorPassRequest;
 use App\Services\ModuleQueryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -30,10 +27,6 @@ class VisitorController extends Controller
 
         $search = trim((string) $request->query('search', ''));
         $status = $request->query('status');
-        $sortBy = in_array($request->query('sort_by'), ['visitor_name', 'purpose', 'status', 'scheduled_for', 'created_at'], true)
-            ? $request->query('sort_by')
-            : 'created_at';
-        $sortDir = strtolower((string) $request->query('sort_dir')) === 'asc' ? 'asc' : 'desc';
 
         $passes = VisitorPass::query()
             ->with(['visitor', 'flat.tower'])
@@ -52,15 +45,7 @@ class VisitorController extends Controller
             ->when(in_array($status, VisitorPass::STATUSES, true), function ($query) use ($status) {
                 $query->where('status', $status);
             })
-            ->when($sortBy === 'visitor_name', function ($query) use ($sortDir) {
-                $query->orderBy(
-                    Visitor::select('name')->whereColumn('visitors.id', 'visitor_passes.visitor_id'),
-                    $sortDir
-                );
-            })
-            ->when($sortBy !== 'visitor_name', function ($query) use ($sortBy, $sortDir) {
-                $query->orderBy($sortBy, $sortDir);
-            })
+            ->latest('id')
             ->paginate(10)
             ->withQueryString();
 
@@ -69,8 +54,6 @@ class VisitorController extends Controller
             'filters' => [
                 'search' => $search,
                 'status' => in_array($status, VisitorPass::STATUSES, true) ? $status : null,
-                'sort_by' => $sortBy,
-                'sort_dir' => $sortDir,
             ],
             'can' => [
                 'create' => $request->user()->hasPermissionTo('visitor.create'),
@@ -107,7 +90,7 @@ class VisitorController extends Controller
             'created_by' => $request->user()->id,
         ]);
 
-        $pass = VisitorPass::create([
+        VisitorPass::create([
             'society_id' => $societyId,
             'visitor_id' => $visitor->id,
             'flat_id' => $request->input('flat_id'),
@@ -117,18 +100,6 @@ class VisitorController extends Controller
             'scheduled_for' => $request->input('scheduled_for'),
             'created_by' => $request->user()->id,
         ]);
-
-        // Notify society approvers so the pass can be actioned from the bell.
-        $approvers = User::query()
-            ->where('society_id', $societyId)
-            ->where('is_active', true)
-            ->get()
-            ->filter(fn (User $user) => $user->hasPermissionTo('visitor.update'));
-
-        if ($approvers->isNotEmpty()) {
-            $pass->load('visitor', 'flat');
-            Notification::send($approvers, new NewVisitorPassRequest($pass));
-        }
 
         return redirect()
             ->route('visitors.index')

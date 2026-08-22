@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type EditProps = {
@@ -29,6 +30,7 @@ type EditProps = {
 
 export default function CctvEdit() {
     const { camera, towers } = usePage<PageProps<EditProps>>().props;
+    const { t } = useI18n();
 
     const form = useForm({
         name: camera.name,
@@ -48,22 +50,22 @@ export default function CctvEdit() {
 
     return (
         <AppLayout>
-            <Head title={`Edit ${camera.name}`} />
+            <Head title={t("cctvForm.editHeadTitle", { name: camera.name })} />
 
             <PageHeader
-                title="Edit Camera Feed"
-                description={`Update RTSP stream parameters for ${camera.name}.`}
+                title={t("cctvForm.editTitle")}
+                description={t("cctvForm.editDescription", { name: camera.name })}
                 icon={<Video className="size-5" />}
                 breadcrumbs={[
-                    { label: "Surveillance" },
-                    { label: "CCTV Feeds", href: route("cctv-cameras.index") },
+                    { label: t("cctvForm.breadcrumbSurveillance") },
+                    { label: t("nav.cctv"), href: route("cctv-cameras.index") },
                     { label: camera.name },
                 ]}
                 actions={
                     <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                         <Link href={route("cctv-cameras.index")}>
                             <ArrowLeft className="size-3.5" />
-                            Back
+                            {t("common.back")}
                         </Link>
                     </Button>
                 }
@@ -71,14 +73,14 @@ export default function CctvEdit() {
 
             <Card className="border-border/70 bg-card/80 shadow-xs">
                 <CardHeader>
-                    <CardTitle className="text-base">Camera Configuration Form</CardTitle>
+                    <CardTitle className="text-base">{t("cctvForm.configurationTitle")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={submit} className="space-y-6">
-                        <FormSection title="Stream Endpoint" description="Specify feed identifiers and RTSP URL.">
+                        <FormSection title={t("cctvForm.streamEndpoint")} description={t("cctvForm.streamEndpointDescription")}>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5 sm:col-span-2">
-                                    <Label htmlFor="name">Camera Name *</Label>
+                                    <Label htmlFor="name">{t("cctvForm.cameraName")} *</Label>
                                     <Input
                                         id="name"
                                         value={form.data.name}
@@ -89,37 +91,37 @@ export default function CctvEdit() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="camera_group">Camera Group *</Label>
+                                    <Label htmlFor="camera_group">{t("cctvForm.cameraGroup")} *</Label>
                                     <select
                                         id="camera_group"
                                         value={form.data.camera_group}
                                         onChange={(e) => form.setData("camera_group", e.target.value as any)}
                                         className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                                     >
-                                        <option value="Main Gate">Main Gate</option>
-                                        <option value="Basement Parking">Basement Parking</option>
-                                        <option value="Tower Lobby">Tower Lobby</option>
-                                        <option value="Perimeter">Perimeter</option>
-                                        <option value="Amenities">Amenities</option>
+                                        <option value="Main Gate">{t("cctv.group.mainGate")}</option>
+                                        <option value="Basement Parking">{t("cctv.group.basementParking")}</option>
+                                        <option value="Tower Lobby">{t("cctv.group.towerLobby")}</option>
+                                        <option value="Perimeter">{t("cctv.group.perimeter")}</option>
+                                        <option value="Amenities">{t("cctv.group.amenities")}</option>
                                     </select>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="status">Camera Status *</Label>
+                                    <Label htmlFor="status">{t("cctvForm.cameraStatus")} *</Label>
                                     <select
                                         id="status"
                                         value={form.data.status}
                                         onChange={(e) => form.setData("status", e.target.value as any)}
                                         className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                                     >
-                                        <option value="Online">Online</option>
-                                        <option value="Offline">Offline</option>
-                                        <option value="Maintenance">Maintenance</option>
+                                        <option value="Online">{t("cctv.online")}</option>
+                                        <option value="Offline">{t("cctv.offline")}</option>
+                                        <option value="Maintenance">{t("cctv.maintenance")}</option>
                                     </select>
                                 </div>
 
                                 <div className="space-y-1.5 sm:col-span-2">
-                                    <Label htmlFor="stream_url">Stream RTSP / HLS URL *</Label>
+                                    <Label htmlFor="stream_url">{t("cctvForm.streamUrl")} *</Label>
                                     <Input
                                         id="stream_url"
                                         value={form.data.stream_url}
@@ -132,10 +134,10 @@ export default function CctvEdit() {
 
                         <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
                             <Button variant="outline" type="button" className="rounded-full px-5 text-xs font-semibold hover:bg-muted" asChild>
-                                <Link href={route("cctv-cameras.index")}>Cancel</Link>
+                                <Link href={route("cctv-cameras.index")}>{t("common.cancel")}</Link>
                             </Button>
-                            <Button type="submit" disabled={form.processing} className="rounded-full bg-emerald-600 px-6 text-xs font-semibold shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all duration-200 text-white">
-                                {form.processing ? "Saving..." : "Save Changes"}
+                            <Button type="submit" disabled={form.processing} className="rounded-full bg-brand px-6 text-xs font-semibold shadow-md hover:bg-brand hover:-translate-y-0.5 transition-all duration-200 text-white">
+                                {form.processing ? t("cctvForm.saving") : t("common.saveChanges")}
                             </Button>
                         </div>
                     </form>

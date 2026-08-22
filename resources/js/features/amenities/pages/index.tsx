@@ -24,6 +24,7 @@ import { FilterBar } from "@/components/ui/filter-bar";
 import { MetricCard } from "@/components/ui/metric-card";
 import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { Pagination } from "@/components/ui/pagination";
+import { t, useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type AmenityItem = {
@@ -71,6 +72,7 @@ type IndexProps = {
 
 export default function AmenitiesIndex() {
     const { amenities, stats, filters, can } = usePage<PageProps<IndexProps>>().props;
+    const { t } = useI18n();
     const [search, setSearch] = useState(filters.search);
     const [bookingType, setBookingType] = useState<string>(filters.booking_type ?? "");
     const [deletingAmenity, setDeletingAmenity] = useState<AmenityItem | null>(null);
@@ -109,25 +111,25 @@ export default function AmenitiesIndex() {
 
     return (
         <AppLayout>
-            <Head title="Amenities & Facilities" />
+            <Head title={t("amenities.title")} />
 
             <PageHeader
-                title="Amenities & Facilities"
-                description="Browse, manage and book society amenities such as clubhouse, pool, gym, and halls."
+                title={t("amenities.title")}
+                description={t("amenities.pageDescription")}
                 icon={<Sparkles className="size-5" />}
                 actions={
                     <div className="flex items-center gap-2">
                         <QuickActionPill
                             href={route("amenity-bookings.index")}
                             icon={CalendarDays}
-                            label="View Bookings"
+                            label={t("amenities.viewBookings")}
                             variant="indigo"
                         />
                         {can.create && (
                             <QuickActionPill
                                 href={route("amenities.create")}
                                 icon={Plus}
-                                label="Add Amenity"
+                                label={t("amenities.add")}
                                 variant="purple"
                             />
                         )}
@@ -137,36 +139,36 @@ export default function AmenitiesIndex() {
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <MetricCard
-                    label="Total Amenities"
+                    label={t("amenities.statTotal")}
                     value={stats.total}
                     icon={Sparkles}
-                    accent="border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                    accent="border-info/20 bg-info/10 text-info dark:text-info"
                 />
                 <MetricCard
-                    label="Active Facilities"
+                    label={t("amenities.statActive")}
                     value={stats.active}
                     icon={CheckCircle2}
-                    accent="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    accent="border-brand/20 bg-brand/10 text-brand dark:text-brand"
                 />
                 <MetricCard
-                    label="Slot-Based"
+                    label={t("amenities.statSlotBased")}
                     value={stats.slot_based}
                     icon={Clock}
-                    accent="border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                    accent="border-info/20 bg-info/10 text-info dark:text-info"
                 />
                 <MetricCard
-                    label="Daily / Event Halls"
+                    label={t("amenities.statDaily")}
                     value={stats.daily_based}
                     icon={CalendarDays}
-                    accent="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    accent="border-warning/20 bg-warning/10 text-warning dark:text-warning"
                 />
             </div>
 
             <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search amenity name or description..."
-                searchLabel="Search amenities"
+                searchPlaceholder={t("amenities.searchPlaceholder")}
+                searchLabel={t("amenities.searchLabel")}
                 className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
                 onReset={() => {
                     setSearch("");
@@ -179,18 +181,18 @@ export default function AmenitiesIndex() {
                     onChange={(e) => setBookingType(e.target.value)}
                     className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
                 >
-                    <option value="">All Booking Types</option>
-                    <option value="Slot">Slot-Based</option>
-                    <option value="Hourly">Hourly</option>
-                    <option value="Daily">Daily / Day-Long</option>
+                    <option value="">{t("amenities.allBookingTypes")}</option>
+                    <option value="Slot">{t("amenities.typeSlot")}</option>
+                    <option value="Hourly">{t("amenities.typeHourly")}</option>
+                    <option value="Daily">{t("amenities.typeDaily")}</option>
                 </select>
             </FilterBar>
 
             {amenities.data.length === 0 ? (
                 <EmptyState
                     icon={Sparkles}
-                    title="No amenities found"
-                    description="No society amenities have been added yet."
+                    title={t("amenities.emptyTitle")}
+                    description={t("amenities.emptyDescription")}
                 />
             ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -208,12 +210,14 @@ export default function AmenitiesIndex() {
                                         <div>
                                             <CardTitle className="text-base">{amenity.name}</CardTitle>
                                             <p className="text-xs text-muted-foreground">
-                                                {amenity.booking_type} Booking
+                                                {t("amenities.bookingTypeLabel", {
+                                                    type: amenity.booking_type,
+                                                })}
                                             </p>
                                         </div>
                                     </div>
                                     <Badge variant={amenity.is_active ? "outline" : "secondary"}>
-                                        {amenity.is_active ? "Active" : "Maintenance"}
+                                        {amenity.is_active ? t("common.active") : t("amenities.maintenance")}
                                     </Badge>
                                 </div>
                             </CardHeader>
@@ -227,17 +231,20 @@ export default function AmenitiesIndex() {
                                 <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted/40 p-3 text-xs">
                                     <div className="flex items-center gap-1.5 text-muted-foreground">
                                         <Users className="size-3.5" />
-                                        <span>Max Capacity: <strong className="text-foreground font-semibold">{amenity.capacity}</strong></span>
+                                        <span>{t("amenities.maxCapacity")}: <strong className="text-foreground font-semibold">{amenity.capacity}</strong></span>
                                     </div>
                                     <div className="flex items-center gap-1.5 text-muted-foreground">
                                         <DollarSign className="size-3.5" />
-                                        <span>Fee: <strong className="text-foreground font-semibold">{Number(amenity.fee_per_slot) > 0 ? `৳${amenity.fee_per_slot}` : "Free"}</strong></span>
+                                        <span>{t("amenities.fee")}: <strong className="text-foreground font-semibold">{Number(amenity.fee_per_slot) > 0 ? `৳${amenity.fee_per_slot}` : t("amenities.free")}</strong></span>
                                     </div>
                                 </div>
                             </CardContent>
                             <CardFooter className="flex items-center justify-between border-t border-border/50 pt-3">
                                 <span className="text-xs text-muted-foreground">
-                                    {amenity.bookings_count} booking{amenity.bookings_count !== 1 ? "s" : ""}
+                                    {amenity.bookings_count}{" "}
+                                    {amenity.bookings_count !== 1
+                                        ? t("amenities.bookingPlural")
+                                        : t("amenities.bookingSingular")}
                                 </span>
                                 <div className="flex items-center gap-1.5">
                                     {can.update && (
@@ -260,7 +267,7 @@ export default function AmenitiesIndex() {
                                     {can.book && amenity.is_active && (
                                         <Button size="sm" asChild>
                                             <Link href={route("amenity-bookings.index", { amenity_id: amenity.id })}>
-                                                Book
+                                                {t("amenities.book")}
                                             </Link>
                                         </Button>
                                     )}
@@ -283,17 +290,19 @@ export default function AmenitiesIndex() {
                             { preserveState: true, replace: true },
                         )
                     }
-                    noun="amenities"
+                    noun={t("amenities.nounPlural")}
                 />
             )}
 
             <ConfirmDialog
                 open={!!deletingAmenity}
                 onOpenChange={(open) => !open && setDeletingAmenity(null)}
-                title="Delete Amenity"
-                description={`Are you sure you want to delete "${deletingAmenity?.name}"? Amenities with active bookings cannot be deleted.`}
+                title={t("amenities.confirmDeleteTitle")}
+                description={t("amenities.confirmDeleteDescription", {
+                    name: deletingAmenity?.name ?? "",
+                })}
                 destructive
-                confirmLabel="Delete"
+                confirmLabel={t("common.delete")}
                 onConfirm={handleDelete}
             />
         </AppLayout>

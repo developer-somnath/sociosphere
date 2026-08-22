@@ -28,6 +28,7 @@ import { Progress } from "@/components/ui/progress";
 import { QuickActionPill } from "@/components/ui/quick-action-pill";
 import { Separator } from "@/components/ui/separator";
 import { getFilteredQuickActions } from "@/features/dashboard/config/widget-registry";
+import { OccupancyCompositionCard, PortfolioSnapshotCard } from "@/features/dashboard/config/dashboard-charts";
 import { t, useI18n } from "@/lib/i18n";
 import type { DashboardStats, PageProps } from "@/types";
 
@@ -135,8 +136,8 @@ export default function DashboardPage() {
                     value={stats.residents}
                     hint={t("dashboard.residentsHint")}
                     icon={Users}
-                    accentColor="bg-teal-500"
-                    iconColor="bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20"
+                    accentColor="bg-info"
+                    iconColor="bg-info/10 text-info dark:text-info border-info/20"
                     trend={t("dashboard.momTrend")}
                     trendDir="up"
                 />
@@ -148,8 +149,8 @@ export default function DashboardPage() {
                         rate: occupancyRate,
                     })}
                     icon={DoorOpen}
-                    accentColor="bg-indigo-500"
-                    iconColor="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20"
+                    accentColor="bg-info"
+                    iconColor="bg-info/10 text-info dark:text-info border-info/20"
                     trend={t("dashboard.percentFull", { rate: occupancyRate })}
                     trendDir={occupancyRate >= 75 ? "up" : "neutral"}
                 />
@@ -158,8 +159,8 @@ export default function DashboardPage() {
                     value={stats.open_complaints}
                     hint={t("dashboard.helpdeskHint")}
                     icon={AlertCircle}
-                    accentColor="bg-amber-500"
-                    iconColor="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                    accentColor="bg-warning"
+                    iconColor="bg-warning/10 text-warning dark:text-warning border-warning/20"
                     trend={stats.open_complaints > 0 ? t("dashboard.requiresAction") : t("dashboard.allClear")}
                     trendDir={stats.open_complaints > 0 ? "down" : "up"}
                 />
@@ -168,8 +169,8 @@ export default function DashboardPage() {
                     value={stats.pending_payments}
                     hint={t("dashboard.financialHint")}
                     icon={CreditCard}
-                    accentColor="bg-rose-500"
-                    iconColor="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                    accentColor="bg-destructive"
+                    iconColor="bg-destructive/10 text-destructive dark:text-destructive border-destructive/20"
                     trend={stats.pending_payments > 0 ? t("dashboard.outstandingDues") : t("dashboard.paidUp")}
                     trendDir={stats.pending_payments === 0 ? "up" : "neutral"}
                 />
@@ -212,24 +213,24 @@ export default function DashboardPage() {
                                 <p className="text-[11px] font-medium text-muted-foreground">{t("dashboard.totalUnits")}</p>
                                 <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">{stats.flats.toLocaleString()}</p>
                             </div>
-                            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
-                                <p className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">{t("dashboard.occupied")}</p>
-                                <p className="mt-1 text-2xl font-bold tabular-nums text-emerald-600 dark:text-emerald-400">{stats.occupied_flats.toLocaleString()}</p>
+                            <div className="rounded-xl border border-brand/20 bg-brand/5 p-3">
+                                <p className="text-[11px] font-medium text-brand dark:text-brand">{t("dashboard.occupied")}</p>
+                                <p className="mt-1 text-2xl font-bold tabular-nums text-brand dark:text-brand">{stats.occupied_flats.toLocaleString()}</p>
                             </div>
                             <div className="rounded-xl border border-border/60 bg-background/60 p-3">
                                 <p className="text-[11px] font-medium text-muted-foreground">{t("dashboard.vacantUnits")}</p>
                                 <p className="mt-1 text-2xl font-bold tabular-nums text-muted-foreground">{vacantFlats.toLocaleString()}</p>
                             </div>
-                            <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-3">
-                                <p className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400">{t("dashboard.activeTowers")}</p>
-                                <p className="mt-1 text-2xl font-bold tabular-nums text-indigo-600 dark:text-indigo-400">{stats.towers.toLocaleString()}</p>
+                            <div className="rounded-xl border border-info/20 bg-info/5 p-3">
+                                <p className="text-[11px] font-medium text-info dark:text-info">{t("dashboard.activeTowers")}</p>
+                                <p className="mt-1 text-2xl font-bold tabular-nums text-info dark:text-info">{stats.towers.toLocaleString()}</p>
                             </div>
                         </div>
 
                         {/* Bottom Info Bar */}
                         <div className="flex items-center justify-between rounded-xl bg-accent/40 px-3.5 py-2.5 text-xs text-muted-foreground">
                             <div className="flex items-center gap-2">
-                                <Building2 className="size-4 text-indigo-500" />
+                                <Building2 className="size-4 text-info" />
                                 <span>{t("dashboard.activeNoticesBroadcast")} <strong className="text-foreground">{stats.active_notices}</strong></span>
                             </div>
                             <span className="font-medium text-foreground">{t("dashboard.updatedLive")}</span>
@@ -244,7 +245,7 @@ export default function DashboardPage() {
                             <CardTitle className="text-sm font-bold text-foreground">
                                 {t("dashboard.actionItemsQueue")}
                             </CardTitle>
-                            <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                            <span className="rounded-full bg-warning/10 px-2 py-0.5 text-[10px] font-bold text-warning dark:text-warning border border-warning/20">
                                 {t("dashboard.priorityMatrix")}
                             </span>
                         </div>
@@ -253,43 +254,49 @@ export default function DashboardPage() {
                         <ul className="space-y-2.5">
                             <TaskQueueItem
                                 icon={AlertCircle}
-                                iconClass="text-amber-500"
+                                iconClass="text-warning"
                                 label={t("dashboard.reviewOpenTickets")}
                                 count={stats.open_complaints}
                                 priority={t("dashboard.priorityHigh")}
-                                priorityColor="bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                priorityColor="bg-warning/10 text-warning dark:text-warning"
                                 href={safeRoute("complaints.index")}
                             />
                             <TaskQueueItem
                                 icon={CreditCard}
-                                iconClass="text-rose-500"
+                                iconClass="text-destructive"
                                 label={t("dashboard.collectOutstandingInvoices")}
                                 count={stats.pending_payments}
                                 priority={t("dashboard.priorityUrgent")}
-                                priorityColor="bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                                priorityColor="bg-destructive/10 text-destructive dark:text-destructive"
                                 href={safeRoute("invoices.index")}
                             />
                             <TaskQueueItem
                                 icon={Megaphone}
-                                iconClass="text-blue-500"
+                                iconClass="text-info"
                                 label={t("dashboard.activeSocietyNotices")}
                                 count={stats.active_notices}
                                 priority={t("dashboard.priorityNormal")}
-                                priorityColor="bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                                priorityColor="bg-info/10 text-info dark:text-info"
                                 href={safeRoute("visitors.index")}
                             />
                             <TaskQueueItem
                                 icon={DoorOpen}
-                                iconClass="text-indigo-500"
+                                iconClass="text-info"
                                 label={t("dashboard.visitorPassVerification")}
                                 count={null}
                                 priority={t("dashboard.priorityNormal")}
-                                priorityColor="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                                priorityColor="bg-info/10 text-info dark:text-info"
                                 href={safeRoute("visitors.index")}
                             />
                         </ul>
                     </CardContent>
                 </Card>
+            </div>
+
+            {/* ── Analytics: Occupancy + Portfolio ──────────────────────── */}
+            <div className="grid gap-4 lg:grid-cols-2">
+                <OccupancyCompositionCard stats={stats} />
+                <PortfolioSnapshotCard stats={stats} />
             </div>
 
             {/* ── Bottom: Grouped Enterprise Quick Operations Grid ─────── */}
@@ -305,7 +312,7 @@ export default function DashboardPage() {
                             title={t("dashboard.propertySetup")}
                             description={t("dashboard.propertySetupDesc")}
                             icon={Building2}
-                            accentColor="border-indigo-500/20 bg-indigo-500/5 text-indigo-600"
+                            accentColor="border-info/20 bg-info/5 text-info"
                             actions={[
                                 { label: t("quickActions.addTower"), href: safeRoute("towers.create") },
                                 { label: t("quickActions.addFlat"), href: safeRoute("flats.create") },
@@ -315,7 +322,7 @@ export default function DashboardPage() {
                             title={t("dashboard.residentServices")}
                             description={t("dashboard.residentServicesDesc")}
                             icon={Users}
-                            accentColor="border-teal-500/20 bg-teal-500/5 text-teal-600"
+                            accentColor="border-info/20 bg-info/5 text-info"
                             actions={[
                                 { label: t("quickActions.addResident"), href: safeRoute("residents.create") },
                                 { label: t("quickActions.allocateParking"), href: safeRoute("parking-slots.create") },
@@ -325,7 +332,7 @@ export default function DashboardPage() {
                             title={t("dashboard.financialHelpdesk")}
                             description={t("dashboard.financialHelpdeskDesc")}
                             icon={ReceiptText}
-                            accentColor="border-rose-500/20 bg-rose-500/5 text-rose-600"
+                            accentColor="border-destructive/20 bg-destructive/5 text-destructive"
                             actions={[
                                 { label: t("quickActions.issueInvoice"), href: safeRoute("invoices.create") },
                                 { label: t("quickActions.raiseComplaint"), href: safeRoute("complaints.create") },

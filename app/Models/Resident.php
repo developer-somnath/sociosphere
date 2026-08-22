@@ -52,4 +52,14 @@ class Resident extends Model
     {
         return $this->belongsTo(Society::class);
     }
+
+    public function familyMembers()
+    {
+        return $this->hasMany(FamilyMember::class);
+    }
+
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class);
+    }
 }

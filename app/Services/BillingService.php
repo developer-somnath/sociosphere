@@ -195,6 +195,15 @@ class BillingService
                 'amount' => $flatData['subtotal'],
             ]);
 
+            $society = \App\Models\Society::find($societyId);
+            if ($society) {
+                $taxEngine = app(\App\Services\TaxEngineService::class);
+                $taxResult = $taxEngine->calculateTax($society, (float) $flatData['subtotal']);
+                if ($taxResult['tax_profile']) {
+                    $taxEngine->saveInvoiceTaxBreakdown($invoice, $taxResult);
+                }
+            }
+
             $created++;
         }
 

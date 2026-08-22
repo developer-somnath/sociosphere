@@ -2,6 +2,7 @@ import { Check, ChevronsUpDown, Search } from "lucide-react";
 import { Popover } from "radix-ui";
 import { useMemo, useState } from "react";
 
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export type ComboboxItem = {
@@ -32,16 +33,22 @@ export function Combobox({
     items,
     value,
     onValueChange,
-    placeholder = "Select…",
-    emptyText = "No options found",
-    searchPlaceholder = "Search…",
+    placeholder,
+    emptyText,
+    searchPlaceholder,
     disabled,
     id,
     className,
 }: ComboboxProps) {
+    const { t } = useI18n();
+    const effectivePlaceholder = placeholder ?? t("common.select", undefined) ?? "Select…";
+    const effectiveEmptyText = emptyText ?? t("ui.noRecordsMatch", undefined) ?? "No options found";
+    const effectiveSearchPlaceholder = searchPlaceholder ?? t("common.search", undefined) ?? "Search…";
+
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [highlight, setHighlight] = useState(0);
+
 
     const selected = items.find((item) => item.value === value);
 
@@ -89,7 +96,7 @@ export function Combobox({
                     )}
                 >
                     <span className={cn("truncate", !selected && "text-muted-foreground")}>
-                        {selected?.label ?? placeholder}
+                        {selected?.label ?? effectivePlaceholder}
                     </span>
                     <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
                 </button>
@@ -124,8 +131,8 @@ export function Combobox({
                                     if (item) handleSelect(item);
                                 }
                             }}
-                            placeholder={searchPlaceholder}
-                            aria-label={searchPlaceholder}
+                            placeholder={effectiveSearchPlaceholder}
+                            aria-label={effectiveSearchPlaceholder}
                             autoFocus
                             className="h-9 w-full rounded-lg border border-border/60 bg-background pl-8 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         />
@@ -133,7 +140,7 @@ export function Combobox({
                     <ul role="listbox" className="mt-1 max-h-56 overflow-auto">
                         {filtered.length === 0 && (
                             <li className="px-3 py-6 text-center text-sm text-muted-foreground">
-                                {emptyText}
+                                {effectiveEmptyText}
                             </li>
                         )}
                         {filtered.map((item, index) => {

@@ -194,19 +194,19 @@ export default function DocumentsIndex() {
                     label="Total Documents"
                     value={stats.total}
                     icon={FileText}
-                    accent="border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                    accent="border-info/20 bg-info/10 text-info dark:text-info"
                 />
                 <MetricCard
                     label="Public Documents"
                     value={stats.public}
                     icon={Globe}
-                    accent="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    accent="border-brand/20 bg-brand/10 text-brand dark:text-brand"
                 />
                 <MetricCard
                     label="Total Storage"
                     value={formatBytes(stats.total_size)}
                     icon={FolderOpen}
-                    accent="border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                    accent="border-info/20 bg-info/10 text-info dark:text-info"
                 />
             </div>
 

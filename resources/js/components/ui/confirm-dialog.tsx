@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type ConfirmDialogProps = {
@@ -32,8 +33,8 @@ export function ConfirmDialog({
     onOpenChange,
     title,
     description,
-    confirmLabel = "Confirm",
-    cancelLabel = "Cancel",
+    confirmLabel,
+    cancelLabel,
     destructive = false,
     loading = false,
     onConfirm,
@@ -41,9 +42,12 @@ export function ConfirmDialog({
     children,
     className,
 }: ConfirmDialogProps) {
+    const { t } = useI18n();
     const [typed, setTyped] = useState("");
     const requiresTyping = Boolean(requireText);
     const disabled = loading || (requiresTyping && typed.trim() !== requireText);
+    const resolvedConfirmLabel = confirmLabel ?? t("common.confirm");
+    const resolvedCancelLabel = cancelLabel ?? t("common.cancel");
 
     return (
         <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
@@ -77,11 +81,7 @@ export function ConfirmDialog({
                                         htmlFor="confirm-dialog-input"
                                         className="text-xs font-medium text-muted-foreground"
                                     >
-                                        Type{" "}
-                                        <span className="font-semibold text-foreground">
-                                            {requireText}
-                                        </span>{" "}
-                                        to confirm
+                                        {t("ui.typeToConfirm", { text: requireText ?? "" })}
                                     </label>
                                     <Input
                                         id="confirm-dialog-input"
@@ -102,7 +102,7 @@ export function ConfirmDialog({
                             disabled={loading}
                             onClick={() => onOpenChange(false)}
                         >
-                            {cancelLabel}
+                            {resolvedCancelLabel}
                         </Button>
                         <Button
                             variant={destructive ? "destructive-solid" : "default"}
@@ -111,7 +111,7 @@ export function ConfirmDialog({
                             disabled={disabled}
                             onClick={onConfirm}
                         >
-                            {confirmLabel}
+                            {resolvedConfirmLabel}
                         </Button>
                     </div>
                 </AlertDialog.Content>

@@ -47,8 +47,13 @@ export type SharedProps = {
         success: string | null;
         error: string | null;
     };
+    /** Platform release info (blueprint §3). */
+    version?: string;
+    environment?: string;
     /** Shared by the backend via HandleInertiaRequests — optional until wired. */
     notifications?: AppNotification[];
+    /** WebPush VAPID public key (PWA — S4-1). Empty until keys are generated. */
+    vapid_public_key?: string | null;
 };
 
 export type PageProps<T = Record<string, unknown>> = T & SharedProps;

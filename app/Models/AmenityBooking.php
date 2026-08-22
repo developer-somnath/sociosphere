@@ -24,12 +24,15 @@ class AmenityBooking extends Model
         'total_fee',
         'status',
         'payment_status',
+        'refunded_at',
+        'refund_reference',
         'remarks',
     ];
 
     protected $casts = [
         'booking_date' => 'date',
         'total_fee' => 'decimal:2',
+        'refunded_at' => 'datetime',
     ];
 
     public function society(): BelongsTo

@@ -2,6 +2,7 @@ import { CheckCircle2, CircleAlert, Info, TriangleAlert, X } from "lucide-react"
 import { useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n";
 import { getToastSnapshot, subscribeToasts, type ToastVariant } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
@@ -13,21 +14,22 @@ const ICONS: Record<ToastVariant, typeof CheckCircle2> = {
 };
 
 const TONES: Record<ToastVariant, string> = {
-    success: "border-emerald-500/20 bg-emerald-500/10 text-emerald-950 dark:text-emerald-100",
+    success: "border-success/20 bg-success/10 text-success dark:text-success",
     error: "border-destructive/20 bg-destructive/10 text-foreground",
-    warning: "border-amber-500/20 bg-amber-500/10 text-amber-950 dark:text-amber-100",
-    info: "border-sky-500/20 bg-sky-500/10 text-sky-950 dark:text-sky-100",
+    warning: "border-warning/20 bg-warning/10 text-warning dark:text-warning",
+    info: "border-info/20 bg-info/10 text-info dark:text-info",
 };
 
 const ICON_TONES: Record<ToastVariant, string> = {
-    success: "text-emerald-600 dark:text-emerald-400",
+    success: "text-success dark:text-success",
     error: "text-destructive",
-    warning: "text-amber-600 dark:text-amber-400",
-    info: "text-sky-600 dark:text-sky-400",
+    warning: "text-warning dark:text-warning",
+    info: "text-info dark:text-info",
 };
 
 /** Renders the toast stack. Mount once, inside the app shell (see AppLayout). */
 export function Toaster() {
+    const { t } = useI18n();
     const toasts = useSyncExternalStore(subscribeToasts, getToastSnapshot);
 
     if (toasts.length === 0) return null;
@@ -78,7 +80,7 @@ export function Toaster() {
                             variant="ghost"
                             size="icon-xs"
                             className="-mr-1 -mt-1"
-                            aria-label="Dismiss notification"
+                            aria-label={t("ui.dismissNotification")}
                             onClick={toastItem.dismiss}
                         >
                             <X />

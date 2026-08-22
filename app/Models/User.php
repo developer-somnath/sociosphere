@@ -23,8 +23,6 @@ class User extends Authenticatable
         'password',
         'last_login_at',
         'is_active',
-        'locale',
-        'timezone',
     ];
 
     protected $hidden = [
@@ -47,9 +45,9 @@ class User extends Authenticatable
         return $this->belongsTo(Society::class);
     }
 
-    public function staffProfile()
+    public function pushSubscriptions()
     {
-        return $this->hasOne(StaffProfile::class);
+        return $this->hasMany(PushSubscription::class);
     }
 
     /**

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export type ActiveFilter = { label: string; onRemove?: () => void };
@@ -25,13 +26,15 @@ type FilterBarProps = {
 export function FilterBar({
     searchValue,
     onSearchChange,
-    searchPlaceholder = "Search…",
+    searchPlaceholder,
     searchLabel,
     children,
     activeFilters = [],
     onReset,
     className,
 }: FilterBarProps) {
+    const { t } = useI18n();
+    const resolvedPlaceholder = searchPlaceholder ?? t("common.search");
     return (
         <div
             className={cn(
@@ -47,7 +50,7 @@ export function FilterBar({
                             aria-label={searchLabel}
                             value={searchValue}
                             onChange={(event) => onSearchChange(event.target.value)}
-                            placeholder={searchPlaceholder}
+                            placeholder={resolvedPlaceholder}
                             className="h-10 rounded-full border-border/70 bg-background/80 pl-9.5 pr-8 text-xs font-medium shadow-2xs transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />
                         {searchValue ? (
@@ -55,7 +58,7 @@ export function FilterBar({
                                 type="button"
                                 variant="ghost"
                                 size="icon-xs"
-                                aria-label="Clear search"
+                                aria-label={t("ui.clearSearch")}
                                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full hover:bg-muted"
                                 onClick={() => onSearchChange("")}
                             >
@@ -77,7 +80,7 @@ export function FilterBar({
                         className="h-10 rounded-full border-border/70 bg-background/70 px-4 text-xs font-semibold hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
                     >
                         <FilterX className="size-3.5" />
-                        Reset
+                        {t("ui.reset")}
                     </Button>
                 ) : null}
             </div>
@@ -85,7 +88,7 @@ export function FilterBar({
             {activeFilters.length > 0 ? (
                 <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/50 pt-2.5">
                     <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
-                        Active Filters:
+                        {t("ui.activeFilters")}
                     </span>
                     {activeFilters.map((filter) => (
                         <span
@@ -97,7 +100,7 @@ export function FilterBar({
                                 <button
                                     type="button"
                                     onClick={filter.onRemove}
-                                    aria-label={`Remove filter ${filter.label}`}
+                                    aria-label={t("ui.removeFilter", { label: filter.label })}
                                     className="rounded-full p-0.5 hover:bg-primary/20 transition-colors"
                                 >
                                     <X className="size-3" />
@@ -106,7 +109,7 @@ export function FilterBar({
                         </span>
                     ))}
                     <span className="text-[11px] font-medium text-muted-foreground">
-                        ({activeFilters.length} active)
+                        {t("ui.activeFilterCount", { count: activeFilters.length })}
                     </span>
                 </div>
             ) : null}

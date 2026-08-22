@@ -6,6 +6,7 @@ use App\Http\Requests\AmenityBookingRequest;
 use App\Models\Amenity;
 use App\Models\AmenityBooking;
 use App\Models\Flat;
+use App\Models\Payment;
 use App\Models\Resident;
 use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
@@ -227,7 +228,8 @@ class AmenityBookingController extends Controller
     }
 
     /**
-     * Cancel a booking.
+     * Cancel a booking. When the booking was already paid, a refund payment is
+     * recorded and the booking is flagged as refunded.
      */
     public function cancel(Request $request, AmenityBooking $booking): RedirectResponse
     {
@@ -239,18 +241,60 @@ class AmenityBookingController extends Controller
                 ->with('error', 'Booking is already cancelled or rejected.');
         }
 
-        $booking->update(['status' => 'Cancelled']);
+        $refundIssued = false;
+        $refundReference = null;
+
+        if ($booking->payment_status === 'Paid' && (float) $booking->total_fee > 0) {
+            $refundIssued = true;
+            $refundReference = $this->issueRefund($booking);
+        }
+
+        $booking->update([
+            'status' => 'Cancelled',
+            'refunded_at' => $refundIssued ? now() : null,
+            'refund_reference' => $refundIssued ? $refundReference : null,
+        ]);
 
         app(ActivityLogger::class)->log(
             action: 'cancel',
             module: 'AmenityBooking',
             entityType: AmenityBooking::class,
             entityId: (string) $booking->id,
-            remarks: "Amenity booking cancelled: #{$booking->id}"
+            remarks: $refundIssued
+                ? "Amenity booking cancelled & refunded: #{$booking->id} ({$refundReference})"
+                : "Amenity booking cancelled: #{$booking->id}"
         );
 
         return redirect()
             ->route('amenity-bookings.index')
-            ->with('success', 'Booking cancelled.');
+            ->with('success', $refundIssued
+                ? "Booking cancelled. Refund {$refundReference} issued for ৳{$booking->total_fee}."
+                : 'Booking cancelled.');
+    }
+
+    /**
+     * Record a refund payment (negative amount) against the booking's society.
+     */
+    private function issueRefund(AmenityBooking $booking): string
+    {
+        $societyId = $booking->society_id;
+        $nextNum = Payment::where('society_id', $societyId)->count() + 1;
+        $refundReference = 'REF-' . date('Ym') . '-' . str_pad((string) $nextNum, 4, '0', STR_PAD_LEFT);
+
+        Payment::create([
+            'society_id' => $societyId,
+            'invoice_id' => null,
+            'flat_id' => $booking->flat_id,
+            'payment_number' => $refundReference,
+            'amount' => -(float) $booking->total_fee,
+            'payment_method' => 'Refund',
+            'transaction_reference' => "Amenity booking #{$booking->id}",
+            'gateway_reference' => null,
+            'paid_at' => now(),
+            'status' => 'Refunded',
+            'remarks' => "Refund for cancelled amenity booking #{$booking->id}",
+        ]);
+
+        return $refundReference;
     }
 }

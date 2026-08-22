@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import type { PageProps } from "@/types";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { useI18n } from "@/lib/i18n";
 import type {
     PermissionGroup,
     RoleFormValues,
@@ -34,6 +35,7 @@ type EditProps = {
 
 export default function RolesEdit() {
     const { role, permissionGroups } = usePage<PageProps<EditProps>>().props;
+    const { t } = useI18n();
 
     const { data, setData: rawSetData, put, processing, errors } =
         useForm<RoleFormValues>({
@@ -66,24 +68,28 @@ export default function RolesEdit() {
 
     return (
         <AppLayout>
-            <Head title={`Edit ${role.name}`} />
+            <Head title={t("roles.editTitle", { name: role.name })} />
 
             <PageHeader
-                title="Edit Role"
-                description={`Update the role name, description, and feature-wise permissions.`}
+                title={t("roles.editPageTitle")}
+                description={t("roles.editPageDescription")}
                 icon={<ShieldCheck className="size-5" />}
                 breadcrumbs={[
-                    { label: "Admin", href: "/dashboard" },
-                    { label: "Roles", href: route("roles.index") },
+                    { label: t("nav.admin"), href: "/dashboard" },
+                    { label: t("nav.roles"), href: route("roles.index") },
                     { label: role.name },
                 ]}
                 actions={
                     <>
-                        {role.is_system && <Badge variant="secondary">System</Badge>}
+                        {role.is_system && (
+                            <Badge variant="secondary">
+                                {t("roles.system")}
+                            </Badge>
+                        )}
                         <Button variant="outline" size="sm" asChild className="rounded-full px-4 text-xs font-semibold hover:bg-muted">
                             <Link href={route("roles.index")}>
                                 <ArrowLeft className="size-3.5" />
-                                Back
+                                {t("common.back")}
                             </Link>
                         </Button>
                     </>
@@ -93,7 +99,7 @@ export default function RolesEdit() {
                 <Card className="border-border/60 bg-card/80 shadow-xs">
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <div className="flex size-8 items-center justify-center rounded-md bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                            <div className="flex size-8 items-center justify-center rounded-md bg-info/10 text-info dark:bg-info/10 dark:text-info">
                                 <ShieldCheck className="size-4" />
                             </div>
                             <div>
@@ -102,8 +108,8 @@ export default function RolesEdit() {
                                 </CardTitle>
                                 <CardDescription>
                                     {role.name === "SuperAdmin"
-                                        ? "The SuperAdmin role is locked and cannot be changed."
-                                        : "Changes apply to all users holding this role."}
+                                        ? t("roles.superAdminLocked")
+                                        : t("roles.changesApplyToHolders")}
                                 </CardDescription>
                             </div>
                         </div>
@@ -116,7 +122,7 @@ export default function RolesEdit() {
                             errors={errors}
                             processing={processing}
                             onSubmit={submit}
-                            submitLabel="Save Changes"
+                            submitLabel={t("common.saveChanges")}
                             disabled={role.name === "SuperAdmin"}
                         />
                     </CardContent>

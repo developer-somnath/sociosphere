@@ -101,7 +101,7 @@ class ComplaintController extends Controller
         $this->authorize('create', Complaint::class);
 
         $categories = ComplaintCategory::orderBy('name')->get(['id', 'name']);
-        $flats = Flat::orderBy('flat_number')->get(['id', 'flat_number', 'tower_id'])->load('tower:id,name');
+        $flats = Flat::orderBy('flat_no')->get(['id', 'flat_no', 'tower_id'])->load('tower:id,name');
         $residents = Resident::orderBy('name')->get(['id', 'name', 'flat_id']);
 
         return Inertia::render('features/complaints/pages/create', [

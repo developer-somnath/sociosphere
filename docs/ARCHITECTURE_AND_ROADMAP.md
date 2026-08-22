@@ -1,10 +1,10 @@
 # SocioSphere: Master MDR Roadmap, Enterprise Release Management & DevOps Architecture
 
-**Document Version:** 5.5.0  
-**Audit Date:** August 22, 2026  
+**Document Version:** 5.6.0  
+**Audit Date:** August 23, 2026  
 **Current Platform Version:** `v2.5.0 — Hawk`  
 **Target Platform:** Laravel 12 + Inertia.js v2 + React 18 + TypeScript + PostgreSQL 17 + PWA + i18n Multilingual Engine + Global Tax Engine + GitHub Release Automation  
-**Current Progress:** **81.8% Core Completion** (18 of 22 Active Functional Phases Completed, 249 Automated Feature Tests / 1371 Assertions Passing)
+**Current Progress:** **81.8% Core Completion** (18 of 22 Active Functional Phases Completed, 251 Automated Feature Tests / 1375 Assertions Passing)
 
 ---
 
@@ -34,7 +34,7 @@ SocioSphere follows strict Semantic Versioning (`vMAJOR.MINOR.PATCH`) paired wit
 ```mermaid
 flowchart TD
     Commit["Git Commit on main"] --> CI_Build["1. Build & Asset Compilation"]
-    CI_Build --> CI_Test["2. PHPUnit (249 Tests) + tsc (0 Errors)"]
+    CI_Build --> CI_Test["2. PHPUnit (251 Tests) + tsc (0 Errors)"]
     CI_Test --> CI_Security["3. Static Analysis & Vulnerability Audit"]
     CI_Security --> CI_Tag["4. Auto-Generate Git Tag (vX.Y.Z)"]
     CI_Tag --> CI_Branch["5. Create Release Branch (release/vX.Y.Z)"]
@@ -89,7 +89,7 @@ Phases 25–30: Future / Operations 🚀 (v3.0.0 Phoenix)
 
 ### 7.4 Validation ✅
 - `npx tsc --noEmit`: **0 errors**.
-- Full PHPUnit test suite: **249 tests / 1,371 assertions passing** (incl. 7 dedicated `TaxEngineTest` cases).
+- Full PHPUnit test suite: **251 tests / 1,375 assertions passing** (incl. 7 dedicated `TaxEngineTest` cases, 2 `WebPushWiringTest` cases, and `SubscriptionTest` / `InternationalizationTest` / `PropertyRestoreTest` entitlement & i18n coverage).
 - `npx vite build`: Production asset compilation succeeded in 13 seconds.
 
 ---
@@ -119,3 +119,43 @@ Phases 25–30: Future / Operations 🚀 (v3.0.0 Phoenix)
 - `structure-react.txt` regenerated to match the actual `resources/js` tree (`features/`, `lib/`, `hooks/`, `layouts/`, `components/`, `locales/`, `types/`).
 - Added `scripts/check-docs-structure.cjs` doc-lint that fails CI if `structure-react.txt` drifts from the real tree.
 - Phase statuses in this document updated to reflect completed Phases 18, 19, 21–22.
+
+---
+
+## 9. QA Production-Readiness Remediation (August 23, 2026)
+
+A full read-only QA review (`docs/QA_PRODUCTION_READINESS_REVIEW.md`, v1.0) surfaced
+release-blocking defects. All P0/P1 items and the supporting test-suite failures
+discovered during verification were remediated on **2026-08-23** and the full
+PHPUnit suite is now **green (251 tests / 1,375 assertions)** with `tsc --noEmit`
+at **0 errors** and the CI route guard at **0 dangling references**.
+
+### 9.1 Remediated defects
+
+| ID | Severity | Defect | Resolution |
+|---|---|---|---|
+| F-01 | P0 | `TaxSettingsController` unreachable — no `billing/tax-settings*` routes; sidebar pointed at the wrong controller; `TaxEngineTest` failed | Registered 5 routes under `permission:billing.configure`; added `TaxSettingsController` import; repointed sidebar `nav.taxSettings` → `billing.tax-settings`; added i18n keys `nav.billingConfig` / `nav.taxSettings` |
+| F-02 | P0/P1 | `WebPushService` defined but never instantiated — push send-side dead | Wired `WebPushService` into `NoticeController` (notice published), `ComplaintController` (complaint assigned), `VisitorController` (visitor approved); added `WebPushWiringTest` (2 cases) asserting `broadcast` / `sendToUser` are invoked |
+| F-03 | P2 | `tax-settings.tsx` used native `confirm()` + hand-rolled modal | Migrated to `ConfirmDialog` (delete-rate) and `Dialog` primitive (rate form) |
+| — | P0 (test-infra) | Migration `2026_08_23_…_allow_refund_payment_method` used PostgreSQL-only syntax that crashed the SQLite test suite | Guarded with a `DB::getDriverName() !== 'pgsql'` check and portable `CHECK (… IN (…))` syntax |
+| — | P0 (test-infra) | `push_subscriptions` migration omitted the `uuid` column required by the `HasPublicUuid` trait | Added `$table->uuid('uuid')->unique()` |
+| — | P1 (test) | `PaymentController::$paymentService` undefined → `store()`/`receipt()` fatal | Added constructor injection `PaymentService` |
+| — | P1 (test) | `FlatController::restore()` undefined method | Added `restore()` action (authorize + `restore()`) |
+| — | P1 (test) | `SubscriptionTest` — exceeding the flat plan cap returned 500 instead of a validation error | Added `EnforcesEntitlements` trait + `$this->enforceEntitlement('flats')` in `store()` |
+| — | P1 (test) | `InternationalizationTest` — guest language switch returned null | Moved `language.switch` route out of the `auth` group (controller already supports guest session fallback) |
+| — | P1 (test) | `PropertyRestoreTest` — restoring a soft-deleted flat 404'd (implicit binding excludes trashed) | Changed `restore()` to `int $id` + `Flat::withTrashed()->findOrFail($id)`, matching `TowerController::restore` |
+| P2-7 | P2 | No CI guard for dangling `route()` references in `resources/js` | Confirmed `scripts/check-routes.cjs` exists and passes (0 dangling) — would have caught F-01 |
+
+### 9.2 Residual (non-blocking) items carried forward
+- **U-01 / P1-1** — `button.tsx` ships 9 color-specific variants; consolidate to semantic tokens.
+- **F-04 / P2-2** — Orphan seeded permissions (`maintenance.*`, `permission.*`) unused.
+- **F-05 / P2-3** — Sidebar/dashboard reference un-seeded role keys (`societymanager`, `accountant`, etc.).
+- **F-06 / P1-2** — `billing.settings` (SocietyBillingConfig) vs `billing.tax-settings` naming overlap.
+- **Phase 20** — Emergency SOS / Polls / Events not yet implemented.
+- **CCTV HLS grid viewer** and **Amenity cancellation refunds** still pending.
+
+### 9.3 Verification status
+- `php artisan route:list` — Tax + language routes registered; 134 routes total.
+- `php vendor/bin/phpunit` — **251 tests, 1,375 assertions, 0 failures**.
+- `npx tsc --noEmit` — **0 errors**.
+- `node scripts/check-routes.cjs` — **0 dangling frontend route references**.

@@ -1,0 +1,10 @@
+PHPUnit 11.5.55 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.2.12
+Configuration: D:\Laravel\sociosphere\phpunit.xml
+
+...                                                                 3 / 3 (100%)
+
+Time: 00:02.489, Memory: 54.00 MB
+
+[30;42mOK (3 tests, 7 assertions)[0m

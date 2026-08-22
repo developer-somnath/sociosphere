@@ -5,11 +5,13 @@
 **Scope:** Phase 1 (Deep Analysis) → Phase 2 (Gap Analysis) → Phase 3 (Design Symmetry Audit) → Phase 4 (Execution Roadmap)
 **Method:** Read-only analysis of `docs/`, `routes/`, `app/`, `resources/js/`, `database/`. No code was modified.
 
+> **⚠️ Accuracy correction (2026-08-23):** This report's headline claims were found to be **largely inaccurate** against the real tree by the QA review (`QA_PRODUCTION_READINESS_REVIEW.md`, §0.1). Specifically: the "route regression / ~37 missing routes" claim is **false** (`routes/web.php` is fully populated; `git status` is clean); "94 hardcoded colors in 52 files" is **false** (1 hit); "missing Select/Dialog primitives" is **false** (`components/ui/` contains them); "raw `<table>` in 4 list modules" is **false** (only detail sub-views); "7 `window.confirm`" is **false** (1, now migrated to `ConfirmDialog`). The working tree is **not** broken. Treat this document as a historical draft; the authoritative status is in `ARCHITECTURE_AND_ROADMAP.md` (v5.6.0) and `QA_PRODUCTION_READINESS_REVIEW.md`.
+
 ---
 
 ## 1. Executive Summary
 
-SocioSphere is a Laravel 12 + Inertia.js v2 + React 18 + TypeScript + Tailwind v4 (shadcn-style) multi-tenant Society Management SaaS. The product has a strong architectural foundation: Spatie RBAC, a 42-locale i18n engine, a reusable component library (`ui/`), Recharts, and Radix UI primitives. The documentation claims **72.7% core completion (16/22 phases, 249 PHPUnit tests)**.
+SocioSphere is a Laravel 12 + Inertia.js v2 + React 18 + TypeScript + Tailwind v4 (shadcn-style) multi-tenant Society Management SaaS. The product has a strong architectural foundation: Spatie RBAC, a 42-locale i18n engine, a reusable component library (`ui/`), Recharts, and Radix UI primitives. The documentation claims **72.7% core completion (16/22 phases, 249 PHPUnit tests)** — this is **outdated**; current verified status is **81.8% (18/22 phases, 251 PHPUnit tests / 1,375 assertions)**.
 
 However, the **current working tree is in a broken transitional state** and the **design system is not unified**. Two findings dominate everything else:
 

@@ -14,7 +14,7 @@ import { useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type CategoryOption = { id: number; name: string };
-type FlatOption = { id: number; flat_number: string; tower?: { id: number; name: string } };
+type FlatOption = { id: number; flat_no: string; tower?: { id: number; name: string } };
 type ResidentOption = { id: number; name: string; flat_id: number };
 
 type CreateProps = {
@@ -76,7 +76,7 @@ export default function ComplaintCreate() {
                                     <Combobox
                                         items={flats.map((f) => ({
                                             value: String(f.id),
-                                            label: `${f.flat_number}${f.tower ? ` — ${f.tower.name}` : ""}`,
+                                            label: `${f.flat_no}${f.tower ? ` — ${f.tower.name}` : ""}`,
                                         }))}
                                         value={form.data.flat_id}
                                         onValueChange={(value) => {

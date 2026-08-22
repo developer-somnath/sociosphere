@@ -38,7 +38,7 @@ type ComplaintItem = {
     status: "Open" | "Assigned" | "In Progress" | "Resolved" | "Closed";
     created_at: string;
     resolved_at: string | null;
-    flat?: { id: number; flat_number: string; tower?: { id: number; name: string } };
+    flat?: { id: number; flat_no: string; tower?: { id: number; name: string } };
     resident?: { id: number; name: string };
     category?: { id: number; name: string };
     assignee?: { id: number; name: string };
@@ -203,7 +203,7 @@ export default function ComplaintsIndex() {
                 { header: t("complaints.colId"), accessor: (c) => String(c.id) },
                 { header: t("complaints.colTitle"), accessor: (c) => c.title },
                 { header: t("common.category"), accessor: (c) => c.category?.name ?? "" },
-                { header: t("complaints.colFlat"), accessor: (c) => c.flat?.flat_number ?? "" },
+                { header: t("complaints.colFlat"), accessor: (c) => c.flat?.flat_no ?? "" },
                 { header: t("complaints.colResident"), accessor: (c) => c.resident?.name ?? "" },
                 { header: t("common.priority"), accessor: (c) => c.priority },
                 { header: t("common.status"), accessor: (c) => c.status },
@@ -231,7 +231,7 @@ export default function ComplaintsIndex() {
                             {c.title}
                         </Link>
                         <span className="text-xs text-muted-foreground line-clamp-1">
-                            {c.category?.name ?? t("complaints.uncategorized")} · {c.flat?.flat_number ?? "—"}
+                            {c.category?.name ?? t("complaints.uncategorized")} · {c.flat?.flat_no ?? "—"}
                             {c.flat?.tower ? ` (${c.flat.tower.name})` : ""}
                         </span>
                     </div>

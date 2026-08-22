@@ -1,0 +1,186 @@
+
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37m/[39m[38;2;108;114;128m ........................................ routes/web.php:50[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mactivity-logs[39m[38;2;108;114;128m activity-logs.index › ActivityLogController@i…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mactivity-logs/export[39m[38;2;108;114;128m activity-logs.export › ActivityLogCont…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mamenities[39m[38;2;108;114;128m ........ amenities.index › AmenityController@index[39m
+  [33mPOST[39m            [37mamenities[39m[38;2;108;114;128m ........ amenities.store › AmenityController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mamenities/create[39m[38;2;108;114;128m amenities.create › AmenityController@create[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mamenities/[39m[33m{amenity}[39m[38;2;108;114;128m amenities.update › AmenityController@up…[39m
+  [31mDELETE[39m          [37mamenities/[39m[33m{amenity}[39m[38;2;108;114;128m amenities.destroy › AmenityController@d…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mamenities/[39m[33m{amenity}[39m[37m/edit[39m[38;2;108;114;128m amenities.edit › AmenityController…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mamenity-bookings[39m[38;2;108;114;128m amenity-bookings.index › AmenityBookingCon…[39m
+  [33mPOST[39m            [37mamenity-bookings[39m[38;2;108;114;128m amenity-bookings.store › AmenityBookingCon…[39m
+  [33mPOST[39m            [37mamenity-bookings/[39m[33m{booking}[39m[37m/approve[39m[38;2;108;114;128m amenity-bookings.approve…[39m
+  [33mPOST[39m            [37mamenity-bookings/[39m[33m{booking}[39m[37m/cancel[39m[38;2;108;114;128m amenity-bookings.cancel  …[39m
+  [33mPOST[39m            [37mamenity-bookings/[39m[33m{booking}[39m[37m/reject[39m[38;2;108;114;128m amenity-bookings.reject  …[39m
+  [33mPOST[39m            [37mapi/payments/webhook/[39m[33m{gateway}[39m[38;2;108;114;128m payments.webhook › PaymentWe…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mbilling/ledger[39m[38;2;108;114;128m ... billing.ledger › BillingController@ledger[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mbilling/preview[39m[38;2;108;114;128m billing.preview › BillingController@preview[39m
+  [33mPOST[39m            [37mbilling/run[39m[38;2;108;114;128m ............ billing.run › BillingController@run[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mbilling/runs[39m[38;2;108;114;128m ......... billing.runs › BillingController@runs[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mbilling/settings[39m[38;2;108;114;128m billing.settings › BillingController@setti…[39m
+  [33mPUT[39m             [37mbilling/settings[39m[38;2;108;114;128m billing.settings.update › BillingControlle…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mbilling/tax-settings[39m[38;2;108;114;128m billing.tax-settings.edit › TaxSetting…[39m
+  [33mPUT[39m             [37mbilling/tax-settings[39m[38;2;108;114;128m billing.tax-settings.update › TaxSetti…[39m
+  [33mPOST[39m            [37mbilling/tax-settings/rates[39m[38;2;108;114;128m billing.tax-settings.rates.store…[39m
+  [33mPUT[39m             [37mbilling/tax-settings/rates/[39m[33m{rate}[39m[38;2;108;114;128m billing.tax-settings.rate…[39m
+  [31mDELETE[39m          [37mbilling/tax-settings/rates/[39m[33m{rate}[39m[38;2;108;114;128m billing.tax-settings.rate…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mbilling/verify[39m[38;2;108;114;128m ... billing.verify › BillingController@verify[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mcctv-cameras[39m[38;2;108;114;128m cctv-cameras.index › CctvCameraController@index[39m
+  [33mPOST[39m            [37mcctv-cameras[39m[38;2;108;114;128m cctv-cameras.store › CctvCameraController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mcctv-cameras/create[39m[38;2;108;114;128m cctv-cameras.create › CctvCameraControl…[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mcctv-cameras/[39m[33m{cctv_camera}[39m[38;2;108;114;128m cctv-cameras.update › CctvCamera…[39m
+  [31mDELETE[39m          [37mcctv-cameras/[39m[33m{cctv_camera}[39m[38;2;108;114;128m cctv-cameras.destroy › CctvCamer…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mcctv-cameras/[39m[33m{cctv_camera}[39m[37m/edit[39m[38;2;108;114;128m cctv-cameras.edit › CctvCam…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mcomplaint-categories[39m[38;2;108;114;128m complaint-categories.index › Complaint…[39m
+  [33mPOST[39m            [37mcomplaint-categories[39m[38;2;108;114;128m complaint-categories.store › Complaint…[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mcomplaint-categories/[39m[33m{complaint_category}[39m[38;2;108;114;128m complaint-categor…[39m
+  [31mDELETE[39m          [37mcomplaint-categories/[39m[33m{complaint_category}[39m[38;2;108;114;128m complaint-categor…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mcomplaints[39m[38;2;108;114;128m .... complaints.index › ComplaintController@index[39m
+  [33mPOST[39m            [37mcomplaints[39m[38;2;108;114;128m .... complaints.store › ComplaintController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mcomplaints/create[39m[38;2;108;114;128m complaints.create › ComplaintController@c…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mcomplaints/[39m[33m{complaint}[39m[38;2;108;114;128m complaints.show › ComplaintControlle…[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mcomplaints/[39m[33m{complaint}[39m[38;2;108;114;128m complaints.update › ComplaintControl…[39m
+  [31mDELETE[39m          [37mcomplaints/[39m[33m{complaint}[39m[38;2;108;114;128m complaints.destroy › ComplaintContro…[39m
+  [33mPOST[39m            [37mcomplaints/[39m[33m{complaint}[39m[37m/assign[39m[38;2;108;114;128m complaints.assign › Complaint…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mcomplaints/[39m[33m{complaint}[39m[37m/edit[39m[38;2;108;114;128m complaints.edit › ComplaintCont…[39m
+  [33mPOST[39m            [37mcomplaints/[39m[33m{complaint}[39m[37m/transition[39m[38;2;108;114;128m complaints.transition › C…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mconfirm-password[39m[38;2;108;114;128m password.confirm › Auth\ConfirmablePasswor…[39m
+  [33mPOST[39m            [37mconfirm-password[39m[38;2;108;114;128m .. Auth\ConfirmablePasswordController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mdocuments[39m[38;2;108;114;128m documents.index › DocumentRepositoryController@in…[39m
+  [33mPOST[39m            [37mdocuments[39m[38;2;108;114;128m documents.store › DocumentRepositoryController@st…[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mdocuments/[39m[33m{document}[39m[38;2;108;114;128m documents.update › DocumentRepositoryC…[39m
+  [31mDELETE[39m          [37mdocuments/[39m[33m{document}[39m[38;2;108;114;128m documents.destroy › DocumentRepository…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mdocuments/[39m[33m{document}[39m[37m/download[39m[38;2;108;114;128m documents.download › Document…[39m
+  [33mPOST[39m            [37memail/verification-notification[39m[38;2;108;114;128m verification.send › Auth\Em…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mflats[39m[38;2;108;114;128m ................... flats.index › FlatController@index[39m
+  [33mPOST[39m            [37mflats[39m[38;2;108;114;128m ................... flats.store › FlatController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mflats/create[39m[38;2;108;114;128m .......... flats.create › FlatController@create[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mflats/[39m[33m{flat}[39m[38;2;108;114;128m .......... flats.update › FlatController@update[39m
+  [31mDELETE[39m          [37mflats/[39m[33m{flat}[39m[38;2;108;114;128m ........ flats.destroy › FlatController@destroy[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mflats/[39m[33m{flat}[39m[37m/edit[39m[38;2;108;114;128m ......... flats.edit › FlatController@edit[39m
+  [33mPOST[39m            [37mflats/[39m[33m{flat}[39m[37m/restore[39m[38;2;108;114;128m flats.restore › FlatController@restore[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mforgot-password[39m[38;2;108;114;128m password.request › Auth\PasswordResetLinkCo…[39m
+  [33mPOST[39m            [37mforgot-password[39m[38;2;108;114;128m password.email › Auth\PasswordResetLinkCont…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37minvoices[39m[38;2;108;114;128m .......... invoices.index › InvoiceController@index[39m
+  [33mPOST[39m            [37minvoices[39m[38;2;108;114;128m .......... invoices.store › InvoiceController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37minvoices/create[39m[38;2;108;114;128m . invoices.create › InvoiceController@create[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37minvoices/[39m[33m{invoice}[39m[38;2;108;114;128m .. invoices.show › InvoiceController@show[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37minvoices/[39m[33m{invoice}[39m[38;2;108;114;128m invoices.update › InvoiceController@upda…[39m
+  [31mDELETE[39m          [37minvoices/[39m[33m{invoice}[39m[38;2;108;114;128m invoices.destroy › InvoiceController@des…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37minvoices/[39m[33m{invoice}[39m[37m/edit[39m[38;2;108;114;128m invoices.edit › InvoiceController@e…[39m
+  [33mPOST[39m            [37mlanguage/switch[39m[38;2;108;114;128m ......... language.switch › LocaleController[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mlogin[39m[38;2;108;114;128m ... login › Auth\AuthenticatedSessionController@create[39m
+  [33mPOST[39m            [37mlogin[39m[38;2;108;114;128m ............ Auth\AuthenticatedSessionController@store[39m
+  [33mPOST[39m            [37mlogout[39m[38;2;108;114;128m logout › Auth\AuthenticatedSessionController@destroy[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mnotices[39m[38;2;108;114;128m ............. notices.index › NoticeController@index[39m
+  [33mPOST[39m            [37mnotices[39m[38;2;108;114;128m ............. notices.store › NoticeController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mnotices/create[39m[38;2;108;114;128m .... notices.create › NoticeController@create[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mnotices/[39m[33m{notice}[39m[38;2;108;114;128m .. notices.update › NoticeController@update[39m
+  [31mDELETE[39m          [37mnotices/[39m[33m{notice}[39m[38;2;108;114;128m notices.destroy › NoticeController@destroy[39m
+  [33mPOST[39m            [37mnotices/[39m[33m{notice}[39m[37m/acknowledge[39m[38;2;108;114;128m notices.acknowledge › NoticeCo…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mnotices/[39m[33m{notice}[39m[37m/edit[39m[38;2;108;114;128m . notices.edit › NoticeController@edit[39m
+  [33mPOST[39m            [37mnotices/[39m[33m{notice}[39m[37m/toggle-pin[39m[38;2;108;114;128m notices.toggle-pin › NoticeCont…[39m
+  [33mPOST[39m            [37mnotifications/read-all[39m[38;2;108;114;128m notifications.read-all › Notificatio…[39m
+  [33mPOST[39m            [37mnotifications/[39m[33m{notification}[39m[37m/read[39m[38;2;108;114;128m notifications.read › Noti…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37moverview[39m[38;2;108;114;128m .............. overview › DashboardController@index[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mparking-slots[39m[38;2;108;114;128m parking-slots.index › ParkingSlotController@i…[39m
+  [33mPOST[39m            [37mparking-slots[39m[38;2;108;114;128m parking-slots.store › ParkingSlotController@s…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mparking-slots/create[39m[38;2;108;114;128m parking-slots.create › ParkingSlotCont…[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mparking-slots/[39m[33m{parking_slot}[39m[38;2;108;114;128m parking-slots.update › Parking…[39m
+  [31mDELETE[39m          [37mparking-slots/[39m[33m{parking_slot}[39m[38;2;108;114;128m parking-slots.destroy › Parkin…[39m
+  [33mPOST[39m            [37mparking-slots/[39m[33m{parking_slot}[39m[37m/allocate[39m[38;2;108;114;128m parking-slots.allocat…[39m
+  [33mPOST[39m            [37mparking-slots/[39m[33m{parking_slot}[39m[37m/deallocate[39m[38;2;108;114;128m parking-slots.deall…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mparking-slots/[39m[33m{parking_slot}[39m[37m/edit[39m[38;2;108;114;128m parking-slots.edit › Park…[39m
+  [33mPUT[39m             [37mpassword[39m[38;2;108;114;128m .. password.update › Auth\PasswordController@update[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mpayments[39m[38;2;108;114;128m .......... payments.index › PaymentController@index[39m
+  [33mPOST[39m            [37mpayments[39m[38;2;108;114;128m .......... payments.store › PaymentController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mpayments/[39m[33m{payment}[39m[37m/receipt[39m[38;2;108;114;128m payments.receipt › PaymentContro…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mplans[39m[38;2;108;114;128m ....... plans.index › SubscriptionPlanController@index[39m
+  [33mPOST[39m            [37mplans[39m[38;2;108;114;128m ....... plans.store › SubscriptionPlanController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mplans/create[39m[38;2;108;114;128m plans.create › SubscriptionPlanController@crea…[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mplans/[39m[33m{plan}[39m[38;2;108;114;128m plans.update › SubscriptionPlanController@upda…[39m
+  [31mDELETE[39m          [37mplans/[39m[33m{plan}[39m[38;2;108;114;128m plans.destroy › SubscriptionPlanController@des…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mplans/[39m[33m{plan}[39m[37m/edit[39m[38;2;108;114;128m plans.edit › SubscriptionPlanController@e…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mprofile[39m[38;2;108;114;128m .............. profile.edit › ProfileController@edit[39m
+  [33mPATCH[39m           [37mprofile[39m[38;2;108;114;128m .......... profile.update › ProfileController@update[39m
+  [31mDELETE[39m          [37mprofile[39m[38;2;108;114;128m ........ profile.destroy › ProfileController@destroy[39m
+  [33mPOST[39m            [37mpush/subscribe[39m[38;2;108;114;128m push.subscribe › PushSubscriptionController@…[39m
+  [33mPOST[39m            [37mpush/unsubscribe[39m[38;2;108;114;128m push.unsubscribe › PushSubscriptionControl…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mregister[39m[38;2;108;114;128m ... register › Auth\RegisteredUserController@create[39m
+  [33mPOST[39m            [37mregister[39m[38;2;108;114;128m ............... Auth\RegisteredUserController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mregister/invitation/[39m[33m{token}[39m[38;2;108;114;128m invitations.register › UserInvi…[39m
+  [33mPOST[39m            [37mregister/invitation/[39m[33m{token}[39m[38;2;108;114;128m invitations.accept › UserInvita…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mreports[39m[38;2;108;114;128m ............. reports.index › ReportController@index[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mreports/export[39m[38;2;108;114;128m .... reports.export › ReportController@export[39m
+  [33mPOST[39m            [37mreset-password[39m[38;2;108;114;128m password.store › Auth\NewPasswordController@…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mreset-password/[39m[33m{token}[39m[38;2;108;114;128m password.reset › Auth\NewPasswordCon…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mresidents[39m[38;2;108;114;128m ....... residents.index › ResidentController@index[39m
+  [33mPOST[39m            [37mresidents[39m[38;2;108;114;128m ....... residents.store › ResidentController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mresidents/create[39m[38;2;108;114;128m residents.create › ResidentController@crea…[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mresidents/[39m[33m{resident}[39m[38;2;108;114;128m residents.update › ResidentController@…[39m
+  [31mDELETE[39m          [37mresidents/[39m[33m{resident}[39m[38;2;108;114;128m residents.destroy › ResidentController…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mresidents/[39m[33m{resident}[39m[37m/edit[39m[38;2;108;114;128m residents.edit › ResidentControll…[39m
+  [33mPOST[39m            [37mresidents/[39m[33m{resident}[39m[37m/family-members[39m[38;2;108;114;128m residents.family-member…[39m
+  [33mPUT[39m             [37mresidents/[39m[33m{resident}[39m[37m/family-members/[39m[33m{familyMember}[39m[38;2;108;114;128m resident…[39m
+  [31mDELETE[39m          [37mresidents/[39m[33m{resident}[39m[37m/family-members/[39m[33m{familyMember}[39m[38;2;108;114;128m resident…[39m
+  [33mPOST[39m            [37mresidents/[39m[33m{resident}[39m[37m/vehicles[39m[38;2;108;114;128m residents.vehicles.store › Ve…[39m
+  [33mPUT[39m             [37mresidents/[39m[33m{resident}[39m[37m/vehicles/[39m[33m{vehicle}[39m[38;2;108;114;128m residents.vehicles.…[39m
+  [31mDELETE[39m          [37mresidents/[39m[33m{resident}[39m[37m/vehicles/[39m[33m{vehicle}[39m[38;2;108;114;128m residents.vehicles.…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mroles[39m[38;2;108;114;128m ................... roles.index › RoleController@index[39m
+  [33mPOST[39m            [37mroles[39m[38;2;108;114;128m ................... roles.store › RoleController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mroles/create[39m[38;2;108;114;128m .......... roles.create › RoleController@create[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mroles/[39m[33m{role}[39m[38;2;108;114;128m .......... roles.update › RoleController@update[39m
+  [31mDELETE[39m          [37mroles/[39m[33m{role}[39m[38;2;108;114;128m ........ roles.destroy › RoleController@destroy[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mroles/[39m[33m{role}[39m[37m/edit[39m[38;2;108;114;128m ......... roles.edit › RoleController@edit[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37msanctum/csrf-cookie[39m[38;2;108;114;128m sanctum.csrf-cookie › Laravel\Sanctum  …[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37msecurity-logs[39m[38;2;108;114;128m security-logs.index › SecurityLogController@i…[39m
+  [33mPOST[39m            [37msecurity-logs[39m[38;2;108;114;128m security-logs.store › SecurityLogController@s…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37msocieties[39m[38;2;108;114;128m ........ societies.index › SocietyController@index[39m
+  [33mPOST[39m            [37msocieties[39m[38;2;108;114;128m ........ societies.store › SocietyController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37msocieties/create[39m[38;2;108;114;128m societies.create › SocietyController@create[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37msocieties/[39m[33m{society}[39m[38;2;108;114;128m societies.show › SocietyController@show[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37msocieties/[39m[33m{society}[39m[38;2;108;114;128m societies.update › SocietyController@up…[39m
+  [31mDELETE[39m          [37msocieties/[39m[33m{society}[39m[38;2;108;114;128m societies.destroy › SocietyController@d…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37msocieties/[39m[33m{society}[39m[37m/edit[39m[38;2;108;114;128m societies.edit › SocietyController…[39m
+  [33mPOST[39m            [37msociety/switch[39m[38;2;108;114;128m .... society.switch › SocietySwitchController[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mstorage/[39m[33m{path}[39m[38;2;108;114;128m storage.local › vendor/laravel/framework/src…[39m
+  [33mPUT[39m             [37mstorage/[39m[33m{path}[39m[38;2;108;114;128m storage.local.upload › vendor/laravel/framew…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37msubscription[39m[38;2;108;114;128m subscription.show › SubscriptionController@show[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37msubscription/usage[39m[38;2;108;114;128m subscription.usage › SubscriptionUsageCo…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37msubscriptions[39m[38;2;108;114;128m subscriptions.index › SubscriptionController@…[39m
+  [33mPOST[39m            [37msubscriptions/[39m[33m{society}[39m[37m/assign[39m[38;2;108;114;128m subscriptions.assign › Subsc…[39m
+  [33mPOST[39m            [37msubscriptions/[39m[33m{subscription}[39m[37m/cancel[39m[38;2;108;114;128m subscriptions.cancel › …[39m
+  [33mPOST[39m            [37msubscriptions/[39m[33m{subscription}[39m[37m/resume[39m[38;2;108;114;128m subscriptions.resume › …[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mtowers[39m[38;2;108;114;128m ................ towers.index › TowerController@index[39m
+  [33mPOST[39m            [37mtowers[39m[38;2;108;114;128m ................ towers.store › TowerController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mtowers/create[39m[38;2;108;114;128m ....... towers.create › TowerController@create[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mtowers/[39m[33m{tower}[39m[38;2;108;114;128m ...... towers.update › TowerController@update[39m
+  [31mDELETE[39m          [37mtowers/[39m[33m{tower}[39m[38;2;108;114;128m .... towers.destroy › TowerController@destroy[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mtowers/[39m[33m{tower}[39m[37m/edit[39m[38;2;108;114;128m ..... towers.edit › TowerController@edit[39m
+  [33mPOST[39m            [37mtowers/[39m[33m{tower}[39m[37m/restore[39m[38;2;108;114;128m towers.restore › TowerController@res…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mup[39m[38;2;108;114;128m vendor/laravel/framework/src/Illuminate/Foundation/Confi…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37musers[39m[38;2;108;114;128m ................... users.index › UserController@index[39m
+  [33mPOST[39m            [37musers[39m[38;2;108;114;128m ................... users.store › UserController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37musers/create[39m[38;2;108;114;128m .......... users.create › UserController@create[39m
+  [33mPOST[39m            [37musers/invite[39m[38;2;108;114;128m .......... users.invite › UserController@invite[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37musers/[39m[33m{user}[39m[38;2;108;114;128m .......... users.update › UserController@update[39m
+  [31mDELETE[39m          [37musers/[39m[33m{user}[39m[38;2;108;114;128m ........ users.destroy › UserController@destroy[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37musers/[39m[33m{user}[39m[37m/edit[39m[38;2;108;114;128m ......... users.edit › UserController@edit[39m
+  [33mPOST[39m            [37musers/[39m[33m{user}[39m[37m/restore[39m[38;2;108;114;128m users.restore › UserController@restore[39m
+  [33mPOST[39m            [37musers/[39m[33m{user}[39m[37m/toggle-status[39m[38;2;108;114;128m users.toggle-status › UserContro…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mverify-email[39m[38;2;108;114;128m verification.notice › Auth\EmailVerificationPr…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mverify-email/[39m[33m{id}[39m[37m/[39m[33m{hash}[39m[38;2;108;114;128m verification.verify › Auth\VerifyE…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mvisitors[39m[38;2;108;114;128m .......... visitors.index › VisitorController@index[39m
+  [33mPOST[39m            [37mvisitors[39m[38;2;108;114;128m .......... visitors.store › VisitorController@store[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mvisitors/create[39m[38;2;108;114;128m . visitors.create › VisitorController@create[39m
+  [33mPUT[39m[38;2;108;114;128m|[39m[33mPATCH[39m       [37mvisitors/[39m[33m{visitor_pass}[39m[38;2;108;114;128m visitors.update › VisitorController…[39m
+  [31mDELETE[39m          [37mvisitors/[39m[33m{visitor_pass}[39m[38;2;108;114;128m visitors.destroy › VisitorControlle…[39m
+  [33mPOST[39m            [37mvisitors/[39m[33m{visitor_pass}[39m[37m/approve[39m[38;2;108;114;128m visitors.approve › VisitorC…[39m
+  [33mPOST[39m            [37mvisitors/[39m[33m{visitor_pass}[39m[37m/check-in[39m[38;2;108;114;128m visitors.check-in › Visito…[39m
+  [33mPOST[39m            [37mvisitors/[39m[33m{visitor_pass}[39m[37m/check-out[39m[38;2;108;114;128m visitors.check-out › Visi…[39m
+  [34mGET[39m[38;2;108;114;128m|[39m[38;2;108;114;128mHEAD[39m        [37mvisitors/[39m[33m{visitor_pass}[39m[37m/edit[39m[38;2;108;114;128m visitors.edit › VisitorControl…[39m
+  [33mPOST[39m            [37mvisitors/[39m[33m{visitor_pass}[39m[37m/reject[39m[38;2;108;114;128m visitors.reject › VisitorCon…[39m
+
+                                                          [34;1mShowing [182] routes[39;22m
+

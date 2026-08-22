@@ -94,12 +94,20 @@ export function FamilyMemberSection({ residentUuid, members }: Props) {
                     editing.uuid,
                 ]),
                 {
-                    onSuccess: () => setOpen(false),
+                    onSuccess: () => {
+                        reset();
+                        setEditing(null);
+                        setOpen(false);
+                    },
                 },
             );
         } else {
             post(route("residents.family-members.store", residentUuid), {
-                onSuccess: () => setOpen(false),
+                onSuccess: () => {
+                    reset();
+                    clearErrors();
+                    setOpen(false);
+                },
             });
         }
     };

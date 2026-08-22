@@ -148,8 +148,9 @@ class FlatController extends Controller
     /**
      * Restore a soft-deleted flat.
      */
-    public function restore(Request $request, Flat $flat): RedirectResponse
+    public function restore(Request $request, int $id): RedirectResponse
     {
+        $flat = Flat::withTrashed()->findOrFail($id);
         $this->authorize('restore', $flat);
 
         $flat->restore();

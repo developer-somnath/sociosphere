@@ -24,7 +24,7 @@ type ComplaintDetail = {
     status: string;
     category_id: number;
     assigned_to: number | null;
-    flat?: { id: number; flat_number: string; tower?: { id: number; name: string } };
+    flat?: { id: number; flat_no: string; tower?: { id: number; name: string } };
     resident?: { id: number; name: string };
     category?: CategoryOption;
     assignee?: StaffUser;
@@ -61,7 +61,7 @@ export default function ComplaintEdit() {
 
             <PageHeader
                 title={t("complaintForm.editTitle")}
-                description={`#${complaint.id} · ${complaint.flat?.flat_number ?? ""} ${complaint.flat?.tower ? `(${complaint.flat.tower.name})` : ""}`}
+                description={`#${complaint.id} · ${complaint.flat?.flat_no ?? ""} ${complaint.flat?.tower ? `(${complaint.flat.tower.name})` : ""}`}
                 icon={<MessageSquareWarning className="size-5" />}
                 actions={
                     <Button variant="outline" asChild>

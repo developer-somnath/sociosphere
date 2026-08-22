@@ -33,7 +33,7 @@ type ComplaintDetail = {
     created_at: string;
     updated_at: string;
     resolved_at: string | null;
-    flat?: { id: number; flat_number: string; tower?: { id: number; name: string } };
+    flat?: { id: number; flat_no: string; tower?: { id: number; name: string } };
     resident?: { id: number; name: string };
     category?: { id: number; name: string };
     assignee?: { id: number; name: string; email: string };
@@ -205,7 +205,7 @@ export default function ComplaintShow() {
                                     <div>
                                         <p className="text-xs font-medium text-muted-foreground">{t("complaints.flatTower")}</p>
                                         <p className="text-sm text-foreground">
-                                            {complaint.flat?.flat_number ?? "—"}
+                                            {complaint.flat?.flat_no ?? "—"}
                                             {complaint.flat?.tower ? ` · ${complaint.flat.tower.name}` : ""}
                                         </p>
                                     </div>

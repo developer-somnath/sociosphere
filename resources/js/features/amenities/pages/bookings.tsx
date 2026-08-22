@@ -29,7 +29,7 @@ import { t, useI18n } from "@/lib/i18n";
 import type { PageProps } from "@/types";
 
 type AmenityOption = { id: number; name: string };
-type FlatOption = { id: number; flat_number: string; tower?: { id: number; name: string } };
+type FlatOption = { id: number; flat_no: string; tower?: { id: number; name: string } };
 type ResidentOption = { id: number; name: string; flat_id: number };
 
 type BookingItem = {
@@ -46,7 +46,7 @@ type BookingItem = {
     remarks: string | null;
     created_at: string;
     amenity?: { id: number; name: string };
-    flat?: { id: number; flat_number: string; tower?: { id: number; name: string } };
+    flat?: { id: number; flat_no: string; tower?: { id: number; name: string } };
     resident?: { id: number; name: string };
 };
 
@@ -197,22 +197,22 @@ export default function AmenityBookingsIndex() {
         });
     };
 
-    const handleApprove = (id: number) => {
-        router.post(route("amenity-bookings.approve", id));
+    const handleApprove = (uuid: string) => {
+        router.post(route("amenity-bookings.approve", uuid));
     };
 
-    const handleReject = (id: number) => {
-        router.post(route("amenity-bookings.reject", id));
+    const handleReject = (uuid: string) => {
+        router.post(route("amenity-bookings.reject", uuid));
     };
 
-    const handleCancel = (id: number) => {
-        const booking = bookings.data.find((b) => b.id === id) ?? null;
+    const handleCancel = (uuid: string) => {
+        const booking = bookings.data.find((b) => b.uuid === uuid) ?? null;
         setCancellingBooking(booking);
     };
 
     const confirmCancel = () => {
         if (!cancellingBooking) return;
-        router.post(route("amenity-bookings.cancel", cancellingBooking.id), {}, {
+        router.post(route("amenity-bookings.cancel", cancellingBooking.uuid), {}, {
             onFinish: () => setCancellingBooking(null),
         });
     };
@@ -236,7 +236,7 @@ export default function AmenityBookingsIndex() {
                             {b.amenity?.name ?? "—"}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                            {t("amenityBookings.flat")} {b.flat?.flat_number ?? "—"} ({b.resident?.name ?? "—"})
+                            {t("amenityBookings.flat")} {b.flat?.flat_no ?? "—"} ({b.resident?.name ?? "—"})
                         </span>
                     </div>
                 ),
@@ -292,7 +292,7 @@ export default function AmenityBookingsIndex() {
                                     size="sm"
                                     variant="outline"
                                     className="h-7 text-xs text-brand hover:text-brand dark:text-brand"
-                                    onClick={() => handleApprove(b.id)}
+                                    onClick={() => handleApprove(b.uuid)}
                                 >
                                     {t("amenityBookings.approve")}
                                 </Button>
@@ -300,7 +300,7 @@ export default function AmenityBookingsIndex() {
                                     size="sm"
                                     variant="outline"
                                     className="h-7 text-xs text-destructive hover:text-destructive"
-                                    onClick={() => handleReject(b.id)}
+                                    onClick={() => handleReject(b.uuid)}
                                 >
                                     {t("amenityBookings.reject")}
                                 </Button>
@@ -311,7 +311,7 @@ export default function AmenityBookingsIndex() {
                                 size="sm"
                                 variant="ghost"
                                 className="h-7 text-xs text-muted-foreground hover:text-foreground"
-                                onClick={() => handleCancel(b.id)}
+                                onClick={() => handleCancel(b.uuid)}
                             >
                                 {t("common.cancel")}
                             </Button>
@@ -491,7 +491,7 @@ export default function AmenityBookingsIndex() {
                             <Combobox
                                 items={flats.map((f) => ({
                                     value: String(f.id),
-                                    label: `${f.flat_number}${f.tower ? ` (${f.tower.name})` : ""}`,
+                                    label: `${f.flat_no}${f.tower ? ` (${f.tower.name})` : ""}`,
                                 }))}
                                 value={form.data.flat_id}
                                 onValueChange={(value) => {

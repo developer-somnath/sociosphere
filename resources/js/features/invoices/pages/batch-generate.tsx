@@ -154,7 +154,7 @@ export default function BatchGenerate() {
                 title="Auto-Billing Engine"
                 description="Preview, exclude, and run batch maintenance invoice generation."
                 icon={<CalendarCog className="size-5" />}
-                breadcrumbs={[{ label: t("nav.finance") }, { label: "Batch Generate" }]}
+                breadcrumbs={[{ label: t("nav.finance") }, { label: t("invoices.batchGenerateCrumb") }]}
                 actions={
                     can.configure ? (
                         <Button variant="outline" size="sm" asChild>

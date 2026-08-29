@@ -76,12 +76,12 @@ export default function PlanCreate() {
 
             <PageHeader
                 title={t("plans.createTitle")}
-                description="Define a new plan tier with pricing and resource entitlement limits."
+                description={t("plans.createDescription")}
                 icon={<Receipt className="size-5" />}
                 breadcrumbs={[
-                    { label: "Subscription" },
-                    { label: "Plans", href: route("plans.index") },
-                    { label: "Create Plan" },
+                    { label: t("nav.subscription") },
+                    { label: t("nav.plans"), href: route("plans.index") },
+                    { label: t("plans.createTitle") },
                 ]}
                 actions={
                     <BackButton routeName="plans.index" label={t("subscription.backToOverview")} />
@@ -91,13 +91,13 @@ export default function PlanCreate() {
             <form onSubmit={handleSubmit} className="space-y-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Plan Details</CardTitle>
+                        <CardTitle className="text-base">{t("plans.detailsTitle")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <FormSection title={t("plans.pricingTitle")} description={t("plans.pricingDescription")}>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="name">Plan Name *</Label>
+                                    <Label htmlFor="name">{t("plans.nameLabel")} *</Label>
                                     <Input
                                         id="name"
                                         value={form.data.name}
@@ -108,7 +108,7 @@ export default function PlanCreate() {
                                     {form.errors.name && <p className="text-xs text-destructive">{form.errors.name}</p>}
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="code">Plan Code *</Label>
+                                    <Label htmlFor="code">{t("plans.codeLabel")} *</Label>
                                     <Input
                                         id="code"
                                         value={form.data.code}
@@ -119,7 +119,7 @@ export default function PlanCreate() {
                                     {form.errors.code && <p className="text-xs text-destructive">{form.errors.code}</p>}
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="price_monthly">Monthly Price (₹) *</Label>
+                                    <Label htmlFor="price_monthly">{t("plans.monthlyLabel")} *</Label>
                                     <Input
                                         id="price_monthly"
                                         type="number"
@@ -132,7 +132,7 @@ export default function PlanCreate() {
                                     {form.errors.price_monthly && <p className="text-xs text-destructive">{form.errors.price_monthly}</p>}
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="price_yearly">Yearly Price (₹) *</Label>
+                                    <Label htmlFor="price_yearly">{t("plans.yearlyLabel")} *</Label>
                                     <Input
                                         id="price_yearly"
                                         type="number"
@@ -145,7 +145,7 @@ export default function PlanCreate() {
                                     {form.errors.price_yearly && <p className="text-xs text-destructive">{form.errors.price_yearly}</p>}
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="currency">Currency *</Label>
+                                    <Label htmlFor="currency">{t("plans.currencyLabel")} *</Label>
                                     <Input
                                         id="currency"
                                         value={form.data.currency}
@@ -156,7 +156,7 @@ export default function PlanCreate() {
                                     {form.errors.currency && <p className="text-xs text-destructive">{form.errors.currency}</p>}
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="sort_order">Sort Order</Label>
+                                    <Label htmlFor="sort_order">{t("plans.sortOrderLabel")}</Label>
                                     <Input
                                         id="sort_order"
                                         type="number"
@@ -168,7 +168,7 @@ export default function PlanCreate() {
                             </div>
 
                             <div className="mt-4 space-y-1.5">
-                                <Label htmlFor="description">Description</Label>
+                                <Label htmlFor="description">{t("plans.descriptionLabel")}</Label>
                                 <textarea
                                     id="description"
                                     value={form.data.description}
@@ -185,14 +185,14 @@ export default function PlanCreate() {
                                         checked={form.data.is_active}
                                         onCheckedChange={(v) => form.setData("is_active", Boolean(v))}
                                     />
-                                    Active plan
+                                    {t("plans.activeLabel")}
                                 </label>
                                 <label className="flex items-center gap-2 text-sm">
                                     <Checkbox
                                         checked={form.data.is_default}
                                         onCheckedChange={(v) => form.setData("is_default", Boolean(v))}
                                     />
-                                    Default plan (fallback when no subscription exists)
+                                    {t("plans.defaultLabel")}
                                 </label>
                             </div>
                         </FormSection>
@@ -201,23 +201,23 @@ export default function PlanCreate() {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between gap-3">
-                        <CardTitle className="text-base">Resource Entitlements</CardTitle>
+                        <CardTitle className="text-base">{t("plans.entitlementsTitle")}</CardTitle>
                         <Button type="button" variant="outline" size="sm" onClick={addFeature} disabled={availableKeys.length === 0}>
                             <Plus className="size-4" />
-                            Add Resource
+                            {t("plans.addResource")}
                         </Button>
                     </CardHeader>
                     <CardContent>
                         {form.data.features.length === 0 ? (
                             <p className="text-sm text-muted-foreground">
-                                No resource limits yet — add resources to define entitlement caps. Leave the limit blank for unlimited.
+                                {t("plans.noResources")}
                             </p>
                         ) : (
                             <div className="space-y-3">
                                 {form.data.features.map((feature, index) => (
                                     <div key={index} className="grid gap-3 rounded-xl border border-border/60 p-3 sm:grid-cols-[1fr_180px_auto] sm:items-end">
                                         <div className="space-y-1.5">
-                                            <Label>Resource</Label>
+                                            <Label>{t("plans.resourceLabel")}</Label>
                                             <select
                                                 value={feature.feature_key}
                                                 onChange={(e) => updateFeature(index, { feature_key: e.target.value })}
@@ -231,7 +231,7 @@ export default function PlanCreate() {
                                             </select>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <Label>Limit (blank = unlimited)</Label>
+                                            <Label>{t("plans.limitLabel")}</Label>
                                             <Input
                                                 type="number"
                                                 min="0"
@@ -253,10 +253,10 @@ export default function PlanCreate() {
 
                 <div className="flex justify-end gap-2">
                     <Button variant="outline" type="button" asChild>
-                        <Link href={route("plans.index")}>Cancel</Link>
+                        <Link href={route("plans.index")}>{t("notices.cancel")}</Link>
                     </Button>
                     <Button type="submit" disabled={form.processing}>
-                        Create Plan
+                        {t("plans.createSubmit")}
                     </Button>
                 </div>
             </form>

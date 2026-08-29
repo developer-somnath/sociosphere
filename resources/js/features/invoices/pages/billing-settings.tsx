@@ -58,7 +58,7 @@ export default function BillingSettings() {
                 title={t("billing.settingsTitle")}
                 description="Configure maintenance rates, due dates and penalty policy."
                 icon={<Settings2 className="size-5" />}
-                breadcrumbs={[{ label: t("nav.finance") }, { label: "Billing Settings" }]}
+                breadcrumbs={[{ label: t("nav.finance") }, { label: t("billing.settingsCrumb") }]}
                 actions={
                     <BackButton routeName="billing.preview" label={t("billing.backToEngine")} />
                 }

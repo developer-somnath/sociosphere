@@ -102,7 +102,7 @@ export default function SubscriptionOverview() {
                 title={t("subscription.overviewTitle")}
                 description="Your society plan, billing cycle and resource entitlements."
                 icon={<Sparkles className="size-5" />}
-                breadcrumbs={[{ label: t("nav.subscription") }, { label: "Overview" }]}
+                breadcrumbs={[{ label: t("nav.subscription") }, { label: t("subscription.overviewCrumb") }]}
                 actions={
                     <Button variant="outline" size="sm" asChild>
                         <Link href={route("subscription.usage")}>

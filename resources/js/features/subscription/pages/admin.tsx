@@ -162,7 +162,7 @@ export default function SubscriptionAdmin() {
                 title={t("subscription.adminTitle")}
                 description="Assign and manage subscription plans across all societies."
                 icon={<Settings2 className="size-5" />}
-                breadcrumbs={[{ label: t("nav.subscription") }, { label: "Admin" }]}
+                breadcrumbs={[{ label: t("nav.subscription") }, { label: t("subscription.adminCrumb") }]}
             />
 
             <Card>

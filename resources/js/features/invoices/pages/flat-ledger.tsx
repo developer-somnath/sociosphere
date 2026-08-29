@@ -121,7 +121,7 @@ export default function FlatLedger() {
                 title={t("invoices.flatLedgerTitle")}
                 description="Financial statement — invoices, payments and outstanding balance per flat."
                 icon={<BookOpenText className="size-5" />}
-                breadcrumbs={[{ label: t("nav.finance") }, { label: "Flat Ledger" }]}
+                breadcrumbs={[{ label: t("nav.finance") }, { label: t("invoices.flatLedgerCrumb") }]}
             />
 
             <Card>

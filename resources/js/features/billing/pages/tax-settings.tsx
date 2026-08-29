@@ -138,7 +138,7 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
 
     return (
         <AppLayout>
-            <Head title="Tax Settings — SocioSphere" />
+            <Head title={t("taxSettings.headTitle")} />
 
             <div className="space-y-6">
                 {/* Header Title */}
@@ -146,14 +146,14 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
                     <div>
                         <div className="flex items-center gap-2">
                             <h2 className="text-xl font-bold tracking-tight text-foreground">
-                                Global Tax & Regional Compliance
+                                {t("taxSettings.pageTitle")}
                             </h2>
                             <Badge className="bg-brand/10 text-brand dark:text-brand border-brand/20 font-mono text-[10px]">
                                 Orca v2.2.0 Engine
                             </Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                            Configure regional tax schemes (GST, VAT, Sales Tax), rounding rules, and automated invoice tax breakdowns.
+                            {t("taxSettings.pageSubtitle")}
                         </p>
                     </div>
 
@@ -164,7 +164,7 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
                             className="rounded-xl gap-1.5 bg-brand hover:bg-brand text-white font-semibold text-xs shadow-xs"
                         >
                             <Plus className="size-3.5" />
-                            <span>Add Tax Rate</span>
+                            <span>{t("taxSettings.addRate")}</span>
                         </Button>
                     </div>
                 </div>
@@ -177,7 +177,7 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
                                 <Receipt className="size-5" />
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground font-medium">Active Tax Scheme</p>
+                                <p className="text-xs text-muted-foreground font-medium">{t("taxSettings.activeScheme")}</p>
                                 <div className="flex items-center gap-1.5 mt-0.5">
                                     <span className="text-lg font-bold text-foreground">{profile.tax_scheme}</span>
                                     <Badge variant="outline" className="text-[10px] uppercase font-bold">
@@ -194,9 +194,9 @@ export default function TaxSettingsPage({ profile, schemes, roundingModes }: Pro
                                 <ShieldCheck className="size-5" />
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground font-medium">Registration / GSTIN</p>
+                                <p className="text-xs text-muted-foreground font-medium">{t("taxSettings.registration")}</p>
                                 <p className="text-sm font-mono font-bold text-foreground mt-0.5 truncate max-w-[180px]">
-                                    {profile.tax_registration_no || "Unregistered"}
+                                    {profile.tax_registration_no || t("taxSettings.unregistered")}
                                 </p>
                             </div>
                         </CardContent>

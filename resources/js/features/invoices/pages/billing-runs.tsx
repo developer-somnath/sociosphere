@@ -88,7 +88,7 @@ export default function BillingRuns() {
                 title={t("billing.runsTitle")}
                 description="Every auto-billing run executed for this society."
                 icon={<History className="size-5" />}
-                breadcrumbs={[{ label: t("nav.finance") }, { label: "Run History" }]}
+                breadcrumbs={[{ label: t("nav.finance") }, { label: t("billing.runsCrumb") }]}
                 actions={
                     <BackButton routeName="billing.preview" label={t("billing.backToEngine")} />
                 }

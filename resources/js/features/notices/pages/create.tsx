@@ -36,12 +36,12 @@ export default function NoticeCreate() {
 
             <PageHeader
                 title={t("notices.createTitle")}
-                description="Create an announcement for residents, owners, or tenants."
+                description={t("notices.createDescription")}
                 icon={<Megaphone className="size-5" />}
                 breadcrumbs={[
-                    { label: "Communications", href: "/dashboard" },
-                    { label: "Notices", href: route("notices.index") },
-                    { label: "Publish Notice" },
+                    { label: t("nav.communications"), href: "/dashboard" },
+                    { label: t("notices.title"), href: route("notices.index") },
+                    { label: t("notices.createTitle") },
                 ]}
                 actions={
                     <BackButton routeName="notices.index" />
@@ -50,7 +50,7 @@ export default function NoticeCreate() {
 
             <Card className="mx-auto max-w-2xl border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
                 <CardHeader>
-                    <CardTitle>Notice Details</CardTitle>
+                    <CardTitle>{t("notices.detailsTitle")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -70,7 +70,7 @@ export default function NoticeCreate() {
 
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
-                                    <Label>Category</Label>
+                                    <Label>{t("notices.categoryLabel")}</Label>
                                     <Input
                                         value={form.data.category}
                                         onChange={(e) => form.setData("category", e.target.value)}
@@ -82,7 +82,7 @@ export default function NoticeCreate() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label>Target Audience *</Label>
+                                    <Label>{t("notices.targetAudienceLabel")} *</Label>
                                     <Combobox
                                         items={[
                                             { value: "All", label: "All Residents" },
@@ -103,7 +103,7 @@ export default function NoticeCreate() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label>Description *</Label>
+                                <Label>{t("notices.descriptionLabel")} *</Label>
                                 <textarea
                                     value={form.data.description}
                                     onChange={(e) => form.setData("description", e.target.value)}
@@ -120,7 +120,7 @@ export default function NoticeCreate() {
                         <FormSection title={t("notices.publishingWindowTitle")}>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
-                                    <Label>Publish From</Label>
+                                    <Label>{t("notices.publishFromLabel")}</Label>
                                     <Input
                                         type="date"
                                         value={form.data.publish_from}
@@ -132,7 +132,7 @@ export default function NoticeCreate() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label>Publish To</Label>
+                                    <Label>{t("notices.publishToLabel")}</Label>
                                     <Input
                                         type="date"
                                         value={form.data.publish_to}
@@ -151,16 +151,16 @@ export default function NoticeCreate() {
                                     onChange={(e) => form.setData("is_pinned", e.target.checked)}
                                     className="size-4 accent-primary"
                                 />
-                                <span className="text-sm font-medium">Pin this notice to the top of the board</span>
+                                <span className="text-sm font-medium">{t("notices.pinLabel")}</span>
                             </label>
                         </FormSection>
 
                         <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
                             <Button variant="outline" type="button" className="rounded-full px-5 text-xs font-semibold hover:bg-muted" asChild>
-                                <Link href={route("notices.index")}>Cancel</Link>
+                                <Link href={route("notices.index")}>{t("notices.cancel")}</Link>
                             </Button>
                             <Button type="submit" disabled={form.processing} className="rounded-full px-6 text-xs font-semibold shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                                {form.processing ? "Publishing…" : "Publish Notice"}
+                                {form.processing ? t("notices.publishing") : t("notices.publish")}
                             </Button>
                         </div>
                     </form>

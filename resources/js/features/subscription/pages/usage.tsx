@@ -57,7 +57,7 @@ export default function SubscriptionUsage() {
                 title={t("subscription.usageTitle")}
                 description="Detailed breakdown of resource consumption against your plan limits."
                 icon={<Gauge className="size-5" />}
-                breadcrumbs={[{ label: t("nav.subscription") }, { label: "Usage" }]}
+                breadcrumbs={[{ label: t("nav.subscription") }, { label: t("subscription.usageCrumb") }]}
                 actions={
                     <BackButton routeName="subscription.show" label={t("subscription.backToOverview")} />
                 }

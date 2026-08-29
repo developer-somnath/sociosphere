@@ -47,7 +47,7 @@ export default function InvariantCheck() {
                 title={t("invoices.invariantTitle")}
                 description="Validate that invoices and payments are always consistent."
                 icon={<ClipboardCheck className="size-5" />}
-                breadcrumbs={[{ label: t("nav.finance") }, { label: "Invariant Check" }]}
+                breadcrumbs={[{ label: t("nav.finance") }, { label: t("invoices.invariantCrumb") }]}
                 actions={
                     <Button variant="outline" size="sm" onClick={recheck}>
                         <RefreshCw className="size-4" />

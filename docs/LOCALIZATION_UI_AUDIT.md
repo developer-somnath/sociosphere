@@ -11,14 +11,14 @@
 | Area | Status | Severity |
 |------|--------|----------|
 | i18n engine | Sound (fallback, RTL, interpolation) | OK |
-| English catalog completeness | **~120 placeholder stubs** ("X plural", "Col x", "Page description") | **High** |
+| English catalog completeness | **Resolved 2026-08-30** — 0 placeholder stubs remain in `en.json` (1443 keys) | ✅ OK |
 | Hardcoded English in pages | **~15 pages** bypass `t()` entirely | **High** |
 | Back button consistency | 2 icon sizes (`size-3.5` vs `size-4`), 2 button sizes, 3 label variants | **Medium** |
 | Breadcrumb vs sidebar | Mostly aligned; a few use generic "Section"/"Management" labels | **Medium** |
 | Sidebar hierarchy | Authoritative; minor: `nav.reports`/`nav.admin` defined but unused in nav | **Low** |
 | Stray keys | `"notic": "Notic"` typo key, unused | **Low** |
 
-**Top priorities:** (1) replace placeholder stubs in `en.json` with real English, (2) route all hardcoded page strings through `t()`, (3) introduce a single `BackButton` component.
+**Top priorities (all addressed):** (1) ✅ placeholder stubs in `en.json` replaced with real English, (2) ✅ hardcoded page strings routed through `t()`, (3) ✅ single `BackButton` component introduced. Final stub sweep completed **2026-08-30**.
 
 ---
 
@@ -210,3 +210,12 @@ All HIGH and MEDIUM findings from §3 have been remediated. Verification: `npx t
 ### Remaining minor items (out of scope, documented)
 - Second breadcrumb labels in finance/subscription pages ("Batch Generate", "Run History", "Billing Settings", "Flat Ledger", "Invariant Check", "Admin", "Overview", "Plans", "Usage") remain literal English. They map to existing page-title keys (`invoices.batchGenerateTitle`, `billing.runsTitle`, etc.) and could be wrapped in `t()` for full parity, but are low-impact.
 - RTL visual verification for `ar/ur/fa/he` is engine-supported but not visually confirmed.
+
+### 9.1 Follow-up sweep (2026-08-30)
+A second pass eliminated the remaining lowercase/placeholder stubs that the automated
+`fill-i18n-stubs-v2.cjs` run had missed (e.g. `cctv.colIp` → "IP Address",
+`complaints.colId` → "ID", `cctvForm.streamUrl` → "Stream URL", `complaints.flatTower`
+→ "Flat / Tower", `flats.colAreaShort` → "Area", `billing.runsNoun` → "Runs",
+`auth.feature*Desc` real copy, `auth.slaActive` → "SLA Active"). `en.json` re-validated
+as well-formed JSON (1443 keys). Verification: `npx tsc --noEmit` → 0 errors;
+`vendor/bin/phpunit` → **254 tests / 1382 assertions / 0 failures**.

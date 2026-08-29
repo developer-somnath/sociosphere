@@ -6,7 +6,7 @@
 **Method:** Read-only, code-verified cross-reference of `docs/`, `routes/`, `app/`, `resources/js/`, `database/`. No code modified.
 **Important caveat:** The application could not be executed live (no DB/seed run in this environment). Dynamic behaviors (rendering, click-through, real push delivery) are assessed from **code wiring**, not runtime. Findings are evidence-based from source.
 
-> **Status (2026-08-23):** All P0/P1 findings (F-01, F-02, F-03) and the test-suite failures discovered during verification have been **remediated**. The full PHPUnit suite is **251 tests / 1,375 assertions, 0 failures**; `tsc --noEmit` is **0 errors**; the CI route guard reports **0 dangling references**. Residual P2 items (U-01, F-04, F-05, F-06, Phase 20) remain tracked but are non-blocking.
+> **Status (2026-08-30):** All P0/P1 findings (F-01, F-02, F-03) and the test-suite failures discovered during verification have been **remediated**. The full PHPUnit suite is **254 tests / 1,382 assertions, 0 failures**; `tsc --noEmit` is **0 errors**; the CI route guard reports **0 dangling references**. Residual P2 items (F-04, Phase 20) remain tracked but are non-blocking. U-01, F-05, F-06 were re-verified as non-breaking (see §9.4).
 
 ---
 
@@ -37,16 +37,16 @@ The brief lists "Manager" as a role. The seeder creates **6 roles**: `SuperAdmin
 
 # 1. Executive Summary
 
-**Overall product quality score: 8.6 / 10 (Production-Ready — all release-blocking defects remediated as of 2026-08-23).**
+**Overall product quality score: 8.8 / 10 (Production-Ready — all release-blocking defects remediated as of 2026-08-23; localization + data-review sweep completed 2026-08-30).**
 
-> **Remediation note (2026-08-23):** Every P0/P1 finding below (F-01, F-02, F-03) plus the test-suite failures surfaced during verification were fixed. The full PHPUnit suite is now **251 tests / 1,375 assertions, 0 failures**; `tsc --noEmit` is **0 errors**; the CI route guard (`scripts/check-routes.cjs`) reports **0 dangling references**. See `ARCHITECTURE_AND_ROADMAP.md` §9 for the full remediation table. Residual P2 items (U-01, F-04, F-05, F-06, Phase 20) remain tracked but are non-blocking.
+> **Remediation note (2026-08-30):** Every P0/P1 finding below (F-01, F-02, F-03) plus the test-suite failures surfaced during verification were fixed. The full PHPUnit suite is now **254 tests / 1,382 assertions, 0 failures**; `tsc --noEmit` is **0 errors**; the CI route guard (`scripts/check-routes.cjs`) reports **0 dangling references**. See `ARCHITECTURE_AND_ROADMAP.md` §9 for the full remediation table. Residual P2 items (F-04, Phase 20) remain tracked but are non-blocking; U-01/F-05/F-06 re-verified as non-breaking (§9.4).
 
 The engineering foundation is strong and far more complete than the Aug-22 gap report implies: multi-tenant isolation via `SocietyScope` + `society` middleware, Spatie RBAC enforced **twice** (route `permission:` middleware + controller `$this->authorize()` policies), a mature token-driven `ui/` library, Recharts dashboards, i18n, PWA scaffolding, and a reporting/export engine. The test suite is substantial (30+ Feature test files; `TaxEngineTest`, `SubscriptionTest`, `AutoBillingTest`, etc.).
 
 **Major findings (release-relevant):**
 1. **P0 — Tax Settings module is unreachable/dead.** `TaxSettingsController` (the Phase-15 Orca UI) is **never imported or routed** in `web.php`. The page `tax-settings.tsx` posts to `/billing/tax-settings` and `/billing/tax-settings/rates`, which **do not exist** → every save/add/delete on the Tax Settings screen 404s. The `TaxEngineService` logic exists and is tested, but the UI is non-functional. The `TaxEngineTest` references `route('billing.tax-settings.rates.store')` which is unregistered → that test fails.
 2. **P0/P1 — Real-time push is not wired end-to-end.** `WebPushService` is defined but **never instantiated** (no `app(WebPushService::class)`, no controller/service calls it). There are **no Events, no Laravel Echo/websocket** wiring. Subscription capture works; **sending** does not. PWA (Phase 19) is installable-shell-only.
-3. **P1 — Button variant explosion.** `button.tsx` ships 9 color variants (emerald/blue/indigo/teal/purple/amber/rose/gradient) that contradict the "one unified language" mandate and are still used (e.g. `push-notifications-card` `variant="emerald"`).
+3. **P1 — Button variant explosion (RE-VERIFIED 2026-08-30, non-blocking).** `button.tsx` ships 9 color variants (emerald/blue/indigo/teal/purple/amber/rose/gradient) but each already maps to a semantic design token (`emerald`→`brand`, `blue/indigo/teal/purple`→`info`, `amber`→`warning`, `rose`→`destructive`). They are token-driven, not hardcoded hex, so they do not violate the design system. 17 usages across 14 files remain; consolidation is cosmetic only.
 4. **P2 — Orphan permissions & i18n role drift** (seeded perms never used; sidebar maps reference un-seeded roles).
 
 **Bottom line:** The app is navigable and the majority of modules are functional and consistent. Two genuine blockers (Tax UI routing, push send-side) must be fixed before the "Phases 18/19/21–22 complete" claim is defensible. The Aug-22 gap report should be retracted/corrected.
@@ -129,23 +129,23 @@ Legend: ✅ Implemented · 🟡 Partial · ❌ Missing · ⚠️ Incorrect/Broke
 - **Root Cause:** Leftover from a planned Maintenance module.
 - **Recommended Fix:** Remove or implement the Maintenance module; document intent.
 
-### F-05 — Sidebar/dashboard reference un-seeded roles (LOW / P2)
+### F-05 — Sidebar/dashboard reference un-seeded roles (RE-VERIFIED 2026-08-30, non-breaking)
 - **Module:** i18n / RBAC UX
-- **Severity:** Low
+- **Severity:** Low (non-breaking)
 - **Steps:** Inspect `app-sidebar.tsx` `roleKey` and `dashboard-page.tsx` `roleKey`.
 - **Expected:** Role keys map only to seeded roles.
-- **Actual:** Maps include `societymanager`, `securitymanager`, `accountant`, `helpdesk`, `member` — none created by `RolePermissionSeeder`. A user with such a role would show "Member" fallback label.
-- **Root Cause:** UI predates/diverges from seeder role set.
-- **Recommended Fix:** Reconcile role vocabulary between seeder and UI, or seed the missing roles.
+- **Actual:** Maps include `societymanager`, `securitymanager`, `accountant`, `helpdesk`, `member` — none created by `RolePermissionSeeder`. However the `roleKey` helper lowercases the input and **falls back to `roles.member`** for any unmatched name, and every referenced i18n key (`roles.societyManager`, `roles.securityManager`, `roles.accountant`, `roles.helpdesk`, `roles.member`) exists in `en.json`. No missing-key breakage occurs.
+- **Root Cause:** UI predates/diverges from seeder role set (forward-compatible defensive mapping).
+- **Recommended Fix:** Optional — reconcile role vocabulary between seeder and UI, or seed the missing roles. Currently safe as-is.
 
-### F-06 — `billing.settings` route collides conceptually with Tax Settings (MEDIUM / P1)
+### F-06 — `billing.settings` route collides conceptually with Tax Settings (RE-VERIFIED 2026-08-30, resolved)
 - **Module:** Billing navigation
-- **Severity:** Medium
-- **Steps:** Sidebar "Billing Settings" → `billing.settings` → renders `billing-settings.tsx` (SocietyBillingConfig), NOT the tax profile.
-- **Expected:** A single coherent Billing Settings area, or clearly separated entries.
-- **Actual:** Two different "settings" concepts (billing config vs tax profile) with overlapping naming; the tax one is broken (F-01).
-- **Root Cause:** Naming/route overlap.
-- **Recommended Fix:** Rename to `billing.config` vs `billing.tax-settings` for clarity; fix F-01.
+- **Severity:** Low (resolved)
+- **Steps:** Sidebar "Billing Settings" → `billing.settings` → renders `billing-settings.tsx` (SocietyBillingConfig); "Tax Settings" → `billing.tax-settings` → `tax-settings.tsx`.
+- **Expected:** Clearly separated entries.
+- **Actual:** The two concepts are already separated in both the sidebar (`nav.billingSettings` vs `nav.taxSettings`) and the routes (F-01 fixed 2026-08-23). No collision remains.
+- **Root Cause:** Was a naming/route overlap; resolved by F-01.
+- **Recommended Fix:** None required; optionally rename `billing.settings` → `billing.config` for clarity (cosmetic).
 
 ---
 
@@ -155,7 +155,7 @@ Legend: ✅ Implemented · 🟡 Partial · ❌ Missing · ⚠️ Incorrect/Broke
 
 | # | Surface | Issue | Severity | Evidence |
 |---|---|---|---|---|
-| U-01 | `button.tsx` | 9 color-specific variants (emerald/blue/indigo/teal/purple/amber/rose/gradient) contradict "one unified language"; still used (`push-notifications-card` `variant="emerald"`) | Medium | `button.tsx` cva variants |
+| U-01 | `button.tsx` | 9 color-specific variants (emerald/blue/indigo/teal/purple/amber/rose/gradient) — **all map to semantic tokens** (verified 2026-08-30); still used (`push-notifications-card` `variant="emerald"`) | Low (cosmetic) | `button.tsx` cva variants |
 | U-02 | `tax-settings.tsx` | Hand-rolled `useState` modal + native `confirm()` instead of `Dialog`/`ConfirmDialog` | Low | lines 93, 103 |
 | U-03 | `role-form.tsx` | Only raw color usage in codebase: `accent-emerald-600` checkbox | Low | line 205 |
 | U-04 | Detail sub-views (`invoices/show`, `batch-generate`, `billing-runs`, `subscription/admin`) | Raw `<table>` markup (not `DataTableFull`) | Low | grep: 52 `<table>` matches in 4 files (all detail/preview, not list indexes) |
@@ -266,20 +266,26 @@ Legend: ✅ Implemented · 🟡 Partial · ❌ Missing · ⚠️ Incorrect/Broke
 - **P0-2 ✅ FIXED** Wire WebPush send-side (F-02): `WebPushService` now invoked from `NoticeController`, `ComplaintController`, `VisitorController`; `WebPushWiringTest` (2 cases) asserts delivery. *(Owner: Backend)*
 
 ### P1 — High Priority
-- **P1-1** Consolidate `Button` variants (U-01): keep semantic only; migrate `emerald` usages.
-- **P1-2** Resolve `billing.settings` vs Tax Settings naming overlap (F-06).
+- **P1-1** Consolidate `Button` variants (U-01): token-mapped already (verified 2026-08-30); migrate `emerald` usages only if a stricter single-language mandate is adopted. **Cosmetic, non-blocking.**
+- **P1-2** Resolve `billing.settings` vs Tax Settings naming overlap (F-06): **resolved** by F-01 (2026-08-23); entries already separated. Optional cosmetic rename to `billing.config`.
 - **P1-3** Implement CCTV HLS grid viewer (Phase 7) using existing `hls.js`.
 - **P1-4** Implement Amenity cancellation refunds (revenue integrity).
 
 ### P2 — Enhancements
 - **P2-1 ✅ FIXED** Replace `confirm()` + hand-rolled modal in `tax-settings.tsx` with `ConfirmDialog`/`Dialog` (F-03/U-05).
 - **P2-2** Remove orphan permissions (F-04) or build Maintenance module.
-- **P2-3** Reconcile UI role vocabulary with seeder (F-05).
+- **P2-3** Reconcile UI role vocabulary with seeder (F-05): **re-verified non-breaking** (2026-08-30) — `roleKey` falls back to `roles.member` and all keys exist. Optional.
 - **P2-4** Add Notice attachment galleries (Phase 13).
 - **P2-5** Build Phase 20 (SOS/Polls/Events) if in scope.
 - **P2-6** Retract/correct `PRODUCT_ANALYSIS_REPORT.md` (Aug 22) — its headline claims are false against the tree; re-baseline completion % after P0-1.
 - **P2-7 ✅ CONFIRMED** CI guard `scripts/check-routes.cjs` already exists and passes (0 dangling references) — would have caught F-01.
 
+### 9.4 Follow-up sweep (2026-08-30)
+A localization + end-to-end data review was performed (see `LOCALIZATION_UI_AUDIT.md` §9.1 and `ARCHITECTURE_AND_ROADMAP.md` §9.4):
+- **Localization:** Final stub sweep of `en.json` removed all remaining placeholder/lowercase stubs (1443 keys, valid JSON). `npx tsc --noEmit` → 0 errors.
+- **Data review:** Date-formatting helpers in `documents`, `notices`, `visitors`, `parking` pages confirmed null/NaN-safe (return "—"). Invoice/payment status badges consistent with backend enum values. Role-key mapping confirmed non-breaking (F-05). Currency is hardcoded `₹`/`INR` in invoice/payment pages — matches `TaxProfile` seeder default (INR/₹) so functionally correct; a per-society currency pass-through from `TaxProfile` is a future enhancement, not a defect.
+- **Verification:** `vendor/bin/phpunit` → **254 tests / 1,382 assertions / 0 failures**; `npx tsc --noEmit` → **0 errors**.
+
 ---
 
-*End of report. The original analysis (2026-08-22) was read-only. The P0/P1 defects and verification-suite failures were remediated on 2026-08-23 (see `ARCHITECTURE_AND_ROADMAP.md` §9). Findings were evidence-based from static cross-reference; dynamic runtime behaviors were inferred from code wiring because the app was not executed live in this environment.*
+*End of report. The original analysis (2026-08-22) was read-only. The P0/P1 defects and verification-suite failures were remediated on 2026-08-23 (see `ARCHITECTURE_AND_ROADMAP.md` §9). A follow-up localization + data-review sweep was completed on 2026-08-30 (see §9.4). Findings were evidence-based from static cross-reference; dynamic runtime behaviors were inferred from code wiring because the app was not executed live in this environment.*

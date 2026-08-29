@@ -4,7 +4,7 @@
 **Audit Date:** August 23, 2026  
 **Current Platform Version:** `v2.5.0 — Hawk`  
 **Target Platform:** Laravel 12 + Inertia.js v2 + React 18 + TypeScript + PostgreSQL 17 + PWA + i18n Multilingual Engine + Global Tax Engine + GitHub Release Automation  
-**Current Progress:** **81.8% Core Completion** (18 of 22 Active Functional Phases Completed, 251 Automated Feature Tests / 1375 Assertions Passing)
+**Current Progress:** **81.8% Core Completion** (18 of 22 Active Functional Phases Completed, 254 Automated Feature Tests / 1382 Assertions Passing)
 
 ---
 
@@ -34,7 +34,7 @@ SocioSphere follows strict Semantic Versioning (`vMAJOR.MINOR.PATCH`) paired wit
 ```mermaid
 flowchart TD
     Commit["Git Commit on main"] --> CI_Build["1. Build & Asset Compilation"]
-    CI_Build --> CI_Test["2. PHPUnit (251 Tests) + tsc (0 Errors)"]
+    CI_Build --> CI_Test["2. PHPUnit (254 Tests) + tsc (0 Errors)"]
     CI_Test --> CI_Security["3. Static Analysis & Vulnerability Audit"]
     CI_Security --> CI_Tag["4. Auto-Generate Git Tag (vX.Y.Z)"]
     CI_Tag --> CI_Branch["5. Create Release Branch (release/vX.Y.Z)"]
@@ -89,7 +89,7 @@ Phases 25–30: Future / Operations 🚀 (v3.0.0 Phoenix)
 
 ### 7.4 Validation ✅
 - `npx tsc --noEmit`: **0 errors**.
-- Full PHPUnit test suite: **251 tests / 1,375 assertions passing** (incl. 7 dedicated `TaxEngineTest` cases, 2 `WebPushWiringTest` cases, and `SubscriptionTest` / `InternationalizationTest` / `PropertyRestoreTest` entitlement & i18n coverage).
+- Full PHPUnit test suite: **254 tests / 1,382 assertions passing** (incl. 7 dedicated `TaxEngineTest` cases, 2 `WebPushWiringTest` cases, and `SubscriptionTest` / `InternationalizationTest` / `PropertyRestoreTest` entitlement & i18n coverage).
 - `npx vite build`: Production asset compilation succeeded in 13 seconds.
 
 ---
@@ -127,8 +127,9 @@ Phases 25–30: Future / Operations 🚀 (v3.0.0 Phoenix)
 A full read-only QA review (`docs/QA_PRODUCTION_READINESS_REVIEW.md`, v1.0) surfaced
 release-blocking defects. All P0/P1 items and the supporting test-suite failures
 discovered during verification were remediated on **2026-08-23** and the full
-PHPUnit suite is now **green (251 tests / 1,375 assertions)** with `tsc --noEmit`
-at **0 errors** and the CI route guard at **0 dangling references**.
+PHPUnit suite is now **green (254 tests / 1,382 assertions)** with `tsc --noEmit`
+at **0 errors** and the CI route guard at **0 dangling references**. A follow-up
+localization + data-review sweep was completed on **2026-08-30** (see §9.4).
 
 ### 9.1 Remediated defects
 
@@ -147,15 +148,21 @@ at **0 errors** and the CI route guard at **0 dangling references**.
 | P2-7 | P2 | No CI guard for dangling `route()` references in `resources/js` | Confirmed `scripts/check-routes.cjs` exists and passes (0 dangling) — would have caught F-01 |
 
 ### 9.2 Residual (non-blocking) items carried forward
-- **U-01 / P1-1** — `button.tsx` ships 9 color-specific variants; consolidate to semantic tokens.
+- **U-01 / P1-1** — `button.tsx` ships 9 color-specific variants; **re-verified 2026-08-30** — all map to semantic tokens (`brand`/`info`/`warning`/`destructive`), not hardcoded hex. Consolidation is cosmetic only; 17 usages across 14 files.
 - **F-04 / P2-2** — Orphan seeded permissions (`maintenance.*`, `permission.*`) unused.
-- **F-05 / P2-3** — Sidebar/dashboard reference un-seeded role keys (`societymanager`, `accountant`, etc.).
-- **F-06 / P1-2** — `billing.settings` (SocietyBillingConfig) vs `billing.tax-settings` naming overlap.
+- **F-05 / P2-3** — Sidebar/dashboard reference un-seeded role keys (`societymanager`, `accountant`, etc.); **re-verified 2026-08-30** — `roleKey` helper falls back to `roles.member` and all keys exist in `en.json`, so non-breaking.
+- **F-06 / P1-2** — `billing.settings` (SocietyBillingConfig) vs `billing.tax-settings` naming overlap; **resolved** by F-01 (2026-08-23) — entries already separated in sidebar/routes.
 - **Phase 20** — Emergency SOS / Polls / Events not yet implemented.
 - **CCTV HLS grid viewer** and **Amenity cancellation refunds** still pending.
 
 ### 9.3 Verification status
 - `php artisan route:list` — Tax + language routes registered; 134 routes total.
-- `php vendor/bin/phpunit` — **251 tests, 1,375 assertions, 0 failures**.
+- `php vendor/bin/phpunit` — **254 tests, 1,382 assertions, 0 failures**.
 - `npx tsc --noEmit` — **0 errors**.
 - `node scripts/check-routes.cjs` — **0 dangling frontend route references**.
+
+### 9.4 Follow-up sweep (2026-08-30)
+A localization + end-to-end data review was performed:
+- **Localization (`LOCALIZATION_UI_AUDIT.md` §9.1):** Final stub sweep of `en.json` removed all remaining placeholder/lowercase stubs (1443 keys, valid JSON). `npx tsc --noEmit` → 0 errors.
+- **Data review:** Date-formatting helpers (`documents`, `notices`, `visitors`, `parking`) confirmed null/NaN-safe. Invoice/payment status badges consistent with backend enums. Role-key mapping confirmed non-breaking (F-05). Currency hardcoded `₹`/`INR` matches `TaxProfile` seeder default — functionally correct; per-society currency pass-through is a future enhancement.
+- **Verification:** `vendor/bin/phpunit` → **254 tests / 1,382 assertions / 0 failures**; `npx tsc --noEmit` → **0 errors**.

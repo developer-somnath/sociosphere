@@ -194,3 +194,35 @@ localization + data-review sweep was completed on **2026-08-30** (see §9.4).
    - Added auto-unregistration of stale Service Workers during Vite dev mode (`import.meta.env.DEV`).
 5. **Document Download Stream Reliability (`DocumentRepositoryController.php`)**:
    - Added automated on-the-fly dummy PDF generation in `download()` if any seeded or demo document is missing on the local storage disk, preventing `UnableToRetrieveMetadata` 500 errors.
+
+---
+
+## 11. Sprint 6 — Enterprise UI/UX Refinement, Filter Standardization & 403 Architecture (August 30, 2026)
+
+### 11.1 Enterprise Design Language Harmonization (Stripe & Razorpay Inspired) ✅
+- **Rich Surface Hierarchy (`app.css` & `app-layout.tsx`)**:
+  - Implemented OKLCH color token upgrades with soft slate/warm light surfaces (`oklch(0.978 0.006 250)`) and deep midnight dark surfaces (`oklch(0.125 0.026 258)`), eliminating flat/overly-white stark backgrounds.
+  - Added subtle radial dot matrix overlays and fixed ambient multi-tone gradient lighting orbs (`brand` and `info` hues).
+  - Upgraded `MetricCard` with top-right ambient flare, glassmorphism backdrop blur, and elevated hover shadows.
+  - Maintained full multi-theme switching compatibility across all color variants and dark/light modes.
+
+### 11.2 Filter Standardization (4-Column Responsive Grid) ✅
+- **Standardized Controls**:
+  - Refactored `activity-logs/pages/index.tsx` filter controls to a responsive 4-column equal-width grid (`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3`).
+  - Refactored `users/pages/index.tsx` filter controls to the identical responsive 4-column equal-width layout with unified `selectClasses` pills.
+
+### 11.3 Table Header Consistency & Title Case Audit ✅
+- **Typography Normalization**:
+  - Audited `DataTableFull` and `DataTableHeader` in `data-table.tsx` to remove forced uppercase transformations (`uppercase tracking-wide` → `font-semibold text-xs text-muted-foreground tracking-normal`).
+  - Standardized column headers across all modules to Title Case (e.g. `IP Address`, `Visitor Name`, `Assigned Flat`, `Payment Method`, etc.).
+  - Normalized currency symbols to standard `₹` (INR) across billing and amenity booking tables.
+
+### 11.4 Dedicated 403 Access Denied Architecture ✅
+- **Inertia 403 Page (`resources/js/pages/errors/403.tsx`)**:
+  - Branded dual-tone shield halo, pulse animation, and status chip (`HTTP 403 · Access Denied`).
+  - Active tenant and user context indicators.
+  - Interactive "Go Back" browser history button (`window.history.back()`) with fallback, and "Return to Overview" CTA.
+- **Blade 403 Template (`resources/views/errors/403.blade.php`)**:
+  - Matching standalone styling for direct HTTP exceptions.
+- **Exception Responder (`bootstrap/app.php`)**:
+  - Configured `respond()` handler to automatically render Inertia `errors/403` for Inertia and XHR requests on 403 HTTP status.

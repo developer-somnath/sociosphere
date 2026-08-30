@@ -263,8 +263,8 @@ export default function AmenityBookingsIndex() {
                 sortable: true,
                 sortKey: "total_fee",
                 cell: (b) => (
-                    <span className="font-medium text-foreground">
-                        {Number(b.total_fee) > 0 ? `৳${b.total_fee}` : t("amenityBookings.free")}
+                    <span className="font-mono font-medium text-foreground">
+                        {Number(b.total_fee) > 0 ? `₹${Number(b.total_fee).toLocaleString()}` : t("amenityBookings.free")}
                     </span>
                 ),
             },

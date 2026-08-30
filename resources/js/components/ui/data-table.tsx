@@ -31,7 +31,7 @@ export function DataTable({ children, className }: { children: ReactNode; classN
 }
 
 export function DataTableHeader({ children }: { children: ReactNode }) {
-    return <thead className="sticky top-0 z-[1] bg-card/95 text-left text-xs uppercase tracking-wide text-muted-foreground backdrop-blur">{children}</thead>;
+    return <thead className="sticky top-0 z-[1] border-b border-border/60 bg-muted/30 text-left text-xs font-semibold text-muted-foreground backdrop-blur-md">{children}</thead>;
 }
 
 export type SortState = { key: string; direction: "asc" | "desc" };
@@ -374,7 +374,7 @@ export function DataTableFull<T>({
             >
                 <table className={cn("w-full text-sm", tableClassName)}>
                     {caption && <caption className="sr-only">{caption}</caption>}
-                    <thead className="sticky top-0 z-[1] bg-card/95 text-left text-xs uppercase tracking-wide text-muted-foreground backdrop-blur">
+                    <thead className="sticky top-0 z-[1] border-b border-border/60 bg-muted/30 text-left text-xs font-semibold text-muted-foreground backdrop-blur-md">
                         <tr>
                             {selectable && (
                                 <th scope="col" className="w-12 px-5 py-3">
@@ -392,8 +392,8 @@ export function DataTableFull<T>({
                                     column.align === "right"
                                         ? "text-right"
                                         : column.align === "center"
-                                          ? "text-center"
-                                          : undefined;
+                                            ? "text-center"
+                                            : undefined;
 
                                 if (column.sortable) {
                                     return (
@@ -436,23 +436,23 @@ export function DataTableFull<T>({
                     <tbody ref={bodyRef}>
                         {loading && data.length === 0
                             ? Array.from({ length: 6 }, (_, row) => (
-                                  <tr key={`skeleton-${row}`} className="border-b border-border/40">
-                                      {Array.from({ length: rowCount }, (_, column) => (
-                                          <td key={column} className="px-5 py-4">
-                                              <Skeleton className="h-5 w-full" />
-                                          </td>
-                                      ))}
-                                  </tr>
-                              ))
+                                <tr key={`skeleton-${row}`} className="border-b border-border/40">
+                                    {Array.from({ length: rowCount }, (_, column) => (
+                                        <td key={column} className="px-5 py-4">
+                                            <Skeleton className="h-5 w-full" />
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))
                             : data.length === 0
-                              ? (
+                                ? (
                                     <tr>
                                         <td colSpan={rowCount} className="px-5 py-4">
                                             {emptyContent}
                                         </td>
                                     </tr>
                                 )
-                              : data.map((row, index) => {
+                                : data.map((row, index) => {
                                     const key = rowKey(row);
                                     const isSelected = selectedIds.includes(key);
                                     const isActive = keyboardNav && activeIndex === index;
@@ -483,8 +483,8 @@ export function DataTableFull<T>({
                                                 const value = column.cell
                                                     ? column.cell(row)
                                                     : column.accessor
-                                                      ? column.accessor(row)
-                                                      : null;
+                                                        ? column.accessor(row)
+                                                        : null;
                                                 return (
                                                     <td
                                                         key={column.id}

@@ -225,6 +225,9 @@ lib/
   pwa.ts
   toast.ts
   utils.ts
+pages/
+  errors/
+    403.tsx
 types/
   global.d.ts
   index.ts

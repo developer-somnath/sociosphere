@@ -25,5 +25,13 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->respond(function (\Symfony\Component\HttpFoundation\Response $response, \Throwable $exception, \Illuminate\Http\Request $request) {
+            if ($response->getStatusCode() === 403 && ($request->header('X-Inertia') || $request->wantsJson())) {
+                return inertia('errors/403', [
+                    'status' => 403,
+                    'message' => $exception->getMessage() ?: 'You do not have the required permissions or society tenant context to access this resource.',
+                ])->toResponse($request)->setStatusCode(403);
+            }
+            return $response;
+        });
     })->create();

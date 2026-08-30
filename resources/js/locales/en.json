@@ -1768,5 +1768,8 @@
     "events.deleteConfirmTitle": "Delete Event",
     "events.deleteConfirmDesc": "Are you sure you want to cancel and delete this event?",
     "events.deleteSuccessTitle": "Event Deleted",
-    "events.deleteSuccessDesc": "The event has been removed."
+    "events.deleteSuccessDesc": "The event has been removed.",
+    "errors.403Title": "403 — Access Denied",
+    "errors.403Heading": "Restricted Area",
+    "errors.403Message": "You do not have the required permissions or society tenant context to access this resource. Please contact your Society Administrator or Super Admin if you believe this is an error."
 }

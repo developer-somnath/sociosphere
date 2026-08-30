@@ -43,7 +43,7 @@ type IndexProps = {
 };
 
 const selectClasses =
-    "h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50";
+    "h-10 w-full rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer";
 
 function initials(name: string): string {
     return name
@@ -298,7 +298,7 @@ export default function ActivityLogsIndex() {
             },
             {
                 id: "ip",
-                header: "IP",
+                header: "IP Address",
                 cell: (log) => (
                     <span className="whitespace-nowrap font-mono text-xs text-muted-foreground">
                         {log.ip_address ?? "—"}
@@ -401,78 +401,81 @@ export default function ActivityLogsIndex() {
                 onReset={clearAll}
                 className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
             >
-                <select
-                    className={`${selectClasses} w-auto min-w-36`}
-                    value={module}
-                    onChange={(e) => {
-                        setModule(e.target.value);
-                        applyFilters({ module: e.target.value });
-                    }}
-                    aria-label="Filter by module"
-                >
-                    <option value="">All modules</option>
-                    {filterOptions.modules.map((option) => (
-                        <option key={option} value={option}>
-                            {option}
-                        </option>
-                    ))}
-                </select>
+                <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <select
+                        className={selectClasses}
+                        value={module}
+                        onChange={(e) => {
+                            setModule(e.target.value);
+                            applyFilters({ module: e.target.value });
+                        }}
+                        aria-label="Filter by module"
+                    >
+                        <option value="">All Modules</option>
+                        {filterOptions.modules.map((option) => (
+                            <option key={option} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
 
-                <select
-                    className={`${selectClasses} w-auto min-w-36`}
-                    value={action}
-                    onChange={(e) => {
-                        setAction(e.target.value);
-                        applyFilters({ action: e.target.value });
-                    }}
-                    aria-label="Filter by action"
-                >
-                    <option value="">All actions</option>
-                    {filterOptions.actions.map((option) => (
-                        <option key={option} value={option}>
-                            {option}
-                        </option>
-                    ))}
-                </select>
+                    <select
+                        className={selectClasses}
+                        value={action}
+                        onChange={(e) => {
+                            setAction(e.target.value);
+                            applyFilters({ action: e.target.value });
+                        }}
+                        aria-label="Filter by action"
+                    >
+                        <option value="">All Actions</option>
+                        {filterOptions.actions.map((option) => (
+                            <option key={option} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
 
-                <select
-                    className={`${selectClasses} w-auto min-w-40`}
-                    value={causerId}
-                    onChange={(e) => {
-                        setCauserId(e.target.value);
-                        applyFilters({ causer_id: e.target.value });
-                    }}
-                    aria-label="Filter by user"
-                >
-                    <option value="">All users</option>
-                    {filterOptions.causers.map((option) => (
-                        <option key={option.id} value={option.id}>
-                            {option.name}
-                        </option>
-                    ))}
-                </select>
+                    <select
+                        className={selectClasses}
+                        value={causerId}
+                        onChange={(e) => {
+                            setCauserId(e.target.value);
+                            applyFilters({ causer_id: e.target.value });
+                        }}
+                        aria-label="Filter by user"
+                    >
+                        <option value="">All Users</option>
+                        {filterOptions.causers.map((option) => (
+                            <option key={option.id} value={option.id}>
+                                {option.name}
+                            </option>
+                        ))}
+                    </select>
 
-                <Input
-                    type="date"
-                    className="h-10 w-auto"
-                    value={dateFrom}
-                    onChange={(e) => {
-                        setDateFrom(e.target.value);
-                        applyFilters({ date_from: e.target.value });
-                    }}
-                    aria-label="Filter from date"
-                />
-
-                <Input
-                    type="date"
-                    className="h-10 w-auto"
-                    value={dateTo}
-                    onChange={(e) => {
-                        setDateTo(e.target.value);
-                        applyFilters({ date_to: e.target.value });
-                    }}
-                    aria-label="Filter to date"
-                />
+                    <div className="grid grid-cols-2 gap-2">
+                        <Input
+                            type="date"
+                            className="h-10 rounded-full border-border/70 bg-background/80 px-3 text-xs"
+                            value={dateFrom}
+                            onChange={(e) => {
+                                setDateFrom(e.target.value);
+                                applyFilters({ date_from: e.target.value });
+                            }}
+                            aria-label="Filter from date"
+                        />
+                        <Input
+                            type="date"
+                            className="h-10 rounded-full border-border/70 bg-background/80 px-3 text-xs"
+                            value={dateTo}
+                            onChange={(e) => {
+                                setDateTo(e.target.value);
+                                applyFilters({ date_to: e.target.value });
+                            }}
+                            aria-label="Filter to date"
+                        />
+                    </div>
+                </div>
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Inbox className="size-4" />

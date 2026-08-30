@@ -467,45 +467,49 @@ export default function UsersIndex() {
                 onReset={clearAll}
                 className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
             >
-                <select
-                    className={`${selectClasses} w-auto min-w-44`}
-                    value={role}
-                    onChange={(e) => {
-                        setRole(e.target.value);
-                        applyFilters({ role: e.target.value });
-                    }}
-                    aria-label={t("users.filterByRole")}
-                >
-                    <option value="">{t("users.allRoles")}</option>
-                    {roleOptions.map((option) => (
-                        <option key={option.name} value={option.name}>
-                            {t(roleKey(option.label))}
-                        </option>
-                    ))}
-                </select>
+                <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <select
+                        className={`${selectClasses} w-full`}
+                        value={role}
+                        onChange={(e) => {
+                            setRole(e.target.value);
+                            applyFilters({ role: e.target.value });
+                        }}
+                        aria-label={t("users.filterByRole")}
+                    >
+                        <option value="">{t("users.allRoles")}</option>
+                        {roleOptions.map((option) => (
+                            <option key={option.name} value={option.name}>
+                                {t(roleKey(option.label))}
+                            </option>
+                        ))}
+                    </select>
 
-                <select
-                    className={`${selectClasses} w-auto min-w-40`}
-                    value={status}
-                    onChange={(e) => {
-                        setStatus(e.target.value);
-                        applyFilters({ status: e.target.value });
-                    }}
-                    aria-label={t("users.filterByStatus")}
-                >
-                    <option value="">{t("users.allStatuses")}</option>
-                    <option value="Active">{t("common.active")}</option>
-                    <option value="Inactive">{t("common.inactive")}</option>
-                </select>
+                    <select
+                        className={`${selectClasses} w-full`}
+                        value={status}
+                        onChange={(e) => {
+                            setStatus(e.target.value);
+                            applyFilters({ status: e.target.value });
+                        }}
+                        aria-label={t("users.filterByStatus")}
+                    >
+                        <option value="">{t("users.allStatuses")}</option>
+                        <option value="Active">{t("common.active")}</option>
+                        <option value="Inactive">{t("common.inactive")}</option>
+                    </select>
 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <UserCog className="size-4" />
-                    {users.total}{" "}
-                    {t(
-                        users.total === 1
-                            ? "users.accountOne"
-                            : "users.accountMany",
-                    )}
+                    <div className="flex h-10 items-center gap-2 rounded-full border border-border/60 bg-background/60 px-4 text-xs font-semibold text-muted-foreground shadow-2xs">
+                        <UserCog className="size-4 text-primary" />
+                        <span>
+                            {users.total}{" "}
+                            {t(
+                                users.total === 1
+                                    ? "users.accountOne"
+                                    : "users.accountMany",
+                            )}
+                        </span>
+                    </div>
                 </div>
             </FilterBar>
 

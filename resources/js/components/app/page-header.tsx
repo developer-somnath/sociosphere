@@ -33,25 +33,25 @@ export function PageHeader({
           ];
 
     return (
-        <div className="flex flex-col gap-2.5">
-            {/* Breadcrumbs Navigation Outside & Above the Card */}
-            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 px-1 text-xs text-muted-foreground">
+        <div className={cn("flex flex-col gap-2 mb-6", className)}>
+            {/* Breadcrumbs Navigation */}
+            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                 <Link
                     href="/dashboard"
-                    className="flex items-center gap-1 hover:text-primary transition-colors font-medium text-muted-foreground/80 hover:underline underline-offset-4"
+                    className="flex items-center gap-1 hover:text-primary transition-colors font-medium hover:underline underline-offset-4"
                 >
                     <Home className="size-3.5" />
                     <span>{t("common.home")}</span>
                 </Link>
                 {items.map((item, index) => (
                     <span key={`${item.label}-${index}`} className="flex items-center gap-1.5">
-                        <ChevronRight className="size-3 text-muted-foreground/50" />
+                        <ChevronRight className="size-3 text-slate-400" />
                         {item.href ? (
-                            <Link href={item.href} className="hover:text-primary transition-colors font-medium text-muted-foreground/80 underline-offset-4 hover:underline">
+                            <Link href={item.href} className="hover:text-primary transition-colors font-medium hover:underline underline-offset-4">
                                 {item.label}
                             </Link>
                         ) : (
-                            <span className="font-semibold text-foreground" aria-current="page">
+                            <span className="font-semibold text-slate-700 dark:text-slate-300" aria-current="page">
                                 {item.label}
                             </span>
                         )}
@@ -59,23 +59,27 @@ export function PageHeader({
                 ))}
             </nav>
 
-            {/* Main Header Card Container */}
-            <section className={cn("rounded-3xl border border-border/70 bg-card/80 p-5 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.4)] backdrop-blur", className)}>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3.5">
-                        {icon && (
-                            <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
-                                {icon}
-                            </div>
-                        )}
-                        <div>
-                            <h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1>
-                            {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
+            {/* Header Content Row */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pt-1">
+                <div className="flex items-center gap-3.5">
+                    {icon && (
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+                            {icon}
                         </div>
+                    )}
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                            {title}
+                        </h1>
+                        {description && (
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                {description}
+                            </p>
+                        )}
                     </div>
-                    {actions && <div className="flex flex-wrap gap-2.5 items-center">{actions}</div>}
                 </div>
-            </section>
+                {actions && <div className="flex flex-wrap gap-2.5 items-center">{actions}</div>}
+            </div>
         </div>
     );
 }

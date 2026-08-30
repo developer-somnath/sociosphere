@@ -11,12 +11,12 @@ type ActionLinkProps = ComponentPropsWithoutRef<typeof Link> & {
 };
 
 const variantClasses = {
-    blue: "text-info dark:text-info hover:text-info dark:hover:text-info font-semibold",
-    teal: "text-info dark:text-info hover:text-info dark:hover:text-info font-semibold",
-    indigo: "text-info dark:text-info hover:text-info dark:hover:text-info font-semibold",
-    rose: "text-destructive dark:text-destructive hover:text-destructive dark:hover:text-destructive font-semibold",
-    amber: "text-warning dark:text-warning hover:text-warning dark:hover:text-warning font-semibold",
-    purple: "text-info dark:text-info hover:text-info dark:hover:text-info font-semibold",
+    blue: "text-primary hover:text-primary/80 font-semibold",
+    teal: "text-primary hover:text-primary/80 font-semibold",
+    indigo: "text-brand hover:text-brand/80 font-semibold",
+    rose: "text-destructive hover:text-destructive/80 font-semibold",
+    amber: "text-warning hover:text-warning/80 font-semibold",
+    purple: "text-primary hover:text-primary/80 font-semibold",
     neutral: "text-muted-foreground hover:text-foreground font-medium",
 };
 

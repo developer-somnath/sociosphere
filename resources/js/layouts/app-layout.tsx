@@ -121,24 +121,24 @@ export default function AppLayout({ children }: PropsWithChildren) {
 
             <SidebarInset>
                 {/* ── Topbar ──────────────────────────────────────────────── */}
-                <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border/70 bg-card/90 backdrop-blur-md px-4 lg:px-6 transition-colors">
+                <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-card/95 backdrop-blur-md px-4 lg:px-6 transition-colors">
                     {/* Left: sidebar trigger & breadcrumb / search */}
                     <div className="flex items-center gap-3">
-                        <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" />
+                        <SidebarTrigger className="-ml-1 text-slate-500 hover:text-slate-900 transition-colors" />
                         <Separator orientation="vertical" className="h-4 text-border" />
 
                         {/* Search bar */}
                         <button
                             type="button"
                             onClick={openCommandPalette}
-                            className="hidden h-8.5 w-64 items-center justify-between gap-2 rounded-xl border border-border/70 bg-background/80 px-3 text-xs text-muted-foreground transition-all hover:border-primary/40 hover:bg-accent/40 sm:flex lg:w-80 shadow-2xs"
+                            className="hidden h-9 w-64 items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3 text-xs text-slate-500 transition-all hover:border-slate-300 hover:bg-slate-100 sm:flex lg:w-80 shadow-2xs dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400"
                             aria-label={t("menu.commandPalette")}
                         >
                             <div className="flex items-center gap-2">
-                                <Search className="size-3.5 shrink-0 text-muted-foreground" />
-                                <span>{t("menu.searchAnything")}</span>
+                                <Search className="size-3.5 shrink-0 text-slate-400" />
+                                <span>Search (Cmd+K)</span>
                             </div>
-                            <kbd className="rounded-md border border-border/60 bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                            <kbd className="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[10px] text-slate-500 shadow-2xs dark:border-slate-700 dark:bg-slate-800">
                                 ⌘K
                             </kbd>
                         </button>

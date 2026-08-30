@@ -47,15 +47,12 @@ export function MetricCard({
     return (
         <div
             className={cn(
-                "group relative flex overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-b from-card to-card/85 p-5 shadow-[0_4px_24px_-12px_rgba(15,23,42,0.12)] backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_16px_36px_-12px_rgba(15,23,42,0.18)] dark:shadow-[0_4px_24px_-12px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_16px_36px_-12px_rgba(0,0,0,0.7)]",
+                "group relative flex overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-xs transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-700",
                 className
             )}
         >
-            {/* Top-right subtle ambient light flare */}
-            <div className="pointer-events-none absolute -right-10 -top-10 size-24 rounded-full bg-primary/5 blur-2xl transition-opacity duration-300 group-hover:opacity-100 dark:bg-primary/10" />
-
             {/* Left accent pill bar */}
-            <div className={cn("absolute left-0 top-3 bottom-3 w-1 rounded-r-full transition-all duration-300 group-hover:w-1.5", resolvedAccentColor)} />
+            <div className={cn("absolute left-0 top-4 bottom-4 w-1 rounded-r-full transition-all duration-200 group-hover:w-1.5", resolvedAccentColor)} />
 
             <div className="relative z-10 flex flex-1 flex-col justify-between gap-4 pl-2">
                 {/* Top row: label + icon */}

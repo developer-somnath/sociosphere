@@ -15,28 +15,28 @@ type QuickActionPillProps = {
 
 const variantStyles: Record<VariantType, { pill: string; iconWrapper: string }> = {
     indigo: {
-        pill: "bg-info/10 text-info border-info/30 hover:bg-info hover:text-white dark:bg-info/20 dark:text-info dark:hover:bg-info dark:hover:text-white shadow-info/10",
-        iconWrapper: "bg-info/15 text-info dark:text-info group-hover:bg-white/20 group-hover:text-white",
+        pill: "bg-primary/10 text-primary border-primary/25 hover:bg-primary hover:text-white dark:bg-primary/20 dark:text-primary dark:hover:bg-primary dark:hover:text-white shadow-primary/10",
+        iconWrapper: "bg-primary/15 text-primary group-hover:bg-white/20 group-hover:text-white",
     },
     teal: {
-        pill: "bg-info/10 text-info border-info/30 hover:bg-info hover:text-white dark:bg-info/20 dark:text-info dark:hover:bg-info dark:hover:text-white shadow-info/10",
-        iconWrapper: "bg-info/15 text-info dark:text-info group-hover:bg-white/20 group-hover:text-white",
+        pill: "bg-primary/10 text-primary border-primary/25 hover:bg-primary hover:text-white dark:bg-primary/20 dark:text-primary dark:hover:bg-primary dark:hover:text-white shadow-primary/10",
+        iconWrapper: "bg-primary/15 text-primary group-hover:bg-white/20 group-hover:text-white",
     },
     rose: {
         pill: "bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive hover:text-white dark:bg-destructive/20 dark:text-destructive dark:hover:bg-destructive dark:hover:text-white shadow-destructive/10",
-        iconWrapper: "bg-destructive/15 text-destructive dark:text-destructive group-hover:bg-white/20 group-hover:text-white",
+        iconWrapper: "bg-destructive/15 text-destructive group-hover:bg-white/20 group-hover:text-white",
     },
     amber: {
         pill: "bg-warning/10 text-warning border-warning/30 hover:bg-warning hover:text-white dark:bg-warning/20 dark:text-warning dark:hover:bg-warning dark:hover:text-white shadow-warning/10",
-        iconWrapper: "bg-warning/15 text-warning dark:text-warning group-hover:bg-white/20 group-hover:text-white",
+        iconWrapper: "bg-warning/15 text-warning group-hover:bg-white/20 group-hover:text-white",
     },
     purple: {
-        pill: "bg-info/10 text-info border-info/30 hover:bg-info hover:text-white dark:bg-info/20 dark:text-info dark:hover:bg-info dark:hover:text-white shadow-info/10",
-        iconWrapper: "bg-info/15 text-info dark:text-info group-hover:bg-white/20 group-hover:text-white",
+        pill: "bg-brand/10 text-brand border-brand/25 hover:bg-brand hover:text-white dark:bg-brand/20 dark:text-brand dark:hover:bg-brand dark:hover:text-white shadow-brand/10",
+        iconWrapper: "bg-brand/15 text-brand group-hover:bg-white/20 group-hover:text-white",
     },
     blue: {
-        pill: "bg-info/10 text-info border-info/30 hover:bg-info hover:text-white dark:bg-info/20 dark:text-info dark:hover:bg-info dark:hover:text-white shadow-info/10",
-        iconWrapper: "bg-info/15 text-info dark:text-info group-hover:bg-white/20 group-hover:text-white",
+        pill: "bg-primary/10 text-primary border-primary/25 hover:bg-primary hover:text-white dark:bg-primary/20 dark:text-primary dark:hover:bg-primary dark:hover:text-white shadow-primary/10",
+        iconWrapper: "bg-primary/15 text-primary group-hover:bg-white/20 group-hover:text-white",
     },
 };
 

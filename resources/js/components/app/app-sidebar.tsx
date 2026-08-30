@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -187,8 +188,17 @@ function roleKey(label: string): string {
 }
 
 function isActive(href: string, url: string): boolean {
-    if (href === "#") return false;
-    return url === href || url.startsWith(`${href}/`);
+    if (!href || href === "#") return false;
+    try {
+        const hrefPath = new URL(href, "http://localhost").pathname.replace(/\/+$/, "") || "/";
+        const currentPath = url.split("?")[0].replace(/\/+$/, "") || "/";
+        if (hrefPath === "/overview" || hrefPath === "/") {
+            return currentPath === "/overview" || currentPath === "/";
+        }
+        return currentPath === hrefPath || currentPath.startsWith(`${hrefPath}/`);
+    } catch {
+        return false;
+    }
 }
 
 /* ─── NavItem component ──────────────────────────────────────────────────── */
@@ -205,17 +215,17 @@ function NavLink({ item, url }: { item: NavItem & { href: string }; url: string 
                 isActive={active}
                 tooltip={t(item.title)}
                 className={cn(
-                    "group relative h-9 rounded-lg px-2.5 text-sidebar-foreground/70 transition-all duration-200",
-                    "hover:bg-sidebar-accent/60 hover:text-sidebar-foreground hover:translate-x-0.5",
-                    active && "bg-sidebar-primary/15 text-sidebar-primary font-semibold ring-1 ring-sidebar-primary/20 shadow-xs"
+                    "group relative h-9.5 rounded-xl px-3 text-slate-600 transition-all duration-200 dark:text-slate-400",
+                    "hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800/60 dark:hover:text-slate-100",
+                    active && "bg-primary/10 text-primary font-semibold hover:bg-primary/15 hover:text-primary dark:bg-primary/15 dark:text-primary"
                 )}
             >
                 <Link href={item.href}>
-                    {/* Active left indicator bar with glow */}
+                    {/* Active left indicator bar */}
                     {active && (
-                        <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-sidebar-primary shadow-[0_0_10px_rgba(99,102,241,0.6)]" />
+                        <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
                     )}
-                    <Icon className={cn("size-4 shrink-0 transition-colors duration-200", active ? "text-sidebar-primary" : "text-sidebar-foreground/50 group-hover:text-sidebar-primary/80")} />
+                    <Icon className={cn("size-4 shrink-0 transition-colors duration-200", active ? "text-primary" : "text-slate-400 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300")} />
                     <span className="truncate text-sm">{t(item.title)}</span>
                 </Link>
             </SidebarMenuButton>
@@ -244,31 +254,34 @@ export function AppSidebar() {
             .map((item) => ({ ...item, href: safeRoute(item.routeName) })),
     })).filter((group) => group.items.length > 0);
 
+    const handleLogout = () => {
+        router.post(safeRoute("logout"));
+    };
+
     return (
         <Sidebar
             collapsible="icon"
-            className="border-r-0 bg-sidebar"
+            className="border-r border-sidebar-border bg-sidebar"
         >
             {/* ── Brand header ────────────────────────────────────────── */}
-            <SidebarHeader className="border-b border-sidebar-border px-3 py-3">
+            <SidebarHeader className="border-b border-sidebar-border/80 px-4 py-3.5">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild className="hover:bg-white/8 rounded-lg">
-                            <Link href={safeRoute("overview")}>
-                                {/* Logo mark */}
-                                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary/20 ring-1 ring-sidebar-primary/30">
-                                    <Building2 className="size-4 text-sidebar-primary" />
+                        <SidebarMenuButton size="lg" asChild className="hover:bg-slate-100 rounded-xl transition-colors">
+                            <Link href={safeRoute("overview")} className="flex items-center gap-3">
+                                {/* Logo mark — vibrant indigo rounded square */}
+                                <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-white font-bold shadow-sm shadow-primary/30">
+                                    <span className="text-base font-extrabold tracking-tight">S</span>
                                 </div>
                                 {/* Product name */}
-                                <div className="grid min-w-0 flex-1 text-left text-sm">
-                                    <span className="truncate font-semibold tracking-tight text-sidebar-foreground">
+                                <div className="grid min-w-0 flex-1 text-left">
+                                    <span className="truncate text-base font-bold tracking-tight text-slate-900 dark:text-white">
                                         SocioSphere
                                     </span>
-                                    <span className="truncate text-[11px] text-sidebar-foreground/50">
-                                        {auth.society?.name ?? t("app.portal")}
+                                    <span className="truncate text-xs font-medium text-slate-400 dark:text-slate-500">
+                                        {auth.society?.name ?? "Premium SaaS"}
                                     </span>
                                 </div>
-                                <ChevronRight className="size-3.5 shrink-0 text-sidebar-foreground/30" />
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -276,20 +289,20 @@ export function AppSidebar() {
             </SidebarHeader>
 
             {/* ── Navigation ──────────────────────────────────────────── */}
-            <SidebarContent className="px-2 py-3">
+            <SidebarContent className="px-3 py-3 space-y-4">
                 {visibleGroups.map((group, gi) => (
-                    <SidebarGroup key={group.label} className={gi > 0 ? "mt-1" : ""}>
+                    <SidebarGroup key={group.label} className="p-0">
                         {/* Group label — hidden when collapsed */}
                         <SidebarGroupLabel
                             className={cn(
-                                "mb-0.5 px-2.5 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/35",
+                                "mb-1 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400/80 dark:text-slate-500",
                                 "group-data-[collapsible=icon]:hidden"
                             )}
                         >
                             {t(group.label)}
                         </SidebarGroupLabel>
                         <SidebarGroupContent>
-                            <SidebarMenu>
+                            <SidebarMenu className="space-y-0.5">
                                 {group.items.map((item) => (
                                     <NavLink key={item.title} item={item} url={url} />
                                 ))}
@@ -299,37 +312,49 @@ export function AppSidebar() {
                 ))}
             </SidebarContent>
 
-            {/* ── Footer — user profile dropdown ──────────────────────── */}
-            <SidebarFooter className="border-t border-sidebar-border p-2">
+            {/* ── Footer ──────────────────────────────────────────────── */}
+            <SidebarFooter className="border-t border-sidebar-border/80 p-3 space-y-2">
+                {/* Upgrade / Quick CTA button */}
+                <div className="group-data-[collapsible=icon]:hidden px-1">
+                    <Button
+                        asChild
+                        className="w-full justify-center rounded-xl bg-primary text-white font-semibold shadow-sm hover:bg-primary/90"
+                    >
+                        <Link href={safeRoute("subscriptions.index")}>
+                            {t("nav.subscription") || "Upgrade Plan"}
+                        </Link>
+                    </Button>
+                </div>
+
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton
                                     size="lg"
-                                    className="h-11 rounded-lg hover:bg-white/8 data-[state=open]:bg-white/12"
+                                    className="h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60"
                                 >
                                     <Avatar className="size-7 rounded-lg">
-                                        <AvatarFallback className="rounded-lg bg-sidebar-primary/20 text-[11px] font-semibold text-sidebar-primary">
+                                        <AvatarFallback className="rounded-lg bg-primary/10 text-[11px] font-bold text-primary">
                                             {user ? initials(user.name) : "?"}
                                         </AvatarFallback>
                                     </Avatar>
-                                    <div className="grid min-w-0 flex-1 text-left text-sm">
-                                        <span className="truncate font-medium text-sidebar-foreground">
+                                    <div className="grid min-w-0 flex-1 text-left text-xs">
+                                        <span className="truncate font-semibold text-slate-900 dark:text-white">
                                             {user?.name}
                                         </span>
-                                        <span className="truncate text-[11px] text-sidebar-foreground/50">
+                                        <span className="truncate text-[10px] text-slate-400">
                                             {t(roleKey(roleLabel))}
                                         </span>
                                     </div>
-                                    <ChevronRight className="size-3.5 shrink-0 rotate-[-90deg] text-sidebar-foreground/30" />
+                                    <ChevronRight className="size-3.5 shrink-0 rotate-[-90deg] text-slate-400" />
                                 </SidebarMenuButton>
                             </DropdownMenuTrigger>
 
                             <DropdownMenuContent
                                 side="top"
                                 align="start"
-                                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl"
+                                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl shadow-lg"
                                 sideOffset={4}
                             >
                                 <DropdownMenuLabel className="p-0 font-normal">
@@ -362,26 +387,23 @@ export function AppSidebar() {
                                 <DropdownMenuSeparator />
 
                                 <DropdownMenuItem
-                                    variant="destructive"
-                                    onClick={() => {
-                                        try { router.post(route("logout")); }
-                                        catch { router.post("/logout"); }
-                                    }}
+                                    onClick={handleLogout}
+                                    className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
                                 >
                                     <LogOut className="size-4" />
-                                    {t("auth.signOut")}
+                                    {t("auth.logout")}
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </SidebarMenuItem>
                 </SidebarMenu>
 
-                {/* ── Version tag (blueprint §3) ─────────────────────────── */}
+                {/* ── Version tag ─────────────────────────────────────────── */}
                 <div
-                    className="mt-1 flex items-center justify-center gap-1.5 px-2 pb-1"
+                    className="flex items-center justify-center gap-1.5 px-2 pb-1"
                     title={t("app.versionBadge")}
                 >
-                    <span className="truncate text-[10px] font-medium tracking-wide text-sidebar-foreground/35">
+                    <span className="truncate text-[10px] font-medium tracking-wide text-slate-400">
                         {t("app.name")} {version}
                     </span>
                     {environment && (
@@ -389,7 +411,7 @@ export function AppSidebar() {
                             className={cn(
                                 "shrink-0 rounded-full px-1.5 py-px font-mono text-[9px] font-semibold uppercase tracking-wider",
                                 environment === "production"
-                                    ? "bg-brand/10 text-brand"
+                                    ? "bg-primary/10 text-primary"
                                     : "bg-warning/10 text-warning",
                             )}
                         >

@@ -59,7 +59,7 @@ export default function ComplaintCreate() {
                 }
             />
 
-            <Card className="mx-auto max-w-2xl border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
+            <Card className="mx-auto max-w-2xl">
                 <CardHeader>
                     <CardTitle>{t("complaintForm.details")}</CardTitle>
                 </CardHeader>

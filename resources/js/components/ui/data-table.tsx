@@ -31,7 +31,7 @@ export function DataTable({ children, className }: { children: ReactNode; classN
 }
 
 export function DataTableHeader({ children }: { children: ReactNode }) {
-    return <thead className="sticky top-0 z-[1] border-b border-border/60 bg-muted/30 text-left text-xs font-semibold text-muted-foreground backdrop-blur-md">{children}</thead>;
+    return <thead className="sticky top-0 z-[1] border-b border-slate-200/80 bg-slate-50/80 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400">{children}</thead>;
 }
 
 export type SortState = { key: string; direction: "asc" | "desc" };
@@ -374,7 +374,7 @@ export function DataTableFull<T>({
             >
                 <table className={cn("w-full text-sm", tableClassName)}>
                     {caption && <caption className="sr-only">{caption}</caption>}
-                    <thead className="sticky top-0 z-[1] border-b border-border/60 bg-muted/30 text-left text-xs font-semibold text-muted-foreground backdrop-blur-md">
+                    <thead className="sticky top-0 z-[1] border-b border-slate-200/80 bg-slate-50/80 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400">
                         <tr>
                             {selectable && (
                                 <th scope="col" className="w-12 px-5 py-3">
@@ -464,10 +464,10 @@ export function DataTableFull<T>({
                                             onClick={onRowClick ? () => onRowClick(row) : undefined}
                                             onMouseEnter={keyboardNav ? () => setActiveIndex(index) : undefined}
                                             className={cn(
-                                                "border-b border-border/40 transition-colors",
-                                                isSelected && "bg-primary/5",
-                                                isActive && "bg-muted/60",
-                                                onRowClick && "cursor-pointer hover:bg-muted/50",
+                                                "border-b border-border/40 transition-colors duration-150 hover:bg-accent/30",
+                                                isSelected && "bg-primary/10 font-medium",
+                                                isActive && "bg-accent/50",
+                                                onRowClick && "cursor-pointer",
                                             )}
                                         >
                                             {selectable && (

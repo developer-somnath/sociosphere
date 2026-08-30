@@ -246,16 +246,39 @@ export default function AmenityBookingsIndex() {
                 header: t("amenityBookings.colDateTime"),
                 sortable: true,
                 sortKey: "booking_date",
-                cell: (b) => (
-                    <div className="flex flex-col text-xs font-mono">
-                        <span className="text-foreground font-medium">
-                            {b.booking_date}
-                        </span>
-                        <span className="text-muted-foreground">
-                            {b.start_time} - {b.end_time}
-                        </span>
-                    </div>
-                ),
+                cell: (b) => {
+                    const dateStr = b.booking_date
+                        ? new Date(b.booking_date).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                          })
+                        : "—";
+                    const formatTime = (timeStr?: string) => {
+                        if (!timeStr) return "";
+                        const [hh, mm] = timeStr.split(":");
+                        if (!hh || !mm) return timeStr;
+                        const h = parseInt(hh, 10);
+                        const ampm = h >= 12 ? "PM" : "AM";
+                        const formattedH = h % 12 || 12;
+                        return `${formattedH}:${mm} ${ampm}`;
+                    };
+                    const timeRange =
+                        b.start_time && b.end_time
+                            ? `${formatTime(b.start_time)} – ${formatTime(b.end_time)}`
+                            : b.start_time || "—";
+
+                    return (
+                        <div className="flex flex-col text-xs">
+                            <span className="font-semibold text-foreground">
+                                {dateStr}
+                            </span>
+                            <span className="font-mono text-[11px] text-muted-foreground">
+                                {timeRange}
+                            </span>
+                        </div>
+                    );
+                },
             },
             {
                 id: "total_fee",
@@ -373,7 +396,6 @@ export default function AmenityBookingsIndex() {
                 onSearchChange={setSearch}
                 searchPlaceholder={t("amenityBookings.searchPlaceholder")}
                 searchLabel={t("amenityBookings.searchLabel")}
-                className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
                 onReset={() => {
                     setSearch("");
                     setStatus("");
@@ -385,7 +407,7 @@ export default function AmenityBookingsIndex() {
                 <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="h-9.5 rounded-xl border border-border bg-card px-3 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                     <option value="">{t("amenityBookings.allStatuses")}</option>
                     <option value="Pending">{t("common.pending")}</option>
@@ -397,7 +419,7 @@ export default function AmenityBookingsIndex() {
                 <select
                     value={amenityId}
                     onChange={(e) => setAmenityId(e.target.value)}
-                    className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="h-9.5 rounded-xl border border-border bg-card px-3 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                     <option value="">{t("amenityBookings.allAmenities")}</option>
                     {amenities.map((a) => (
@@ -411,11 +433,11 @@ export default function AmenityBookingsIndex() {
                     type="date"
                     value={bookingDate}
                     onChange={(e) => setBookingDate(e.target.value)}
-                    className="h-9 w-auto rounded-xl border border-border/70 bg-card px-3 text-xs"
+                    className="h-9.5 w-auto rounded-xl border border-border bg-card px-3 text-xs"
                 />
             </FilterBar>
 
-            <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
+            <Card>
                 <CardContent className="p-0">
                     <DataTableFull<BookingItem>
                         columns={columns}

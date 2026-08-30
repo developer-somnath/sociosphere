@@ -38,7 +38,7 @@ export function FilterBar({
     return (
         <div
             className={cn(
-                "rounded-3xl border border-border/70 bg-card/80 p-3.5 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)] backdrop-blur-md transition-all duration-200",
+                "rounded-2xl border border-border bg-card p-3.5 shadow-xs transition-all duration-200",
                 className,
             )}
         >
@@ -51,7 +51,7 @@ export function FilterBar({
                             value={searchValue}
                             onChange={(event) => onSearchChange(event.target.value)}
                             placeholder={resolvedPlaceholder}
-                            className="h-10 rounded-full border-border/70 bg-background/80 pl-9.5 pr-8 text-xs font-medium shadow-2xs transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                            className="h-9.5 rounded-xl border border-border bg-background pl-9.5 pr-8 text-xs font-medium shadow-2xs transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />
                         {searchValue ? (
                             <Button

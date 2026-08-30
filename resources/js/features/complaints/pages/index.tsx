@@ -337,7 +337,6 @@ export default function ComplaintsIndex() {
                 onSearchChange={setSearch}
                 searchPlaceholder={t("complaints.searchPlaceholder")}
                 searchLabel={t("complaints.searchLabel")}
-                className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]"
                 onReset={() => {
                     setSearch("");
                     setStatus("");
@@ -349,7 +348,7 @@ export default function ComplaintsIndex() {
                 <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="h-10 rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                    className="h-9.5 rounded-xl border border-border bg-card px-3 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                 >
                     <option value="">{t("complaints.allStatuses")}</option>
                     <option value="Open">{t("complaints.status.open")}</option>
@@ -362,7 +361,7 @@ export default function ComplaintsIndex() {
                 <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
-                    className="h-10 rounded-full border border-border/70 bg-background/80 px-3.5 text-xs font-semibold text-foreground shadow-2xs outline-none transition-all duration-200 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                    className="h-9.5 rounded-xl border border-border bg-card px-3 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                 >
                     <option value="">{t("complaints.allPriorities")}</option>
                     <option value="Low">{t("complaints.priority.low")}</option>
@@ -374,7 +373,7 @@ export default function ComplaintsIndex() {
                 <select
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="h-9 rounded-xl border border-border/70 bg-card px-3 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="h-9.5 rounded-xl border border-border bg-card px-3 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                 >
                     <option value="">{t("complaints.allCategories")}</option>
                     {categories.map((cat) => (
@@ -385,7 +384,7 @@ export default function ComplaintsIndex() {
                 </select>
             </FilterBar>
 
-            <Card className="border-border/70 bg-card/80 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.45)]">
+            <Card>
                 <CardContent className="p-0">
                     <DataTableFull<ComplaintItem>
                         columns={columns}

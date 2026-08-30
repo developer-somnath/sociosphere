@@ -11,20 +11,27 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const DOC = path.join(ROOT, 'structure-react.txt');
 const SRC = path.join(ROOT, 'resources', 'js');
 
+function walk(dir, baseDir, fileList = []) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      walk(fullPath, baseDir, fileList);
+    } else if (entry.isFile() && (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts'))) {
+      const relPath = path.relative(baseDir, fullPath).replace(/\\/g, '/');
+      fileList.push(relPath);
+    }
+  }
+  return fileList;
+}
+
 function actualTree() {
-  const out = execSync(
-    `find resources/js -type f \\( -name "*.tsx" -o -name "*.ts" \\) | sed "s|resources/js/||" | sort`,
-    { cwd: ROOT, encoding: 'utf8' }
-  )
-    .trim()
-    .split('\n')
-    .filter(Boolean);
+  const out = walk(SRC, SRC).sort();
 
   const tree = {};
   for (const f of out) {

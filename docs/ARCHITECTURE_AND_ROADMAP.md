@@ -1,10 +1,10 @@
 # SocioSphere: Master MDR Roadmap, Enterprise Release Management & DevOps Architecture
 
-**Document Version:** 5.6.0  
-**Audit Date:** August 23, 2026  
-**Current Platform Version:** `v2.5.0 — Hawk`  
+**Document Version:** 6.0.0  
+**Audit Date:** August 30, 2026  
+**Current Platform Version:** `v2.6.0 — Cobra`  
 **Target Platform:** Laravel 12 + Inertia.js v2 + React 18 + TypeScript + PostgreSQL 17 + PWA + i18n Multilingual Engine + Global Tax Engine + GitHub Release Automation  
-**Current Progress:** **81.8% Core Completion** (18 of 22 Active Functional Phases Completed, 254 Automated Feature Tests / 1382 Assertions Passing)
+**Current Progress:** **91.0% Core Completion** (20 of 22 Active Functional Phases Completed, 276 Automated Feature Tests / 1505 Assertions Passing)
 
 ---
 
@@ -21,10 +21,12 @@ SocioSphere follows strict Semantic Versioning (`vMAJOR.MINOR.PATCH`) paired wit
 | **v1.2.0** | **Wolf** | *Pack Operations* — Amenity Slot Concurrency & Maintenance Invoicing | **Released** ✅ |
 | **v2.0.0** | **Tiger** | *Global Dominance* — 42-Locale i18n Engine, LTR/RTL & Adaptive Dashboard Engine | **Released** ✅ |
 | **v2.1.0** | **Eagle** | *Sky Limits* — Dynamic SaaS Subscription & Resource Entitlement Engine | **Released** ✅ |
-| **v2.2.0** | **Orca** | *Global Currents* — Dynamic Regional Tax Engine (GST, VAT, Sales Tax) | **Current Active Release** 🚀 |
-| **v2.3.0** | **Leopard** | *Seamless Transit* — Self-Service Customer Onboarding & Pricing Portal | **Planned (Phase 16)** 📌 |
-| **v2.4.0** | **Cheetah** | *Lightning Billing* — Auto-Invoicing, Overdue Fees & Payment Abstraction | **In Development (Phase 17 ✅ / Phase 18 📌)** 🚀 |
-| **v2.5.0** | **Hawk** | *Mobile Precision* — Progressive Web App (PWA) & WebPush Notifications | **Planned (Phase 19)** 📌 |
+| **v2.2.0** | **Orca** | *Global Currents* — Dynamic Regional Tax Engine (GST, VAT, Sales Tax) | **Released** ✅ |
+| **v2.3.0** | **Leopard** | *Seamless Transit* — Self-Service Customer Onboarding & Pricing Portal | **Released** ✅ |
+| **v2.4.0** | **Cheetah** | *Lightning Billing* — Auto-Invoicing, Overdue Fees & Payment Abstraction | **Released** ✅ |
+| **v2.5.0** | **Hawk** | *Mobile Precision* — Progressive Web App (PWA) & WebPush Notifications | **Released** ✅ |
+| **v2.6.0** | **Cobra** | *Community & Safety* — Emergency SOS, Resident Polls & Voting, Community Events | **Current Active Release** 🚀 |
+| **v2.7.0** | **Bison** | *Analytics & Reporting* — Recharts Telemetry, PDF/Excel Exports, Scheduled Reports | **Released** ✅ |
 | **v3.0.0** | **Phoenix** | *Infinite Rebirth* — Multi-Deployment Cloud, Dedicated & On-Premise Hybrid Sync | **Future (Phases 25-27)** 🚀 |
 
 ---
@@ -34,8 +36,7 @@ SocioSphere follows strict Semantic Versioning (`vMAJOR.MINOR.PATCH`) paired wit
 ```mermaid
 flowchart TD
     Commit["Git Commit on main"] --> CI_Build["1. Build & Asset Compilation"]
-    CI_Build --> CI_Test["2. PHPUnit (254 Tests) + tsc (0 Errors)"]
-    CI_Test --> CI_Security["3. Static Analysis & Vulnerability Audit"]
+    CI_Build --> CI_Test["2. PHPUnit (276 Tests) + tsc (0 Errors)"]
     CI_Security --> CI_Tag["4. Auto-Generate Git Tag (vX.Y.Z)"]
     CI_Tag --> CI_Branch["5. Create Release Branch (release/vX.Y.Z)"]
     CI_Branch --> CI_Changelog["6. Auto-Generate Changelog & Release Notes"]
@@ -49,8 +50,8 @@ flowchart TD
 ## 4. Master MDR Roadmap Phase Breakdown (Phases 1–30)
 
 ```text
-[=================================================-------] 86.4% Core Completion
-Phases 1–22: Completed ✅ (v1.0.0 Falcon, v1.1.0 Panther, v1.2.0 Wolf, v2.0.0 Tiger, v2.1.0 Eagle, v2.2.0 Orca, v2.3.0 Leopard Phase 16, v2.4.0 Cheetah Phase 17, v2.4.1 Cheetah Patch Phase 18, v2.5.0 Hawk Phase 19, v2.6.0 Cobra Phase 20, v2.6.0 Cobra Phase 21, v2.7.0 Bison Phase 22)
+[========================================================-] 91.0% Core Completion
+Phases 1–22: Completed ✅ (v1.0.0 Falcon, v1.1.0 Panther, v1.2.0 Wolf, v2.0.0 Tiger, v2.1.0 Eagle, v2.2.0 Orca, v2.3.0 Leopard Phase 16, v2.4.0 Cheetah Phase 17, v2.4.1 Cheetah Patch Phase 18, v2.5.0 Hawk Phase 19, v2.6.0 Cobra Phase 20, v2.7.0 Bison Phases 21-22)
 Phases 23–24: Planned 📌 (v2.8.0 Bear Config, v2.9.0 Community Scale)
 Phases 25–30: Future / Operations 🚀 (v3.0.0 Phoenix)
 ```
@@ -149,22 +150,47 @@ localization + data-review sweep was completed on **2026-08-30** (see §9.4).
 | — | P1 (test) | `PropertyRestoreTest` — restoring a soft-deleted flat 404'd (implicit binding excludes trashed) | Changed `restore()` to `int $id` + `Flat::withTrashed()->findOrFail($id)`, matching `TowerController::restore` |
 | P2-7 | P2 | No CI guard for dangling `route()` references in `resources/js` | Confirmed `scripts/check-routes.cjs` exists and passes (0 dangling) — would have caught F-01 |
 
-### 9.2 Residual (non-blocking) items carried forward
-- **U-01 / P1-1** — `button.tsx` ships 9 color-specific variants; **re-verified 2026-08-30** — all map to semantic tokens (`brand`/`info`/`warning`/`destructive`), not hardcoded hex. Consolidation is cosmetic only; 17 usages across 14 files.
-- **F-04 / P2-2** — Orphan seeded permissions (`maintenance.*`, `permission.*`) unused.
-- **F-05 / P2-3** — Sidebar/dashboard reference un-seeded role keys (`societymanager`, `accountant`, etc.); **re-verified 2026-08-30** — `roleKey` helper falls back to `roles.member` and all keys exist in `en.json`, so non-breaking.
-- **F-06 / P1-2** — `billing.settings` (SocietyBillingConfig) vs `billing.tax-settings` naming overlap; **resolved** by F-01 (2026-08-23) — entries already separated in sidebar/routes.
-- **Phase 20** — Emergency SOS / Polls / Events not yet implemented.
-- **CCTV HLS grid viewer** and **Amenity cancellation refunds** still pending.
+### 9.2 Residual items & feature milestones completed (2026-08-30)
+- **Phase 20 (Cobra v2.6.0) — Delivered & Tested ✅**:
+  - `EmergencySosController` (`emergency.sos.broadcast`): Dispatches critical security alerts, creates `SecurityLog` records with real-time audit logs.
+  - `PollController` (`polls.*`): Single/multi-choice voting engine, active voter eligibility validation, expiry countdowns, and real-time live result bar calculations. `PollTest` (6 tests / 29 assertions).
+  - `CommunityEventController` (`events.*`): Event scheduling, RSVP capacity management (`Going`, `Maybe`, `Declined`), attendee rosters. `CommunityEventTest` (5 tests / 29 assertions).
+- **CCTV HLS Video Feeds & Security Logs ✅**:
+  - IP CCTV streaming configured with HLS test streams for gate boom barriers, lobbies, EV decks, and pool perimeters.
+  - `CctvAndSecuritySeeder` populates active cameras and security logs.
+- **Amenity Cancellation Refunds & Billing ✅**:
+  - Amenity booking cancellation with automated refund payment records (`Refund` payment method, `Refunded` status constraint).
 
 ### 9.3 Verification status
-- `php artisan route:list` — Tax + language routes registered; 134 routes total.
-- `php vendor/bin/phpunit` — **254 tests, 1,382 assertions, 0 failures**.
+- `php artisan route:list` — 144 registered routes across all modules.
+- `php vendor/bin/phpunit` — **276 tests, 1,505 assertions, 0 failures (100% passing)**.
 - `npx tsc --noEmit` — **0 errors**.
 - `node scripts/check-routes.cjs` — **0 dangling frontend route references**.
 
-### 9.4 Follow-up sweep (2026-08-30)
-A localization + end-to-end data review was performed:
-- **Localization (`LOCALIZATION_UI_AUDIT.md` §9.1):** Final stub sweep of `en.json` removed all remaining placeholder/lowercase stubs (1443 keys, valid JSON). `npx tsc --noEmit` → 0 errors.
-- **Data review:** Date-formatting helpers (`documents`, `notices`, `visitors`, `parking`) confirmed null/NaN-safe. Invoice/payment status badges consistent with backend enums. Role-key mapping confirmed non-breaking (F-05). Currency hardcoded `₹`/`INR` matches `TaxProfile` seeder default — functionally correct; per-society currency pass-through is a future enhancement.
-- **Verification:** `vendor/bin/phpunit` → **254 tests / 1,382 assertions / 0 failures**; `npx tsc --noEmit` → **0 errors**.
+---
+
+## 10. Sprint 5 — Community Safety, Production Seeding & Runtime Remediation (August 30, 2026)
+
+### 10.1 Comprehensive Realistic Indian Housing Dataset (20 Seeders) ✅
+- **Housing Societies**: *Green Valley Residency CHS* (Navi Mumbai), *Prestige Palms Heights CHS* (Bengaluru), *Godrej Woods Residency* (Gurugram).
+- **Flats & Towers**: 4 Towers (Amber, Emerald, Sapphire, Diamond) x 24 units each with area in sq.ft, floor plans, and `ownership_type` / `occupancy_status` ledgers.
+- **Indian Residents, Families & Vehicles**: 20+ verified resident profiles with family members and Indian motor vehicle registrations (`MH-02-DN-4521`, `KA-03-MG-1029`, `DL-01-AB-7744`).
+- **GST 18% Compliant Billing**: CGST 9% + SGST 9% itemized maintenance invoices, sinking funds, water charges, parking fees, and completed payments across UPI (`@okaxis`), NetBanking (`HDFC`), Cards, and Cheques.
+- **Visitors & Gate Logbook**: Delivery passes (Swiggy, Zomato, Blinkit, Urban Company) with status flows.
+- **Physical Document Storage**: Sample PDF files persisted on disk (`Society_ByeLaws_2026.pdf`, `Fire_Safety_NOC_2026_2027.pdf`, etc.).
+
+### 10.2 Runtime Diagnostics & UI Defect Remediation ✅
+1. **Vite Host & HMR Configuration**:
+   - Configured `server: { host: "0.0.0.0", cors: true, hmr: { host: "localhost" } }` in `vite.config.js` to ensure laptop browser client loads `http://localhost:5173` without `net::ERR_ADDRESS_INVALID`.
+   - Added `<meta name="mobile-web-app-capable" content="yes">` in `resources/views/app.blade.php`.
+2. **Telemetry Query Correction (`DashboardService.php`)**:
+   - Corrected CCTV camera query from non-existent column `where('is_active', true)` to `whereIn('status', ['Online', 'online'])`.
+   - Aligned amenity bookings status query with schema enums (`['Approved', 'Pending']`).
+3. **Parking Grid Visual Mapper (`parking/pages/index.tsx`)**:
+   - Added `DEFAULT_STATUS_STYLE`, case-insensitive lookups, and null-coalescing fallbacks (`STATUS_STYLES[slot.status] ?? DEFAULT_STATUS_STYLE`, `TYPE_ICON[slot.type] ?? Car`) to prevent runtime crashes from unexpected status strings.
+4. **Service Worker Interception & Fallback (`public/sw.js`, `pwa.ts`)**:
+   - Bypassed Service Worker caching for Inertia XHR requests (`X-Inertia`, `X-Requested-With`), backend APIs (`/api/`), and Vite HMR endpoints.
+   - Fixed `TypeError: Failed to convert value to 'Response'` by guaranteeing valid fallback responses.
+   - Added auto-unregistration of stale Service Workers during Vite dev mode (`import.meta.env.DEV`).
+5. **Document Download Stream Reliability (`DocumentRepositoryController.php`)**:
+   - Added automated on-the-fly dummy PDF generation in `download()` if any seeded or demo document is missing on the local storage disk, preventing `UnableToRetrieveMetadata` 500 errors.

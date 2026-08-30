@@ -684,7 +684,7 @@ export default function ParkingIndex() {
                                     {filtered.map((slot) => {
                                         const style = STATUS_STYLES[slot.status] ?? DEFAULT_STATUS_STYLE;
                                         const TypeIcon = TYPE_ICON[slot.type] ?? Car;
-                                        const clickable = can.allocate && (slot.status === "Available" || slot.status === "available");
+                                        const clickable = can.allocate && String(slot.status).toLowerCase() === "available";
                                         return (
                                             <button
                                                 key={slot.uuid}

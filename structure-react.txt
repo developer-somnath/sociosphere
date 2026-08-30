@@ -11,7 +11,9 @@ Profile/
 components/
   app/
     app-sidebar.tsx
+    back-button.tsx
     command-palette.tsx
+    emergency-sos-dialog.tsx
     flash-toaster.tsx
     language-switcher.tsx
     notification-center.tsx
@@ -76,6 +78,8 @@ features/
     pages/
       invitation-register.tsx
       login-page.tsx
+      onboarding.tsx
+      pricing.tsx
   billing/
     pages/
       tax-settings.tsx
@@ -98,6 +102,9 @@ features/
     pages/
       dashboard-page.tsx
   documents/
+    pages/
+      index.tsx
+  events/
     pages/
       index.tsx
   flats/
@@ -137,6 +144,9 @@ features/
       edit.tsx
       index.tsx
   payments/
+    pages/
+      index.tsx
+  polls/
     pages/
       index.tsx
   pwa/

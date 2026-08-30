@@ -4,10 +4,10 @@
  * - Notification click -> focuses/open tab
  * - Subscription change -> re-subscribes via the API
  */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const APP_SHELL_CACHE = `sociosphere-shell-${VERSION}`;
 const RUNTIME_CACHE = `sociosphere-runtime-${VERSION}`;
-const APP_SHELL_URLS = ['/', '/dashboard', '/icon.svg', '/icon-maskable.svg', '/manifest.webmanifest'];
+const APP_SHELL_URLS = ['/', '/overview', '/icon.svg', '/icon-maskable.svg', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
@@ -35,35 +35,58 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(request.url);
     if (url.origin !== self.location.origin) return;
 
+    // Bypass service worker for Inertia, API calls, Vite HMR, and dynamic backend actions
+    if (
+        request.headers.get('X-Inertia') ||
+        request.headers.get('X-Requested-With') === 'XMLHttpRequest' ||
+        url.pathname.startsWith('/api/') ||
+        url.pathname.startsWith('/@') ||
+        url.pathname.startsWith('/resources/') ||
+        url.pathname.startsWith('/node_modules/') ||
+        url.pathname.includes('hot')
+    ) {
+        return;
+    }
+
     // Navigations: network-first, fall back to cached shell when offline.
     if (request.mode === 'navigate') {
         event.respondWith(
             fetch(request)
                 .then((response) => {
-                    const copy = response.clone();
-                    caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
-                    return response;
-                })
-                .catch(() => caches.match(request).then((r) => r || caches.match('/')))
-        );
-        return;
-    }
-
-    // Static assets: cache-first, then network (and cache the result).
-    event.respondWith(
-        caches.match(request).then((cached) => {
-            if (cached) return cached;
-            return fetch(request)
-                .then((response) => {
-                    if (response && response.status === 200 && response.type === 'basic') {
+                    if (response && response.status === 200) {
                         const copy = response.clone();
                         caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
                     }
                     return response;
                 })
-                .catch(() => cached);
-        })
-    );
+                .catch(async () => {
+                    const cached = await caches.match(request);
+                    if (cached) return cached;
+                    const shell = await caches.match('/');
+                    if (shell) return shell;
+                    return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
+                })
+        );
+        return;
+    }
+
+    // Static assets (images, fonts, stylesheets, scripts)
+    const isStaticAsset = /\.(png|jpg|jpeg|svg|webp|gif|ico|woff|woff2|ttf|eot|css|js)$/i.test(url.pathname);
+    if (isStaticAsset) {
+        event.respondWith(
+            caches.match(request).then((cached) => {
+                if (cached) return cached;
+                return fetch(request)
+                    .then((response) => {
+                        if (response && response.status === 200 && response.type === 'basic') {
+                            const copy = response.clone();
+                            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
+                        }
+                        return response;
+                    });
+            })
+        );
+    }
 });
 
 self.addEventListener('push', (event) => {

@@ -3,38 +3,59 @@
 namespace Database\Seeders;
 
 use App\Models\InvoiceHead;
+use App\Models\Society;
 use Illuminate\Database\Seeder;
 
 class InvoiceHeadSeeder extends Seeder
 {
     public function run(): void
     {
-        collect([
+        $society = Society::first();
+        if (! $society) {
+            return;
+        }
 
+        $heads = [
             [
-                'society_id' => 1,
-                'name' => 'Maintenance',
-                'amount' => 2000,
+                'name' => 'Monthly Society Maintenance Charges',
+                'amount' => 3500.00,
                 'is_recurring' => true,
             ],
-
             [
-                'society_id' => 1,
-                'name' => 'Water Charge',
-                'amount' => 300,
+                'name' => 'Sinking & Major Repair Reserve Fund',
+                'amount' => 500.00,
                 'is_recurring' => true,
             ],
-
             [
-                'society_id' => 1,
-                'name' => 'Parking Charge',
-                'amount' => 500,
+                'name' => 'Municipal Water & Sewerage Utility Charge',
+                'amount' => 350.00,
                 'is_recurring' => true,
             ],
+            [
+                'name' => 'Covered & EV Parking Slot Fee',
+                'amount' => 450.00,
+                'is_recurring' => true,
+            ],
+            [
+                'name' => 'Lift AMC & Common Generator Backup Surcharge',
+                'amount' => 250.00,
+                'is_recurring' => true,
+            ],
+            [
+                'name' => 'Non-Occupancy Surcharge (Tenanted Flats)',
+                'amount' => 350.00,
+                'is_recurring' => true,
+            ],
+        ];
 
-        ])->each(
-            fn($head) =>
-            InvoiceHead::create($head)
-        );
+        foreach ($heads as $head) {
+            InvoiceHead::firstOrCreate(
+                [
+                    'society_id' => $society->id,
+                    'name' => $head['name'],
+                ],
+                $head
+            );
+        }
     }
 }

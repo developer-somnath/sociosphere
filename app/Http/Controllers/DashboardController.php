@@ -19,7 +19,7 @@ class DashboardController extends Controller
         $societyId = society_id();
 
         return Inertia::render('features/dashboard/pages/dashboard-page', [
-            'stats' => $this->dashboardService->stats($societyId),
+            'stats' => $this->dashboardService->stats($societyId, $request->user()),
         ]);
     }
 }

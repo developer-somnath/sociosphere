@@ -151,8 +151,8 @@ export default function BatchGenerate() {
             <Head title={t("invoices.batchGenerateTitle")} />
 
             <PageHeader
-                title="Auto-Billing Engine"
-                description="Preview, exclude, and run batch maintenance invoice generation."
+                title={t("invoices.batchGenerateTitle")}
+                description={t("invoices.batchGenerateDesc")}
                 icon={<CalendarCog className="size-5" />}
                 breadcrumbs={[{ label: t("nav.finance") }, { label: t("invoices.batchGenerateCrumb") }]}
                 actions={
@@ -160,7 +160,7 @@ export default function BatchGenerate() {
                         <Button variant="outline" size="sm" asChild>
                             <Link href={route("billing.settings")}>
                                 <Settings2 className="size-4" />
-                                Settings
+                                {t("common.settings")}
                             </Link>
                         </Button>
                     ) : null

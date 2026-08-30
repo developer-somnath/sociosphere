@@ -9,6 +9,7 @@ import {
     ClipboardCheck,
     CreditCard,
     DoorOpen,
+    FileSpreadsheet,
     FolderOpen,
     Gauge,
     History,
@@ -27,6 +28,8 @@ import {
     UserCog,
     Users,
     Video,
+    Vote,
+    Calendar,
     type LucideIcon,
 } from "lucide-react";
 import { route } from "ziggy-js";
@@ -43,9 +46,11 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarRail,
     useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -108,8 +113,10 @@ const NAV_GROUPS: NavGroup[] = [
     {
         label: "nav.communications",
         items: [
-            { title: "nav.notices", routeName: "notices.index",   icon: Megaphone,  permission: "notice.view"   },
-            { title: "nav.documents",    routeName: "documents.index", icon: FolderOpen, permission: "document.view" },
+            { title: "nav.notices",   routeName: "notices.index",          icon: Megaphone,  permission: "notice.view"   },
+            { title: "nav.polls",     routeName: "polls.index",            icon: Vote,       permission: "poll.view"     },
+            { title: "nav.events",    routeName: "community-events.index", icon: Calendar,   permission: "event.view"    },
+            { title: "nav.documents", routeName: "documents.index",        icon: FolderOpen, permission: "document.view" },
         ],
     },
     {
@@ -124,6 +131,7 @@ const NAV_GROUPS: NavGroup[] = [
         items: [
             { title: "nav.invoices",       routeName: "invoices.index",     icon: Receipt,       permission: "invoice.view"    },
             { title: "nav.payments",       routeName: "payments.index",     icon: CreditCard,    permission: "collection.view" },
+            { title: "nav.reports",        routeName: "reports.index",      icon: FileSpreadsheet, permission: "collection.view" },
             { title: "nav.batchGenerate", routeName: "billing.preview",    icon: CalendarCog,   permission: "billing.configure" },
             { title: "nav.flatLedger",    routeName: "billing.ledger",     icon: BookOpenText,  permission: "invoice.view"    },
             { title: "nav.billingConfig", routeName: "billing.settings",   icon: Settings2,     permission: "billing.configure" },
@@ -223,6 +231,7 @@ export function AppSidebar() {
     const { state } = useSidebar();
     const { t } = useI18n();
     const user = auth.user;
+    const isSuperAdmin = user?.is_super_admin ?? false;
     const permissions = user?.permissions ?? [];
     const roleLabel = user?.roles?.[0] ?? "Member";
     const collapsed = state === "collapsed";
@@ -231,7 +240,7 @@ export function AppSidebar() {
     const visibleGroups = NAV_GROUPS.map((group) => ({
         ...group,
         items: group.items
-            .filter((item) => !item.permission || permissions.includes(item.permission))
+            .filter((item) => isSuperAdmin || !item.permission || permissions.includes(item.permission))
             .map((item) => ({ ...item, href: safeRoute(item.routeName) })),
     })).filter((group) => group.items.length > 0);
 

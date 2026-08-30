@@ -30,8 +30,26 @@ class InvoiceController extends Controller
             : null;
         $sortDir = strtolower((string) $request->query('sort_dir')) === 'asc' ? 'asc' : 'desc';
 
+        $user = $request->user();
+        $isResidentOnly = $user !== null
+            && $user->hasRole('Resident')
+            && ! $user->hasAnyRole(['SuperAdmin', 'SocietyAdmin', 'Treasurer', 'Accountant']);
+
+        $userFlatIds = [];
+        if ($isResidentOnly) {
+            $userFlatIds = \App\Models\Resident::query()
+                ->where('email', $user->email)
+                ->pluck('flat_id')
+                ->filter()
+                ->unique()
+                ->toArray();
+        }
+
         $query = Invoice::query()
             ->with(['flat', 'flat.tower'])
+            ->when($isResidentOnly, function ($q) use ($userFlatIds) {
+                $q->whereIn('flat_id', $userFlatIds);
+            })
             ->when($search !== '', function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
                     ->orWhereHas('flat', function ($fq) use ($search) {
@@ -55,11 +73,14 @@ class InvoiceController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        $statsBase = Invoice::query()->when($isResidentOnly, fn ($q) => $q->whereIn('flat_id', $userFlatIds));
+
         $stats = [
-            'total_billed' => Invoice::sum('total_amount'),
-            'total_collected' => Invoice::sum('paid_amount'),
-            'overdue_amount' => Invoice::where('status', 'Overdue')->sum('total_amount'),
-            'unpaid_count' => Invoice::whereIn('status', ['Unpaid', 'Overdue', 'Partially Paid'])->count(),
+            'total_billed' => (float) (clone $statsBase)->sum('total_amount'),
+            'total_collected' => (float) (clone $statsBase)->sum('paid_amount'),
+            'overdue_amount' => (float) (clone $statsBase)->where('status', 'Overdue')->sum('total_amount'),
+            'unpaid_count' => (int) (clone $statsBase)->whereIn('status', ['Unpaid', 'Overdue', 'Partially Paid'])->count(),
+            'is_resident_scoped' => $isResidentOnly,
         ];
 
         return Inertia::render('features/invoices/pages/index', [

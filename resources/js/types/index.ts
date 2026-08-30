@@ -66,4 +66,16 @@ export type DashboardStats = {
     open_complaints: number;
     active_notices: number;
     pending_payments: number;
+    is_resident_dashboard?: boolean;
+    my_flat_no?: string;
+    my_tower_name?: string;
+    my_flat_type?: string;
+    my_ownership_type?: string;
+    my_balance_due?: number;
+    my_open_complaints?: number;
+    my_active_bookings?: number;
+    is_security_dashboard?: boolean;
+    today_visitors?: number;
+    active_cctv?: number;
+    emergency_logs?: number;
 };

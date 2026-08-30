@@ -10,14 +10,24 @@ class TowerSeeder extends Seeder
 {
     public function run(): void
     {
-        $society = Society::first();
+        $societies = Society::all();
 
-        foreach (['Tower A','Tower B','Tower C'] as $towerName) {
+        foreach ($societies as $society) {
+            $towers = [
+                ['name' => 'Tower A (Amber Wing)', 'total_floors' => 14],
+                ['name' => 'Tower B (Emerald Wing)', 'total_floors' => 14],
+                ['name' => 'Tower C (Sapphire Wing)', 'total_floors' => 12],
+                ['name' => 'Tower D (Diamond Wing)', 'total_floors' => 10],
+            ];
 
-            Tower::create([
-                'society_id' => $society->id,
-                'name' => $towerName,
-            ]);
+            foreach ($towers as $t) {
+                Tower::firstOrCreate(
+                    [
+                        'society_id' => $society->id,
+                        'name' => $t['name'],
+                    ]
+                );
+            }
         }
     }
 }

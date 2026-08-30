@@ -52,35 +52,27 @@ type OverviewProps = {
     can: { manage: boolean };
 };
 
-function statusBadge(status: string) {
+function statusBadge(status: string, translateFn: (key: string) => string) {
     switch (status) {
         case "trialing":
             return (
                 <Badge className="border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info">
-                    Trialing
+                    {translateFn("subscription.statusTrialing")}
                 </Badge>
             );
         case "active":
             return (
-                <Badge variant="success">Active</Badge>
+                <Badge variant="success">{translateFn("subscription.statusActive")}</Badge>
             );
         case "past_due":
-            return <Badge variant="warning">Past Due</Badge>;
+            return <Badge variant="warning">{translateFn("subscription.statusPastDue")}</Badge>;
         case "cancelled":
-            return <Badge variant="secondary">Cancelled</Badge>;
+            return <Badge variant="secondary">{translateFn("subscription.statusCancelled")}</Badge>;
         case "expired":
-            return <Badge variant="destructive">Expired</Badge>;
+            return <Badge variant="destructive">{translateFn("subscription.statusExpired")}</Badge>;
         default:
             return <Badge variant="secondary">{status}</Badge>;
     }
-}
-
-function money(value: number, currency: string) {
-    return new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency,
-        minimumFractionDigits: 2,
-    }).format(Number(value ?? 0));
 }
 
 function progressVariant(status: UsageRow["status"]): "brand" | "success" | "warning" | "destructive" {
@@ -92,7 +84,7 @@ function progressVariant(status: UsageRow["status"]): "brand" | "success" | "war
 
 export default function SubscriptionOverview() {
     const { subscription, usage, can } = usePage<PageProps<OverviewProps>>().props;
-    const { t, formatDate } = useI18n();
+    const { t, formatDate, formatCurrency } = useI18n();
 
     return (
         <AppLayout>
@@ -100,14 +92,14 @@ export default function SubscriptionOverview() {
 
             <PageHeader
                 title={t("subscription.overviewTitle")}
-                description="Your society plan, billing cycle and resource entitlements."
+                description={t("subscription.overviewDescription")}
                 icon={<Sparkles className="size-5" />}
                 breadcrumbs={[{ label: t("nav.subscription") }, { label: t("subscription.overviewCrumb") }]}
                 actions={
                     <Button variant="outline" size="sm" asChild>
                         <Link href={route("subscription.usage")}>
                             <Gauge className="size-4" />
-                            Usage Details
+                            {t("subscription.usageDetails")}
                         </Link>
                     </Button>
                 }
@@ -121,7 +113,7 @@ export default function SubscriptionOverview() {
                             <EmptyState
                                 icon={CreditCard}
                                 title={t("subscription.emptySubscription")}
-                                description="This society does not have an active plan yet. Contact the platform administrator to assign a subscription."
+                                description={t("subscription.emptyPlanDescription")}
                             />
                         </CardContent>
                     </Card>
@@ -132,31 +124,31 @@ export default function SubscriptionOverview() {
                                 <div>
                                     <CardTitle className="text-base">{subscription.plan?.name ?? "—"}</CardTitle>
                                     <p className="mt-1 text-xs text-muted-foreground">
-                                        {subscription.plan?.description ?? "No description"}
+                                        {subscription.plan?.description ?? t("subscription.noDescription")}
                                     </p>
                                 </div>
-                                {statusBadge(subscription.status)}
+                                {statusBadge(subscription.status, t)}
                             </CardHeader>
                             <CardContent>
                                 <div className="grid gap-4 sm:grid-cols-3">
                                     <div>
-                                        <p className="text-xs uppercase tracking-wide text-muted-foreground">Price</p>
+                                        <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("common.amount")}</p>
                                         <p className="mt-1 text-xl font-bold tabular-nums">
-                                            {money(subscription.price, subscription.currency)}
+                                            {formatCurrency(subscription.price, subscription.currency)}
                                             <span className="text-xs font-normal text-muted-foreground">
                                                 {" "}/ {subscription.billing_cycle}
                                             </span>
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-xs uppercase tracking-wide text-muted-foreground">Started</p>
+                                        <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("subscription.started")}</p>
                                         <p className="mt-1 text-sm font-medium">
                                             {subscription.starts_at ? formatDate(subscription.starts_at) : "—"}
                                         </p>
                                     </div>
                                     <div>
                                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                                            {subscription.status === "cancelled" ? "Cancelled" : "Renews"}
+                                            {subscription.status === "cancelled" ? t("subscription.statusCancelled") : t("subscription.renews")}
                                         </p>
                                         <p className="mt-1 text-sm font-medium">
                                             {subscription.ends_at ? formatDate(subscription.ends_at) : "—"}
@@ -166,13 +158,13 @@ export default function SubscriptionOverview() {
                                 {subscription.trial_ends_at && subscription.status === "trialing" && (
                                     <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
                                         <CheckCircle2 className="size-3.5 text-info" />
-                                        Trial ends {formatDate(subscription.trial_ends_at)} — then converts to the paid plan.
+                                        {t("subscription.trialEndsNotice", { date: formatDate(subscription.trial_ends_at) })}
                                     </p>
                                 )}
                                 {subscription.cancelled_at && (
                                     <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
                                         <TriangleAlert className="size-3.5 text-warning" />
-                                        Cancelled on {formatDate(subscription.cancelled_at)} — access continues until the period ends.
+                                        {t("subscription.cancelledNotice", { date: formatDate(subscription.cancelled_at) })}
                                     </p>
                                 )}
                             </CardContent>
@@ -180,19 +172,19 @@ export default function SubscriptionOverview() {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">Plan Limits</CardTitle>
+                                <CardTitle className="text-base">{t("subscription.planLimits")}</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-2.5">
                                 {subscription.plan?.features.map((feature) => (
                                     <div key={feature.feature_key} className="flex items-center justify-between text-sm">
                                         <span className="text-muted-foreground">{t(`feature.${feature.feature_key}`)}</span>
                                         <span className="font-medium tabular-nums">
-                                            {feature.limit_value === null ? "∞ Unlimited" : feature.limit_value}
+                                            {feature.limit_value === null ? `∞ ${t("subscription.unlimited")}` : feature.limit_value}
                                         </span>
                                     </div>
                                 ))}
                                 {(!subscription.plan?.features || subscription.plan.features.length === 0) && (
-                                    <p className="text-sm text-muted-foreground">No per-resource limits configured.</p>
+                                    <p className="text-sm text-muted-foreground">{t("subscription.noLimitsConfigured")}</p>
                                 )}
                             </CardContent>
                         </Card>
@@ -202,19 +194,19 @@ export default function SubscriptionOverview() {
                 {/* ── Usage snapshot ─────────────────────────────────────── */}
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between gap-3">
-                        <CardTitle className="text-base">Resource Usage</CardTitle>
+                        <CardTitle className="text-base">{t("subscription.resourceUsage")}</CardTitle>
                         {can.manage && (
                             <Button variant="outline" size="sm" asChild>
                                 <Link href={route("subscriptions.index")}>
                                     <ArrowUpRight className="size-4" />
-                                    Manage Subscriptions
+                                    {t("subscription.manageSubscriptions")}
                                 </Link>
                             </Button>
                         )}
                     </CardHeader>
                     <CardContent>
                         {usage.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">No usage data available.</p>
+                            <p className="text-sm text-muted-foreground">{t("subscription.noUsageData")}</p>
                         ) : (
                             <div className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
                                 {usage.map((row) => (
@@ -234,10 +226,10 @@ export default function SubscriptionOverview() {
                                                 className="flex-1"
                                             />
                                             {row.status === "over" && (
-                                                <Badge variant="destructive">Over</Badge>
+                                                <Badge variant="destructive">{t("subscription.over")}</Badge>
                                             )}
-                                            {row.status === "at" && <Badge variant="warning">At Limit</Badge>}
-                                            {row.status === "warn" && <Badge variant="warning">Near Limit</Badge>}
+                                            {row.status === "at" && <Badge variant="warning">{t("subscription.atLimit")}</Badge>}
+                                            {row.status === "warn" && <Badge variant="warning">{t("subscription.nearLimit")}</Badge>}
                                         </div>
                                     </div>
                                 ))}

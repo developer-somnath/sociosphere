@@ -25,6 +25,7 @@ type DemoAccount = {
     roleKey: string;
     label: string;
     email: string;
+    password?: string;
     badge: string;
     color: string;
 };
@@ -53,6 +54,7 @@ export default function LoginForm() {
             roleKey: "superAdmin",
             label: t("roles.superAdmin", undefined) || "Super Admin",
             email: "admin@sociosphere.com",
+            password: "password",
             badge: "Global",
             color: "border-info/30 bg-info/10 text-info dark:text-info hover:bg-info/20",
         },
@@ -60,6 +62,7 @@ export default function LoginForm() {
             roleKey: "societyAdmin",
             label: t("roles.societyAdmin", undefined) || "Society Admin",
             email: "societyadmin@gvr.com",
+            password: "password",
             badge: "Admin",
             color: "border-brand/30 bg-brand/10 text-brand dark:text-brand hover:bg-brand/20",
         },
@@ -67,6 +70,7 @@ export default function LoginForm() {
             roleKey: "treasurer",
             label: t("roles.treasurer", undefined) || "Treasurer",
             email: "treasurer@gvr.com",
+            password: "password",
             badge: "Finance",
             color: "border-warning/30 bg-warning/10 text-warning dark:text-warning hover:bg-warning/20",
         },
@@ -74,8 +78,17 @@ export default function LoginForm() {
             roleKey: "securityGuard",
             label: t("roles.securityGuard", undefined) || "Security Guard",
             email: "security@gvr.com",
+            password: "password",
             badge: "Gate",
             color: "border-info/30 bg-info/10 text-info dark:text-info hover:bg-info/20",
+        },
+        {
+            roleKey: "resident",
+            label: t("roles.resident", undefined) || "Resident",
+            email: "resident@sociosphere.com",
+            password: "password",
+            badge: "Resident",
+            color: "border-primary/30 bg-primary/10 text-primary dark:text-primary hover:bg-primary/20",
         },
     ];
 
@@ -83,7 +96,7 @@ export default function LoginForm() {
         setData((prev) => ({
             ...prev,
             email: account.email,
-            password: "password",
+            password: account.password ?? "password",
         }));
         setActiveDemoRole(account.roleKey);
     };

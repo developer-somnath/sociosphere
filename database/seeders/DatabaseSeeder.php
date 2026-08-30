@@ -10,26 +10,24 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
-            SocietySeeder::class,
-             PermissionSeeder::class,
+            PermissionSeeder::class,
             RolePermissionSeeder::class,
+            LanguageSeeder::class,
+            SocietySeeder::class,
             UserSeeder::class,
-
             SubscriptionPlanSeeder::class,
-
             TowerSeeder::class,
             FlatSeeder::class,
             ResidentSeeder::class,
-
-            InvoiceHeadSeeder::class,
-            ComplaintCategorySeeder::class,
-
-            InvoiceSeeder::class,
-            InvoiceItemSeeder::class,
-            PaymentSeeder::class,
-
-            ComplaintSeeder::class,
+            ParkingSeeder::class,
+            CctvAndSecuritySeeder::class,
+            AmenitySeeder::class,
             NoticeSeeder::class,
+            ComplaintCategorySeeder::class,
+            ComplaintSeeder::class,
+            PollAndEventSeeder::class,
+            InvoiceHeadSeeder::class,
+            BillingAndTaxSeeder::class,
             VisitorSeeder::class,
         ]);
     }

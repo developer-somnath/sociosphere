@@ -137,6 +137,20 @@ class PermissionSeeder extends Seeder
             'subscription.assign',
             'usage.view',
 
+            // Polls & Voting (Phase 20)
+            'poll.view',
+            'poll.create',
+            'poll.update',
+            'poll.delete',
+            'poll.vote',
+
+            // Community Events (Phase 20)
+            'event.view',
+            'event.create',
+            'event.update',
+            'event.delete',
+            'event.rsvp',
+
             // Roles & Permissions
             'role.view',
             'role.create',

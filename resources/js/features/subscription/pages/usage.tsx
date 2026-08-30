@@ -55,7 +55,7 @@ export default function SubscriptionUsage() {
 
             <PageHeader
                 title={t("subscription.usageTitle")}
-                description="Detailed breakdown of resource consumption against your plan limits."
+                description={t("subscription.usageDescription")}
                 icon={<Gauge className="size-5" />}
                 breadcrumbs={[{ label: t("nav.subscription") }, { label: t("subscription.usageCrumb") }]}
                 actions={
@@ -68,33 +68,33 @@ export default function SubscriptionUsage() {
                 <div className="grid gap-4 sm:grid-cols-3">
                     <Card>
                         <CardContent className="pt-6">
-                            <p className="text-xs uppercase tracking-wide text-muted-foreground">Plan</p>
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("subscription.plan")}</p>
                             <p className="mt-1 flex items-center gap-2 text-lg font-bold">
                                 <Sparkles className="size-4 text-primary" />
-                                {subscription?.plan?.name ?? "No plan"}
+                                {subscription?.plan?.name ?? t("subscription.noPlan")}
                             </p>
                             <p className="mt-0.5 text-xs text-muted-foreground">
-                                {subscription ? `${subscription.billing_cycle} · ${subscription.status}` : "No active subscription"}
+                                {subscription ? `${subscription.billing_cycle} · ${subscription.status}` : t("subscription.emptySubscription")}
                             </p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="pt-6">
-                            <p className="text-xs uppercase tracking-wide text-muted-foreground">At / Over Limit</p>
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("subscription.atOverLimit")}</p>
                             <p className="mt-1 text-lg font-bold tabular-nums text-warning">{nearCount + overCount}</p>
                             <p className="mt-0.5 text-xs text-muted-foreground">
-                                {overCount > 0 ? `${overCount} over the limit` : "within plan limits"}
+                                {overCount > 0 ? t("subscription.overTheLimit", { count: overCount }) : t("subscription.withinLimits")}
                             </p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="pt-6">
-                            <p className="text-xs uppercase tracking-wide text-muted-foreground">Unlimited Resources</p>
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("subscription.unlimitedResources")}</p>
                             <p className="mt-1 flex items-center gap-2 text-lg font-bold">
                                 <InfinityIcon className="size-4 text-brand" />
                                 {usage.filter((row) => row.limit === null).length}
                             </p>
-                            <p className="mt-0.5 text-xs text-muted-foreground">resources with no cap</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">{t("subscription.resourcesNoCap")}</p>
                         </CardContent>
                     </Card>
                 </div>
@@ -102,14 +102,14 @@ export default function SubscriptionUsage() {
                 {/* ── Full usage table ──────────────────────────────────── */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Usage by Resource</CardTitle>
+                        <CardTitle className="text-base">{t("subscription.usageByResource")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {usage.length === 0 ? (
                             <EmptyState
                                 icon={Gauge}
                                 title={t("subscription.emptyUsage")}
-                                description="Entitlement usage will appear here once the plan is configured."
+                                description={t("subscription.entitlementUsageEmpty")}
                             />
                         ) : (
                             <div className="space-y-5">
@@ -118,18 +118,18 @@ export default function SubscriptionUsage() {
                                         <div className="flex flex-wrap items-center justify-between gap-2">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm font-semibold">{t(row.label)}</span>
-                                                {row.status === "over" && <Badge variant="destructive">Over Limit</Badge>}
-                                                {row.status === "at" && <Badge variant="warning">At Limit</Badge>}
-                                                {row.status === "warn" && <Badge variant="warning">Near Limit</Badge>}
+                                                {row.status === "over" && <Badge variant="destructive">{t("subscription.overLimit")}</Badge>}
+                                                {row.status === "at" && <Badge variant="warning">{t("subscription.atLimit")}</Badge>}
+                                                {row.status === "warn" && <Badge variant="warning">{t("subscription.nearLimit")}</Badge>}
                                             </div>
                                             <span className="text-sm tabular-nums text-muted-foreground">
                                                 {row.limit === null ? (
                                                     <span className="inline-flex items-center gap-1">
                                                         <InfinityIcon className="size-3.5 text-brand" />
-                                                        Unlimited
+                                                        {t("subscription.unlimited")}
                                                     </span>
                                                 ) : (
-                                                    `${row.used.toLocaleString()} of ${row.limit.toLocaleString()}`
+                                                    `${row.used.toLocaleString()} / ${row.limit.toLocaleString()}`
                                                 )}
                                             </span>
                                         </div>
@@ -146,8 +146,8 @@ export default function SubscriptionUsage() {
                                         {row.limit !== null && (
                                             <p className="mt-2 text-xs text-muted-foreground">
                                                 {row.remaining !== null && row.remaining > 0
-                                                    ? `${row.remaining.toLocaleString()} remaining before the plan limit`
-                                                    : "No remaining capacity on this plan"}
+                                                    ? t("subscription.remainingBeforeLimit", { count: row.remaining })
+                                                    : t("subscription.noRemainingCapacity")}
                                             </p>
                                         )}
                                     </div>

@@ -13,8 +13,15 @@ const SW_URL = '/sw.js';
 export function registerServiceWorker(): void {
     if (typeof window === 'undefined') return;
     if (!('serviceWorker' in navigator)) return;
-    // Don't register during Vite dev HMR to avoid caching surprises.
-    if (import.meta.env.DEV) return;
+    // Unregister any active service worker during Vite dev HMR to avoid caching surprises.
+    if (import.meta.env.DEV) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+            for (const registration of registrations) {
+                registration.unregister();
+            }
+        });
+        return;
+    }
 
     window.addEventListener('load', () => {
         navigator.serviceWorker.register(SW_URL).catch((err) => {

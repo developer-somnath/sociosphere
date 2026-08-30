@@ -62,22 +62,22 @@ type AdminProps = {
     can: { assign: boolean };
 };
 
-function statusBadge(status: string) {
+function statusBadge(status: string, translateFn: (key: string) => string) {
     switch (status) {
         case "trialing":
             return (
                 <Badge className="border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info">
-                    Trialing
+                    {translateFn("subscription.statusTrialing")}
                 </Badge>
             );
         case "active":
-            return <Badge variant="success">Active</Badge>;
+            return <Badge variant="success">{translateFn("subscription.statusActive")}</Badge>;
         case "past_due":
-            return <Badge variant="warning">Past Due</Badge>;
+            return <Badge variant="warning">{translateFn("subscription.statusPastDue")}</Badge>;
         case "cancelled":
-            return <Badge variant="secondary">Cancelled</Badge>;
+            return <Badge variant="secondary">{translateFn("subscription.statusCancelled")}</Badge>;
         case "expired":
-            return <Badge variant="destructive">Expired</Badge>;
+            return <Badge variant="destructive">{translateFn("subscription.statusExpired")}</Badge>;
         default:
             return <Badge variant="secondary">{status}</Badge>;
     }
@@ -160,7 +160,7 @@ export default function SubscriptionAdmin() {
 
             <PageHeader
                 title={t("subscription.adminTitle")}
-                description="Assign and manage subscription plans across all societies."
+                description={t("subscription.adminDescription")}
                 icon={<Settings2 className="size-5" />}
                 breadcrumbs={[{ label: t("nav.subscription") }, { label: t("subscription.adminCrumb") }]}
             />
@@ -170,29 +170,29 @@ export default function SubscriptionAdmin() {
                     <FilterBar
                         searchValue={search}
                         onSearchChange={setSearch}
-                        searchPlaceholder="Search societies…"
-                        searchLabel="Search"
+                        searchPlaceholder={t("common.search")}
+                        searchLabel={t("common.search")}
                     />
 
                     {societies.data.length === 0 ? (
                         <EmptyState
                             icon={Settings2}
                             title={t("subscription.emptySocieties")}
-                            description="Try a different search term."
+                            description={t("common.none")}
                         />
                     ) : (
                         <div className="mt-4 overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                                        <th className="px-3 py-2 font-medium">Society</th>
-                                        <th className="px-3 py-2 font-medium">Plan</th>
-                                        <th className="px-3 py-2 font-medium">Status</th>
-                                        <th className="px-3 py-2 font-medium">Cycle</th>
-                                        <th className="px-3 py-2 font-medium">Towers</th>
-                                        <th className="px-3 py-2 font-medium">Flats</th>
-                                        <th className="px-3 py-2 font-medium">Users</th>
-                                        <th className="px-3 py-2 font-medium text-right">Actions</th>
+                                        <th className="px-3 py-2 font-medium">{t("common.society")}</th>
+                                        <th className="px-3 py-2 font-medium">{t("subscription.plan")}</th>
+                                        <th className="px-3 py-2 font-medium">{t("common.status")}</th>
+                                        <th className="px-3 py-2 font-medium">{t("subscription.cycle")}</th>
+                                        <th className="px-3 py-2 font-medium">{t("nav.towers")}</th>
+                                        <th className="px-3 py-2 font-medium">{t("nav.flats")}</th>
+                                        <th className="px-3 py-2 font-medium">{t("nav.users")}</th>
+                                        <th className="px-3 py-2 font-medium text-right">{t("common.actions")}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -210,7 +210,7 @@ export default function SubscriptionAdmin() {
                                                 )}
                                             </td>
                                             <td className="px-3 py-2.5">
-                                                {society.subscription ? statusBadge(society.subscription.status) : <Badge variant="outline">None</Badge>}
+                                                {society.subscription ? statusBadge(society.subscription.status, t) : <Badge variant="outline">{t("common.none")}</Badge>}
                                             </td>
                                             <td className="px-3 py-2.5 capitalize">
                                                 {society.subscription?.billing_cycle ?? "—"}
@@ -230,18 +230,18 @@ export default function SubscriptionAdmin() {
                                                         <>
                                                             <Button variant="outline" size="sm" onClick={() => openAssign(society)}>
                                                                 <ArrowDownToLine className="size-3.5" />
-                                                                Assign
+                                                                {t("subscription.assign")}
                                                             </Button>
                                                             {society.subscription?.status === "cancelled" ? (
                                                                 <Button variant="outline" size="sm" onClick={() => setResuming(society)}>
                                                                     <PlayCircle className="size-3.5" />
-                                                                    Resume
+                                                                    {t("subscription.resume")}
                                                                 </Button>
                                                             ) : (
                                                                 society.subscription && ["trialing", "active", "past_due"].includes(society.subscription.status) && (
                                                                     <Button variant="ghost" size="sm" onClick={() => setCancelling(society)}>
                                                                         <PauseCircle className="size-3.5" />
-                                                                        Cancel
+                                                                        {t("subscription.cancel")}
                                                                     </Button>
                                                                 )
                                                             )}
@@ -261,7 +261,7 @@ export default function SubscriptionAdmin() {
                             page={societies.current_page}
                             perPage={societies.per_page}
                             total={societies.total}
-                            noun="societies"
+                            noun={t("common.society")}
                             onPageChange={(page) =>
                                 router.get(route("subscriptions.index"), { ...(search.trim() ? { search: search.trim() } : {}), page }, { preserveState: true })
                             }
@@ -274,12 +274,12 @@ export default function SubscriptionAdmin() {
             {assigning && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
                     <div className="w-full max-w-md rounded-2xl border border-border bg-background p-6 shadow-2xl">
-                        <h2 className="text-base font-semibold">Assign Plan</h2>
+                        <h2 className="text-base font-semibold">{t("subscription.assignPlan")}</h2>
                         <p className="mt-0.5 text-xs text-muted-foreground">{assigning.name}</p>
 
                         <div className="mt-5 space-y-4">
                             <div className="space-y-1.5">
-                                <Label htmlFor="assign-plan">Plan *</Label>
+                                <Label htmlFor="assign-plan">{t("plans.nameLabel")} *</Label>
                                 <select
                                     id="assign-plan"
                                     value={assignForm.data.plan_uuid}
@@ -295,20 +295,20 @@ export default function SubscriptionAdmin() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label htmlFor="assign-cycle">Billing Cycle *</Label>
+                                <Label htmlFor="assign-cycle">{t("subscription.cycle")} *</Label>
                                 <select
                                     id="assign-cycle"
                                     value={assignForm.data.billing_cycle}
                                     onChange={(e) => assignForm.setData("billing_cycle", e.target.value as "monthly" | "yearly")}
                                     className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                                 >
-                                    <option value="monthly">Monthly</option>
-                                    <option value="yearly">Yearly</option>
+                                    <option value="monthly">{t("subscription.month")}</option>
+                                    <option value="yearly">{t("subscription.year")}</option>
                                 </select>
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label htmlFor="assign-trial">Trial Days (optional)</Label>
+                                <Label htmlFor="assign-trial">{t("common.optional")}</Label>
                                 <Input
                                     id="assign-trial"
                                     type="number"
@@ -330,11 +330,11 @@ export default function SubscriptionAdmin() {
 
                         <div className="mt-6 flex justify-end gap-2">
                             <Button variant="outline" size="sm" onClick={() => setAssigning(null)}>
-                                Cancel
+                                {t("common.cancel")}
                             </Button>
                             <Button size="sm" onClick={submitAssign} disabled={assignForm.processing}>
                                 <CheckCircle2 className="size-4" />
-                                Assign Plan
+                                {t("subscription.assignPlan")}
                             </Button>
                         </div>
                     </div>
@@ -345,10 +345,10 @@ export default function SubscriptionAdmin() {
             <ConfirmDialog
                 open={cancelling !== null}
                 onOpenChange={(open) => !open && setCancelling(null)}
-                title="Cancel subscription?"
-                description={`End the subscription for ${cancelling?.name ?? "this society"}. Access continues until the current period ends.`}
-                confirmLabel="Cancel Subscription"
-                cancelLabel="Keep Subscription"
+                title={t("subscription.confirmCancelTitle")}
+                description={t("subscription.confirmCancelDesc", { name: cancelling?.name ?? "" })}
+                confirmLabel={t("subscription.confirmCancelLabel")}
+                cancelLabel={t("subscription.keepSubscriptionLabel")}
                 destructive
                 onConfirm={submitCancel}
             />
@@ -357,10 +357,10 @@ export default function SubscriptionAdmin() {
             <ConfirmDialog
                 open={resuming !== null}
                 onOpenChange={(open) => !open && setResuming(null)}
-                title="Resume subscription?"
-                description={`Reactivate the subscription for ${resuming?.name ?? "this society"} for another billing cycle.`}
-                confirmLabel="Resume Subscription"
-                cancelLabel="Keep Cancelled"
+                title={t("subscription.confirmResumeTitle")}
+                description={t("subscription.confirmResumeDesc", { name: resuming?.name ?? "" })}
+                confirmLabel={t("subscription.confirmResumeLabel")}
+                cancelLabel={t("subscription.keepCancelledLabel")}
                 onConfirm={submitResume}
             />
         </AppLayout>

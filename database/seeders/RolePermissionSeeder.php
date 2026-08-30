@@ -95,6 +95,18 @@ class RolePermissionSeeder extends Seeder
                 'amenity.book',
                 'amenity.approve',
 
+                'poll.view',
+                'poll.create',
+                'poll.update',
+                'poll.delete',
+                'poll.vote',
+
+                'event.view',
+                'event.create',
+                'event.update',
+                'event.delete',
+                'event.rsvp',
+
                 // Audit trail: society admins can browse their own society's logs.
                 'activity-log.view',
             ]);
@@ -159,6 +171,12 @@ class RolePermissionSeeder extends Seeder
 
                 'amenity.view',
                 'amenity.book',
+
+                'poll.view',
+                'poll.vote',
+
+                'event.view',
+                'event.rsvp',
             ]);
     }
 }

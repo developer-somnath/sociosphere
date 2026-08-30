@@ -61,15 +61,15 @@ export default function PlansIndex() {
 
             <PageHeader
                 title={t("plans.indexTitle")}
-                description="Manage the SaaS plan catalog offered to societies."
+                description={t("plans.indexDescription")}
                 icon={<Receipt className="size-5" />}
-                breadcrumbs={[{ label: t("nav.subscription") }, { label: "Plans" }]}
+                breadcrumbs={[{ label: t("nav.subscription") }, { label: t("subscription.plansCrumb") }]}
                 actions={
                     can.create && (
                         <Button size="sm" asChild>
                             <Link href={route("plans.create")}>
                                 <Plus className="size-4" />
-                                New Plan
+                                {t("plans.newPlan")}
                             </Link>
                         </Button>
                     )
@@ -82,13 +82,13 @@ export default function PlansIndex() {
                         <EmptyState
                             icon={Receipt}
                             title={t("plans.emptyTitle")}
-                            description="Create your first subscription plan to start offering tiers to societies."
+                            description={t("plans.emptyDescription")}
                             action={
                                 can.create && (
                                     <Button size="sm" asChild>
                                         <Link href={route("plans.create")}>
                                             <Plus className="size-4" />
-                                            Create Plan
+                                            {t("plans.createPlan")}
                                         </Link>
                                     </Button>
                                 )
@@ -114,8 +114,8 @@ export default function PlansIndex() {
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end gap-1">
-                                            {plan.is_default && <Badge variant="brand">Default</Badge>}
-                                            {!plan.is_active && <Badge variant="secondary">Inactive</Badge>}
+                                            {plan.is_default && <Badge variant="brand">{t("common.default")}</Badge>}
+                                            {!plan.is_active && <Badge variant="secondary">{t("common.inactive")}</Badge>}
                                         </div>
                                     </div>
 
@@ -123,10 +123,10 @@ export default function PlansIndex() {
                                         <span className="text-2xl font-bold tabular-nums">
                                             {formatCurrency(plan.price_monthly, plan.currency)}
                                         </span>
-                                        <span className="text-xs text-muted-foreground">/ month</span>
+                                        <span className="text-xs text-muted-foreground">{t("subscription.perMonth")}</span>
                                     </div>
                                     <p className="mt-0.5 text-xs text-muted-foreground">
-                                        {formatCurrency(plan.price_yearly, plan.currency)} / year
+                                        {formatCurrency(plan.price_yearly, plan.currency)} {t("subscription.perYear")}
                                     </p>
 
                                     {plan.description && (
@@ -134,8 +134,8 @@ export default function PlansIndex() {
                                     )}
 
                                     <div className="mt-4 flex flex-wrap gap-1.5">
-                                        {unlimited > 0 && <Badge variant="success">{unlimited} unlimited</Badge>}
-                                        <Badge variant="secondary">{plan.features.length} resources</Badge>
+                                        {unlimited > 0 && <Badge variant="success">{t("subscription.unlimitedCount", { count: unlimited })}</Badge>}
+                                        <Badge variant="secondary">{t("subscription.resourceCount", { count: plan.features.length })}</Badge>
                                     </div>
 
                                     <div className="mt-5 flex items-center justify-end gap-2 border-t border-border/60 pt-4">
@@ -143,14 +143,14 @@ export default function PlansIndex() {
                                             <Button variant="outline" size="sm" asChild>
                                                 <Link href={route("plans.edit", plan.uuid)}>
                                                     <Pencil className="size-3.5" />
-                                                    Edit
+                                                    {t("common.edit")}
                                                 </Link>
                                             </Button>
                                         )}
                                         {can.delete && !plan.is_default && (
                                             <Button variant="ghost" size="sm" onClick={() => setDeleting(plan)}>
                                                 <Trash2 className="size-3.5" />
-                                                Delete
+                                                {t("common.delete")}
                                             </Button>
                                         )}
                                     </div>
@@ -164,10 +164,12 @@ export default function PlansIndex() {
             <ConfirmDialog
                 open={deleting !== null}
                 onOpenChange={(open) => !open && setDeleting(null)}
-                title="Delete plan?"
-                description={`Delete "${deleting?.name ?? ""}"? Societies currently on this plan will fall back to the default plan.`}
-                confirmLabel="Delete Plan"
-                cancelLabel="Keep Plan"
+                title={t("plans.confirmDeleteTitle")}
+                description={t("plans.confirmDeleteDescription", {
+                    name: deleting?.name ?? "",
+                })}
+                confirmLabel={t("plans.confirmDeleteLabel")}
+                cancelLabel={t("plans.keepPlanLabel")}
                 destructive
                 onConfirm={handleDelete}
             />

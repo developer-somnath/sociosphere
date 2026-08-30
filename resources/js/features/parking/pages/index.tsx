@@ -86,8 +86,19 @@ type IndexProps = {
     can: { create: boolean; delete: boolean; allocate: boolean };
 };
 
-const STATUS_STYLES: Record<SlotStatus, { card: string; dot: string; badge: string }> = {
+const DEFAULT_STATUS_STYLE = {
+    card: "border-zinc-400/30 bg-muted/40 hover:border-zinc-400/50",
+    dot: "bg-zinc-400",
+    badge: "border-transparent bg-zinc-500/10 text-zinc-500 dark:bg-zinc-400/10 dark:text-zinc-400",
+};
+
+const STATUS_STYLES: Record<string, { card: string; dot: string; badge: string }> = {
     Available: {
+        card: "border-brand/25 bg-brand/5 hover:border-brand/50",
+        dot: "bg-brand",
+        badge: "border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand",
+    },
+    available: {
         card: "border-brand/25 bg-brand/5 hover:border-brand/50",
         dot: "bg-brand",
         badge: "border-transparent bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand",
@@ -97,39 +108,54 @@ const STATUS_STYLES: Record<SlotStatus, { card: string; dot: string; badge: stri
         dot: "bg-info",
         badge: "border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info",
     },
+    allocated: {
+        card: "border-info/25 bg-info/5 hover:border-info/50",
+        dot: "bg-info",
+        badge: "border-transparent bg-info/10 text-info dark:bg-info/10 dark:text-info",
+    },
     Reserved: {
         card: "border-warning/25 bg-warning/5 hover:border-warning/50",
         dot: "bg-warning",
         badge: "border-transparent bg-warning/10 text-warning dark:bg-warning/10 dark:text-warning",
     },
-    Maintenance: {
-        card: "border-zinc-400/30 bg-muted/40 hover:border-zinc-400/50",
-        dot: "bg-zinc-400",
-        badge: "border-transparent bg-zinc-500/10 text-zinc-500 dark:bg-zinc-400/10 dark:text-zinc-400",
+    reserved: {
+        card: "border-warning/25 bg-warning/5 hover:border-warning/50",
+        dot: "bg-warning",
+        badge: "border-transparent bg-warning/10 text-warning dark:bg-warning/10 dark:text-warning",
     },
+    Maintenance: DEFAULT_STATUS_STYLE,
+    maintenance: DEFAULT_STATUS_STYLE,
 };
 
-const statusLabel = (status: SlotStatus): string => {
-    switch (status) {
-        case "Available":
+const statusLabel = (status: SlotStatus | string): string => {
+    switch (status?.toLowerCase()) {
+        case "available":
             return t("parking.status.available");
-        case "Allocated":
+        case "allocated":
             return t("parking.status.allocated");
-        case "Reserved":
+        case "reserved":
             return t("parking.status.reserved");
-        case "Maintenance":
+        case "maintenance":
             return t("parking.status.maintenance");
+        default:
+            return status || t("parking.status.available");
     }
 };
 
-const typeLabel = (type: SlotType): string => {
-    switch (type) {
-        case "Four Wheeler":
+const typeLabel = (type: SlotType | string): string => {
+    switch (type?.toLowerCase()) {
+        case "four wheeler":
+        case "covered":
+        case "open":
+        case "ev":
             return t("parking.type.fourWheeler");
-        case "Two Wheeler":
+        case "two wheeler":
+        case "two_wheeler":
             return t("parking.type.twoWheeler");
-        case "Visitor":
+        case "visitor":
             return t("parking.type.visitor");
+        default:
+            return type || t("parking.type.fourWheeler");
     }
 };
 
@@ -146,10 +172,15 @@ const categoryLabel = (value: string): string => {
     }
 };
 
-const TYPE_ICON: Record<SlotType, typeof Car> = {
+const TYPE_ICON: Record<string, typeof Car> = {
     "Four Wheeler": Car,
     "Two Wheeler": CarFront,
     Visitor: Clock,
+    covered: Car,
+    open: Car,
+    ev: Car,
+    two_wheeler: CarFront,
+    visitor: Clock,
 };
 
 const CATEGORIES = [
@@ -651,9 +682,9 @@ export default function ParkingIndex() {
                             <>
                                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6">
                                     {filtered.map((slot) => {
-                                        const style = STATUS_STYLES[slot.status];
-                                        const TypeIcon = TYPE_ICON[slot.type];
-                                        const clickable = can.allocate && slot.status === "Available";
+                                        const style = STATUS_STYLES[slot.status] ?? DEFAULT_STATUS_STYLE;
+                                        const TypeIcon = TYPE_ICON[slot.type] ?? Car;
+                                        const clickable = can.allocate && (slot.status === "Available" || slot.status === "available");
                                         return (
                                             <button
                                                 key={slot.uuid}

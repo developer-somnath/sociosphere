@@ -65,6 +65,7 @@ type Stats = {
     total_collected: number;
     overdue_amount: number;
     unpaid_count: number;
+    is_resident_scoped?: boolean;
 };
 
 type IndexProps = {
@@ -344,10 +345,10 @@ export default function InvoicesIndex() {
             />
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <MetricCard label={t("invoices.totalBilledDues")} value={`₹${Number(stats.total_billed).toLocaleString()}`} icon={Receipt} accent="border-info/20 bg-info/10 text-info dark:text-info" />
-                <MetricCard label={t("invoices.collectedRevenue")} value={`₹${Number(stats.total_collected).toLocaleString()}`} icon={CheckCircle2} accent="border-success/20 bg-success/10 text-success dark:text-success" />
-                <MetricCard label={t("invoices.overdueDues")} value={`₹${Number(stats.overdue_amount).toLocaleString()}`} icon={AlertTriangle} accent="border-destructive/20 bg-destructive/10 text-destructive dark:text-destructive" />
-                <MetricCard label={t("invoices.pendingInvoices")} value={stats.unpaid_count} icon={DollarSign} accent="border-warning/20 bg-warning/10 text-warning dark:text-warning" />
+                <MetricCard label={stats.is_resident_scoped ? "My Total Invoiced" : t("invoices.totalBilledDues")} value={`₹${Number(stats.total_billed).toLocaleString()}`} icon={Receipt} accent="border-info/20 bg-info/10 text-info dark:text-info" />
+                <MetricCard label={stats.is_resident_scoped ? "My Payments Made" : t("invoices.collectedRevenue")} value={`₹${Number(stats.total_collected).toLocaleString()}`} icon={CheckCircle2} accent="border-success/20 bg-success/10 text-success dark:text-success" />
+                <MetricCard label={stats.is_resident_scoped ? "My Outstanding Dues" : t("invoices.overdueDues")} value={`₹${Number(stats.overdue_amount).toLocaleString()}`} icon={AlertTriangle} accent="border-destructive/20 bg-destructive/10 text-destructive dark:text-destructive" />
+                <MetricCard label={stats.is_resident_scoped ? "Pending Bills" : t("invoices.pendingInvoices")} value={stats.unpaid_count} icon={DollarSign} accent="border-warning/20 bg-warning/10 text-warning dark:text-warning" />
             </div>
 
             <FilterBar

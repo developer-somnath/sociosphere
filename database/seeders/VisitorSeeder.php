@@ -24,55 +24,108 @@ class VisitorSeeder extends Seeder
 
         $flats = Flat::query()
             ->where('society_id', $society->id)
-            ->limit(6)
+            ->whereIn('occupancy_status', ['Occupied', 'Self-Occupied'])
+            ->limit(10)
             ->get();
 
         if ($flats->isEmpty()) {
             return;
         }
 
-        $creator = User::query()->first();
-        $approvedBy = User::query()
-            ->whereNotNull('society_id')
-            ->first();
+        $guard = User::where('email', 'security@gvr.com')->first() ?? User::where('society_id', $society->id)->first();
+        $admin = User::where('email', 'societyadmin@gvr.com')->first();
 
         $visitors = [
-            ['name' => 'Rahul Sharma', 'phone' => '9876543210', 'email' => 'rahul.sharma@example.com', 'notes' => 'Family friend of Tower A residents.'],
-            ['name' => 'Priya Patel', 'phone' => '9812345670', 'email' => 'priya.patel@example.com', 'notes' => null],
-            ['name' => 'Mohammed Ansari', 'phone' => '9700001122', 'email' => null, 'notes' => 'AC repair technician.'],
-            ['name' => 'Sneha Iyer', 'phone' => '9600112233', 'email' => 'sneha.iyer@example.com', 'notes' => null],
-            ['name' => 'Vikram Singh', 'phone' => '9550011223', 'email' => null, 'notes' => 'Interior decorator.'],
+            [
+                'name' => 'Mukesh Kumar (Swiggy Food Delivery)',
+                'phone' => '+91 98765 43210',
+                'email' => null,
+                'purpose' => 'Delivery',
+                'notes' => 'Swiggy order #SWG-984210 from Mainland China',
+                'vehicle' => 'MH-02-EQ-4412',
+                'status' => 'checked_in',
+            ],
+            [
+                'name' => 'Satish Yadav (Zomato Delivery)',
+                'phone' => '+91 98123 45670',
+                'email' => null,
+                'purpose' => 'Delivery',
+                'notes' => 'Zomato food parcel from Punjab Grill',
+                'vehicle' => 'MH-03-DF-8811',
+                'status' => 'checked_out',
+            ],
+            [
+                'name' => 'Mohammed Ansari (Urban Company AC Tech)',
+                'phone' => '+91 97000 01122',
+                'email' => 'm.ansari@urbancompany.com',
+                'purpose' => 'Service / repair',
+                'notes' => 'Split AC deep cleaning and gas top-up service',
+                'vehicle' => 'MH-43-AK-5501',
+                'status' => 'approved',
+            ],
+            [
+                'name' => 'Kamala Bai (Domestic Helper)',
+                'phone' => '+91 96001 12233',
+                'email' => null,
+                'purpose' => 'House help',
+                'notes' => 'Daily registered domestic help pass for Flat 101 & 102',
+                'vehicle' => null,
+                'status' => 'checked_in',
+            ],
+            [
+                'name' => 'Rajeev Malhotra (Family Guest)',
+                'phone' => '+91 95500 11223',
+                'email' => 'rajeev.malhotra@gmail.com',
+                'purpose' => 'Guest visit',
+                'notes' => 'Weekend family dinner guests of Dr. Sanjay Kulkarni',
+                'vehicle' => 'DL-01-AB-7744',
+                'status' => 'pending',
+            ],
+            [
+                'name' => 'Blinkit Instant Grocery Delivery',
+                'phone' => '+91 98450 12345',
+                'email' => null,
+                'purpose' => 'Delivery',
+                'notes' => '10-minute grocery delivery packet',
+                'vehicle' => 'MH-02-CA-9988',
+                'status' => 'checked_out',
+            ],
         ];
 
-        foreach ($visitors as $index => $visitorData) {
-            $visitor = Visitor::create([
-                'society_id' => $society->id,
-                'name' => $visitorData['name'],
-                'phone' => $visitorData['phone'],
-                'email' => $visitorData['email'],
-                'notes' => $visitorData['notes'],
-                'created_by' => $creator?->id,
-            ]);
+        foreach ($visitors as $index => $vData) {
+            $flat = $flats->get($index % $flats->count());
 
-            VisitorPass::create([
-                'society_id' => $society->id,
-                'visitor_id' => $visitor->id,
-                'flat_id' => $flats->get($index % $flats->count())->id,
-                'purpose' => ['Meeting resident', 'Delivery', 'Service / repair', 'Guest visit', 'House help'][$index % 5],
-                'vehicle_number' => $index % 2 === 0 ? ['MH-01-AB-1234', 'GJ-05-CD-5678', 'DL-08-EF-9012'][intdiv($index, 2) % 3] : null,
-                'status' => ['pending', 'approved', 'checked_in', 'checked_out', 'rejected'][$index],
-                'scheduled_for' => match ($index) {
-                    0 => now()->addHours(2),
-                    1 => now()->addDay(),
-                    4 => now()->subDay(),
-                    default => null,
-                },
-                'check_in_at' => in_array($index, [2, 3], true) ? now()->subHours(3) : null,
-                'check_out_at' => $index === 3 ? now()->subHour() : null,
-                'approved_by' => in_array($index, [1, 2, 3], true) ? $approvedBy?->id : null,
-                'approved_at' => in_array($index, [1, 2, 3], true) ? now()->subHours(4) : null,
-                'created_by' => $creator?->id,
-            ]);
+            $visitor = Visitor::firstOrCreate(
+                [
+                    'society_id' => $society->id,
+                    'phone' => $vData['phone'],
+                ],
+                [
+                    'name' => $vData['name'],
+                    'email' => $vData['email'],
+                    'notes' => $vData['notes'],
+                    'created_by' => $guard?->id,
+                ]
+            );
+
+            VisitorPass::firstOrCreate(
+                [
+                    'society_id' => $society->id,
+                    'visitor_id' => $visitor->id,
+                    'flat_id' => $flat->id,
+                ],
+                [
+                    'purpose' => $vData['purpose'],
+                    'vehicle_number' => $vData['vehicle'],
+                    'status' => $vData['status'],
+                    'scheduled_for' => $vData['status'] === 'pending' ? now()->addHours(2) : null,
+                    'check_in_at' => in_array($vData['status'], ['checked_in', 'checked_out'], true) ? now()->subHours(2) : null,
+                    'check_out_at' => $vData['status'] === 'checked_out' ? now()->subMinutes(30) : null,
+                    'approved_by' => in_array($vData['status'], ['approved', 'checked_in', 'checked_out'], true) ? $admin?->id : null,
+                    'approved_at' => in_array($vData['status'], ['approved', 'checked_in', 'checked_out'], true) ? now()->subHours(3) : null,
+                    'created_by' => $guard?->id,
+                ]
+            );
         }
     }
 }

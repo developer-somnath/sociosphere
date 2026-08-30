@@ -5,10 +5,12 @@ use App\Http\Controllers\AmenityBookingController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\AmenityController;
 use App\Http\Controllers\CctvCameraController;
+use App\Http\Controllers\CommunityEventController;
 use App\Http\Controllers\ComplaintCategoryController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentRepositoryController;
+use App\Http\Controllers\EmergencySosController;
 use App\Http\Controllers\FlatController;
 use App\Http\Controllers\FamilyMemberController;
 use App\Http\Controllers\PaymentWebhookController;
@@ -18,6 +20,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\ParkingSlotController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PollController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ResidentController;
@@ -60,7 +63,13 @@ Route::post('/api/payments/webhook/{gateway}', [PaymentWebhookController::class,
     ->middleware('throttle:60,1')
     ->name('payments.webhook');
 
+use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\UserInvitationController;
+
+// Phase 16: Self-Service Customer Onboarding & Pricing Landing Portal (Leopard)
+Route::get('/pricing', [OnboardingController::class, 'pricing'])->name('pricing');
+Route::get('/register/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
+Route::post('/register/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
 
 Route::get('/register/invitation/{token}', [UserInvitationController::class, 'showRegistrationForm'])
     ->name('invitations.register');
@@ -471,6 +480,37 @@ Route::middleware(['auth', 'society'])->group(function () {
             'destroy' => 'documents.destroy',
         ]);
 
+    // Polls & Voting (Phase 20 - Cobra)
+    Route::post('polls/{poll}/vote', [PollController::class, 'vote'])
+        ->middleware('permission:poll.vote')
+        ->name('polls.vote');
+    Route::post('polls/{poll}/close', [PollController::class, 'close'])
+        ->middleware('permission:poll.update')
+        ->name('polls.close');
+    Route::resource('polls', PollController::class)
+        ->only(['index', 'store', 'destroy'])
+        ->middleware('permission:poll.view')
+        ->names([
+            'index' => 'polls.index',
+            'store' => 'polls.store',
+            'destroy' => 'polls.destroy',
+        ]);
+
+    // Community Events & RSVP (Phase 20 - Cobra)
+    Route::post('community-events/{event}/rsvp', [CommunityEventController::class, 'rsvp'])
+        ->middleware('permission:event.rsvp')
+        ->name('community-events.rsvp');
+    Route::resource('community-events', CommunityEventController::class)
+        ->parameters(['community-events' => 'event'])
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->middleware('permission:event.view')
+        ->names([
+            'index' => 'community-events.index',
+            'store' => 'community-events.store',
+            'update' => 'community-events.update',
+            'destroy' => 'community-events.destroy',
+        ]);
+
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])
         ->middleware('permission:activity-log.view')
         ->name('activity-logs.index');
@@ -508,6 +548,10 @@ Route::middleware('auth')->group(function () {
         ->name('push.subscribe');
     Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'unsubscribe'])
         ->name('push.unsubscribe');
+
+    // Phase 20: Emergency SOS & Broadcast Engine (Cobra)
+    Route::post('/emergency-sos', [EmergencySosController::class, 'store'])
+        ->name('emergency-sos.store');
 
     // Reporting engine (S4-3 / Phases 21-22)
     Route::get('/reports', [ReportController::class, 'index'])

@@ -21,12 +21,9 @@ import {
 import { useState, type PropsWithChildren } from "react";
 import { route } from "ziggy-js";
 
-import {
-    CommandPalette,
-    openCommandPalette,
-    type CommandGroup,
-} from "@/components/app/command-palette";
+import { CommandPalette, openCommandPalette, type CommandGroup } from "@/components/app/command-palette";
 import { AppSidebar } from "@/components/app/app-sidebar";
+import { EmergencySosDialog } from "@/components/app/emergency-sos-dialog";
 import { FlashToaster } from "@/components/app/flash-toaster";
 import { LanguageSwitcher } from "@/components/app/language-switcher";
 import { NotificationCenter } from "@/components/app/notification-center";
@@ -239,6 +236,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                             </div>
                         )}
 
+                        <EmergencySosDialog />
                         <LanguageSwitcher />
                         <NotificationCenter notifications={notifications} />
                         <ThemeSwitcher />

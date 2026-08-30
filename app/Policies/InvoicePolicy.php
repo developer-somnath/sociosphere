@@ -14,7 +14,26 @@ class InvoicePolicy
 
     public function view(User $user, Invoice $invoice): bool
     {
-        return $user->isSuperAdmin() || ($user->society_id === $invoice->society_id && $user->hasPermissionTo('invoice.view'));
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        if ($user->society_id !== $invoice->society_id || ! $user->hasPermissionTo('invoice.view')) {
+            return false;
+        }
+
+        // If user is solely a resident, verify invoice belongs to their assigned flat(s)
+        if ($user->hasRole('Resident') && ! $user->hasAnyRole(['SuperAdmin', 'SocietyAdmin', 'Treasurer', 'Accountant'])) {
+            $userFlatIds = \App\Models\Resident::query()
+                ->where('email', $user->email)
+                ->pluck('flat_id')
+                ->filter()
+                ->toArray();
+
+            return in_array($invoice->flat_id, $userFlatIds, true);
+        }
+
+        return true;
     }
 
     public function create(User $user): bool

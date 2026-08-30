@@ -49,9 +49,9 @@ flowchart TD
 ## 4. Master MDR Roadmap Phase Breakdown (Phases 1–30)
 
 ```text
-[==============================================---------] 81.8% Core Completion
-Phases 1–19, 21–22: Completed ✅ (v1.0.0 Falcon, v1.1.0 Panther, v1.2.0 Wolf, v2.0.0 Tiger, v2.1.0 Eagle, v2.2.0 Orca, v2.4.0 Cheetah Phase 17, v2.4.1 Cheetah Patch Phase 18, v2.5.0 Hawk Phase 19, v2.6.0 Cobra Phase 21, v2.7.0 Bison Phase 22)
-Phases 16, 20, 23–24: Planned 📌 (v2.3.0 Leopard, v2.6.0 Cobra SOS, v2.8.0 Bear Config)
+[=================================================-------] 86.4% Core Completion
+Phases 1–22: Completed ✅ (v1.0.0 Falcon, v1.1.0 Panther, v1.2.0 Wolf, v2.0.0 Tiger, v2.1.0 Eagle, v2.2.0 Orca, v2.3.0 Leopard Phase 16, v2.4.0 Cheetah Phase 17, v2.4.1 Cheetah Patch Phase 18, v2.5.0 Hawk Phase 19, v2.6.0 Cobra Phase 20, v2.6.0 Cobra Phase 21, v2.7.0 Bison Phase 22)
+Phases 23–24: Planned 📌 (v2.8.0 Bear Config, v2.9.0 Community Scale)
 Phases 25–30: Future / Operations 🚀 (v3.0.0 Phoenix)
 ```
 
@@ -62,11 +62,13 @@ Phases 25–30: Future / Operations 🚀 (v3.0.0 Phoenix)
 | **Phase 13** | `v2.0.1` | Tiger (Patch) | **Completed** | Notice Board & Document Repository |
 | **Phase 14** | `v2.1.0` | **Eagle** | **Completed** | Dynamic SaaS Subscription & Resource Entitlement Engine |
 | **Phase 15** | `v2.2.0` | **Orca** | **Completed** | Global Configurable Tax Engine (GST, VAT, Sales Tax) |
-| **Phase 16** | `v2.3.0` | **Leopard** | **Planned** | Self-Service Customer Onboarding & Pricing Landing Portal |
+| **Phase 16** | `v2.3.0` | **Leopard** | **Completed** | Self-Service Customer Onboarding & Pricing Landing Portal |
 | **Phase 17** | `v2.4.0` | **Cheetah** | **Completed** | Auto-Billing, Recurring Invoices & Financial Invariants |
 | **Phase 18** | `v2.4.1` | Cheetah (Patch) | **Completed** | Payment Gateway Abstraction & Automated Digital Receipts |
 | **Phase 19** | `v2.5.0` | **Hawk** | **Completed** | Enterprise Progressive Web App (PWA) & Mobile Push Engine |
-| **Phases 20–24**| `v2.6.0–v2.9.0` | Cobra / Bison / Bear | **Planned** | Emergency SOS, Recharts Analytics, PDF Exports, Config Engine |
+| **Phase 20** | `v2.6.0` | **Cobra** | **Completed** | Emergency SOS, Polls & Voting Engine, Community Events & RSVP |
+| **Phases 21–22**| `v2.6.1–v2.7.0` | Cobra / Bison | **Completed** | Recharts Dashboards, PDF/Excel Exports, Scheduled Reports |
+| **Phases 23–24**| `v2.8.0–v2.9.0` | Bear | **Planned** | System Config Engine, Tenant Feature Flags |
 
 ---
 

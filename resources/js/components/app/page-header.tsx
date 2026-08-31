@@ -60,15 +60,15 @@ export function PageHeader({
             </nav>
 
             {/* Header Content Row */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pt-1">
-                <div className="flex items-center gap-3.5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between pt-1">
+                <div className="flex items-start gap-3.5">
                     {icon && (
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-xs mt-0.5">
                             {icon}
                         </div>
                     )}
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
                             {title}
                         </h1>
                         {description && (
@@ -78,7 +78,7 @@ export function PageHeader({
                         )}
                     </div>
                 </div>
-                {actions && <div className="flex flex-wrap gap-2.5 items-center">{actions}</div>}
+                {actions && <div className="flex flex-wrap gap-2.5 items-center sm:pt-0.5">{actions}</div>}
             </div>
         </div>
     );

@@ -36,11 +36,11 @@ export function BackButton({ routeName, routeParams, href, label, className }: B
             variant="outline"
             size="sm"
             asChild
-            className={className ?? "rounded-full px-4 text-xs font-semibold hover:bg-muted"}
+            className={className ?? "h-9 rounded-xl px-3.5 text-xs font-semibold text-slate-700 dark:text-slate-200 border-border bg-card shadow-2xs hover:bg-muted/60"}
         >
-            <Link href={destination} aria-label={label ?? t("common.back")}>
-                <ArrowLeft className="size-4" />
-                {label ?? t("common.back")}
+            <Link href={destination} className="inline-flex items-center gap-2" aria-label={label ?? t("common.back")}>
+                <ArrowLeft className="size-4 shrink-0" />
+                <span>{label ?? t("common.back")}</span>
             </Link>
         </Button>
     );
